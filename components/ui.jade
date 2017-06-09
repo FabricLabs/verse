@@ -1,0 +1,11 @@
+dom-module#verse-ui
+  template
+    h1 Hello, Verse.
+    verse-player(src="/universes/the-multiverse")
+  script.
+    Polymer({
+      is: 'verse-ui',
+      ready: function() {
+        console.log('[VERSE:PLAYER]', 'ready');
+      }
+    });

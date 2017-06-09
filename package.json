@@ -23,5 +23,12 @@
   "bugs": {
     "url": "https://github.com/martindale/verse/issues"
   },
-  "homepage": "https://github.com/martindale/verse#readme"
+  "homepage": "https://github.com/martindale/verse#readme",
+  "dependencies": {
+    "maki": "github:martindale/maki#tatami",
+    "voxel-bedrock": "^1.0.1",
+    "voxel-engine-stackgl": "^2.0.0",
+    "voxel-flatland": "^0.1.1",
+    "voxel-registry": "^0.8.3"
+  }
 }

@@ -1,0 +1,31 @@
+dom-module#verse-player
+  template
+    #viewer(style="height: 500px; width: 100%;")
+  script.
+    Polymer({
+      is: 'verse-player',
+      properties: {
+        world: { type: Object },
+        // internals
+        src: { type: String },
+        data: { type: Object },
+        state: { type: String },
+        source: { type: String },
+        output: { type: String }
+      },
+      ready: function() {
+        console.log('[VERSE:PLAYER]', 'ready!');
+      },
+      attached: function() {
+        var self = this;
+
+        var world = new Verse({
+          container: document.body
+        });
+        
+        world.start();
+        
+        return;
+
+      }
+    });
