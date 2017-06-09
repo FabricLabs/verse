@@ -12,6 +12,11 @@ var app = new Maki({
     links: {
       github: 'https://github.com/martindale/verse'
     }
+  },
+  services: {
+    http: {
+      port: 7766
+    }
   }
 });
 
