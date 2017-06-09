@@ -44,7 +44,7 @@ app.define('Index', {
 
 var Script = app.define('Script', {
   icon: 'code',
-  source: './scripts',
+  //source: './scripts',
   attributes: {
     name: { type: String , id: true },
     hash: { type: String },
