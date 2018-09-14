@@ -1,11 +1,23 @@
 'use strict';
 
 const Engine = require('../lib/core');
-const config = require('../config');
+const DEFAULTS = require('../config');
 
-async function main () {
-  return Engine(config).verse.start();
+export default class Verse extends Engine {
+  /**
+   * Fibre in the {@link Fabric}.
+   * @param  {Configuration} config
+   * @return {Promise}
+   */
+  constructor (config) {
+    super(config);
+    this.config = Object.assign({}, DEFAULTS);
+    this.engine = new Engine(this.config);
+    this.status = 'installed';
+    return this.engine.verse.start();
+  }
 }
 
-// Make a Promise
-module.exports = main();
+window.fabric = new Verse(DEFAULTS);
+
+module.exports = Verse;

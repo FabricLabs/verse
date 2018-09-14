@@ -1,0 +1,13 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+      title fabric://@#{this.id}
+      link(rel="stylesheet", href="semantic.min.css")
+      link(rel="stylesheet", href="site.css")
+      meta(name="viewport", content="width=device-width, initial-scale=1")
+  body
+    // TODO: finish <canvas> renderer
+    // <canvas id="application" class="ui container" />
+    div(id="application", class="ui container")
+    script(async, src="verse.min.js", integrity="sha256-#{this.hash}")

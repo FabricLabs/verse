@@ -4,8 +4,13 @@
   "description": "p2p game engine",
   "main": "scripts/verse.js",
   "scripts": {
-    "start": "node scripts/verse.js",
-    "test": "mocha"
+    "test": "mocha",
+    "build": "cross-env NODE_ENV=production webpack",
+    "clean": "rm -f assets/verse.min.js assets/verse.min.map",
+    "docs": "npm run make:docs && http-server docs/",
+    "local": "http-server .",
+    "make:docs": "jsdoc lib README.md -c jsdoc.json -d docs",
+    "start": "npm run clean && npm run build && node assets/verse.min.js"
   },
   "repository": {
     "type": "git",
@@ -31,11 +36,13 @@
   "dependencies": {
     "@fabric/core": "FabricLabs/fabric#fabric-core",
     "@fabric/maki": "FabricLabs/maki#0.3",
-    "blessed": "^0.1.81",
-    "bson": "^3.0.2",
-    "react": "^15.6.2",
-    "react-blessed": "^0.3.0",
-    "react-blessed-contrib": "^0.2.1",
+    "pug": "^2.0.3",
+    "webpack": "^4.19.0",
     "wrtc": "^0.2.0"
+  },
+  "devDependencies": {
+    "cross-env": "^5.2.0",
+    "jsdoc": "FabricLabs/jsdoc#fabric",
+    "webpack-cli": "^3.1.0"
   }
 }
