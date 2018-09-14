@@ -4,6 +4,7 @@
   "description": "p2p game engine",
   "main": "verse.js",
   "scripts": {
+    "start": "node verse.js",
     "test": "mocha"
   },
   "repository": {
@@ -14,8 +15,12 @@
     "maki",
     "fabric",
     "p2p",
-    "game"
-    "engine"
+    "game",
+    "engine",
+    "cli",
+    "terminal",
+    "console",
+    "chat"
   ],
   "author": "Eric Martindale",
   "license": "MIT",
