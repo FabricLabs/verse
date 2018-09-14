@@ -1,0 +1,9 @@
+box.ui.card
+  h2.header #{person.name}
+    //- note the two (!) spaces — renders to single space
+    |  
+    small
+      a(href=`${person.link}`)
+        span.subtle @
+        | ${person.id}
+  .content ${person.bio}
