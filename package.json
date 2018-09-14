@@ -1,10 +1,10 @@
 {
   "name": "@fabric/verse",
-  "version": "0.1.0",
+  "version": "0.1.0-dev",
   "description": "p2p game engine",
-  "main": "verse.js",
+  "main": "scripts/verse.js",
   "scripts": {
-    "start": "node verse.js",
+    "start": "node scripts/verse.js",
     "test": "mocha"
   },
   "repository": {
@@ -29,11 +29,13 @@
   },
   "homepage": "https://github.com/martindale/verse#readme",
   "dependencies": {
-    "blessed": "^0.1.81",
-    "maki": "github:martindale/maki#0.3",
     "@fabric/core": "FabricLabs/fabric#fabric-core",
-    "react": "^0.14.0",
-    "react-blessed": "^0.1.8",
-    "react-blessed-contrib": "^0.1.2"
+    "@fabric/maki": "FabricLabs/maki#0.3",
+    "blessed": "^0.1.81",
+    "bson": "^3.0.2",
+    "react": "^15.6.2",
+    "react-blessed": "^0.3.0",
+    "react-blessed-contrib": "^0.2.1",
+    "wrtc": "^0.2.0"
   }
 }
