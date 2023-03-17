@@ -1,9 +1,9 @@
 'use strict';
 
+const CLI = require('@fabric/core/types/cli');
 const Verse = require('./verse');
-const defaults = require('../config');
 
-class Core extends Verse {
+class Core extends CLI {
   /**
    * Primary unit for processing.
    * @param  {Configuration} config Map of settings.
@@ -18,7 +18,7 @@ class Core extends Verse {
       http: {
         port: 7676
       }
-    }, defaults);
+    }, config);
 
     // ensure type `Core`
     if (!(this instanceof Core)) return new Core(this.config);

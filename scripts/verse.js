@@ -1,6 +1,6 @@
 'use strict';
 
-const Engine = require('../lib/core');
+const Engine = require('../types/core');
 const DEFAULTS = require('../config');
 
 export default class Verse extends Engine {
@@ -18,6 +18,5 @@ export default class Verse extends Engine {
   }
 }
 
-window.fabric = new Verse(DEFAULTS);
-
+window.verse = new Verse(DEFAULTS);
 module.exports = Verse;
