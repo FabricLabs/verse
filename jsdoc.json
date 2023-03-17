@@ -1,0 +1,10 @@
+{
+  "name": "@verse/core",
+  "chat": "https://chat.fabric.pub/#/room/#verse:fabric.pub",
+  "source": "https://github.com/FabricLabs/verse",
+  "templates": {
+    "default": {
+      "layoutFile": "templates/docs.tmpl"
+    }
+  }
+}
