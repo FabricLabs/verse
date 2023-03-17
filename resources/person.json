@@ -1,0 +1,8 @@
+{
+  "type": "Person",
+  "extends": "Vector",
+  "username": { "type": "String", "required": true },
+  "components": {
+    "view": "person-view"
+  }
+}

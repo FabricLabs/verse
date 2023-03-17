@@ -1,22 +1,31 @@
 {
-  "name": "verse",
-  "version": "0.1.0",
-  "description": "root access universe",
-  "main": "verse.js",
+  "name": "@fabric/verse",
+  "version": "0.1.0-dev",
+  "description": "p2p game engine",
+  "main": "scripts/verse.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "build": "cross-env NODE_ENV=production webpack",
+    "clean": "rm -f assets/verse.min.js assets/verse.min.map",
+    "docs": "npm run make:docs && http-server docs/",
+    "local": "http-server .",
+    "make:docs": "jsdoc lib README.md -c jsdoc.json -d docs",
+    "start": "npm run clean && npm run build && node assets/verse.min.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/martindale/verse.git"
   },
   "keywords": [
-    "verse",
     "maki",
     "fabric",
+    "p2p",
+    "game",
+    "engine",
     "cli",
     "terminal",
-    "console"
+    "console",
+    "chat"
   ],
   "author": "Eric Martindale",
   "license": "MIT",
@@ -25,10 +34,15 @@
   },
   "homepage": "https://github.com/martindale/verse#readme",
   "dependencies": {
-    "maki": "github:martindale/maki#tatami",
-    "voxel-bedrock": "^1.0.1",
-    "voxel-engine-stackgl": "^2.0.0",
-    "voxel-flatland": "^0.1.1",
-    "voxel-registry": "^0.8.3"
+    "@fabric/core": "FabricLabs/fabric#fabric-core",
+    "@fabric/maki": "FabricLabs/maki#0.3",
+    "pug": "^2.0.3",
+    "webpack": "^4.19.0",
+    "wrtc": "^0.2.0"
+  },
+  "devDependencies": {
+    "cross-env": "^5.2.0",
+    "jsdoc": "FabricLabs/jsdoc#fabric",
+    "webpack-cli": "^3.1.0"
   }
 }
