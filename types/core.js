@@ -73,6 +73,14 @@ class Core extends Service {
     return this;
   }
 
+  get clock () {
+    return this._state.content.clock || 0;
+  }
+
+  set clock (value) {
+    this._state.content.clock = value;
+  }
+
   commit () {
     const sorted = _sortKeys(this.state);
     this.fs.publish('STATE', JSON.stringify(sorted, null, '  '));
