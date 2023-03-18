@@ -5,3 +5,6 @@ P2P universe simulator.
 ```
 npm start
 ```
+
+### Fabric Client
+Run `fabric` to interact with the network.

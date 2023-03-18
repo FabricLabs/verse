@@ -29,6 +29,7 @@ class Core extends Service {
   /**
    * Primary unit for processing.
    * @param  {Object} [settings] Map of settings.
+   * @param  {String} [settings.contract] Existing contract ID in network.
    * @param  {Object} [settings.state] State to adopt.
    * @return {Core} Instance of the {@link Core}.
    */
@@ -41,7 +42,7 @@ class Core extends Service {
       name: 'VERSE', // Sets Fabric Primitive
       contract: null, // ID of the deployed contract
       clock: 0,
-      interval: 5000,
+      interval: 600000, // 10 minutes
       listen: true,
       networking: true,
       peers: [
@@ -50,6 +51,7 @@ class Core extends Service {
       port: 9999,
       services: ['http'],
       state: {
+        clock: 0,
         status: 'PAUSED',
         verse: null
       },
@@ -190,6 +192,14 @@ class Core extends Service {
 
     // Return contract ID
     return this.contract.id;
+  }
+
+  propose (ops) {
+    // TODO: $BTC psbt
+    return {
+      ops: ops,
+      psbt: null
+    };
   }
 
   tick () {

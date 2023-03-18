@@ -1,0 +1,5 @@
+./types/core.js:    // TODO: $BTC psbt
+./components/application.jade:    // TODO: finish <canvas> renderer
+./components/verse.js:          <Log type="TODO" />
+./package.json:    "report:todo": "grep --exclude-dir=.git --exclude-dir=_book --exclude-dir=assets --exclude-dir=node_modules --exclude-dir=reports --exclude-dir=coverage --exclude-dir=docs -rEI \"TODO|FIXME\" . > reports/TODO.txt",
+./verse.js:// TODO: use app.configure
