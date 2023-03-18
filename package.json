@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/martindale/verse.git"
+    "url": "git+https://github.com/FabricLabs/verse.git"
   },
   "keywords": [
     "maki",
@@ -30,15 +30,14 @@
   "author": "Eric Martindale",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/martindale/verse/issues"
+    "url": "https://github.com/FabricLabs/verse/issues"
   },
-  "homepage": "https://github.com/martindale/verse#readme",
+  "homepage": "https://github.com/FabricLabs/verse#readme",
   "dependencies": {
-    "@fabric/core": "FabricLabs/fabric#feature/cleanup",
+    "@fabric/core": "FabricLabs/fabric#feature/v0.1.0-RC1",
     "@fabric/http": "FabricLabs/fabric-http#feature/v0.1.0-RC1",
     "pug": "2.0.3",
-    "webpack": "4.19.0",
-    "wrtc": "0.2.0"
+    "webpack": "4.19.0"
   },
   "devDependencies": {
     "cross-env": "5.2.0",
