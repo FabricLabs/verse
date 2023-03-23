@@ -1,3 +1,4 @@
+./types/core.js:  // TODO: debug memory leak here
 ./types/core.js:    // TODO: $BTC psbt
 ./components/application.jade:    // TODO: finish <canvas> renderer
 ./components/verse.js:          <Log type="TODO" />

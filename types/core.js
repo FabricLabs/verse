@@ -113,11 +113,13 @@ class Core extends Service {
     this._state.content.clock = value;
   }
 
+  // TODO: debug memory leak here
   commit () {
     this.fs.publish('STATE', JSON.stringify(this.state, null, '  '));
 
     try {
       const changes = monitor.generate(this.observer);
+
       if (changes.length) {
         this.emit('changes', changes);
 
@@ -131,9 +133,12 @@ class Core extends Service {
 
         this.node.broadcast(PACKET_CONTRACT_MESSAGE);
       }
+
     } catch (exception) {
       console.trace(`Unable to get changes: ${exception}`);
     }
+
+    return this;
   }
 
   /**
@@ -166,6 +171,7 @@ class Core extends Service {
     // Contract template
     const template = {
       author: this.node.identity.pubkey,
+      bond: null, // BTC transaction which is spent
       checksum: '',
       created: now,
       genesis: hash,
