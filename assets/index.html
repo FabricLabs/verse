@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>fabric://@#{this.id}</title>
-    <link rel="stylesheet" href="semantic.min.css">
-    <link rel="stylesheet" href="site.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-  </head>
-  <body>
-    <!-- TODO: finish <canvas> renderer -->
-    <!-- <canvas id="application" class="ui container" /> -->
-    <div id="application" class="ui container"></div>
-    <script src="bundle.js" async integrity="sha256-#{this.hash}"></script>
-  </body>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>undefined</title>
+  <!-- <link rel="manifest" href="/manifest.json"> -->
+  <link rel="stylesheet" type="text/css" href="/styles/semantic.css" />
+  <link rel="stylesheet" type="text/css" href="/styles/screen.css" />
+  <script type="text/javascript" src="/scripts/jquery-3.4.1.js"></script>
+  <script type="text/javascript" src="/scripts/semantic.js"></script>
+  <script src="/bundles/browser.js"></script>
+</head>
+<body data-bind="a46943c41cb3e06fc8d3a3db11ab3b6a3a4f0ef88442c4d6c409987a82503346" data-hash="a46943c41cb3e06fc8d3a3db11ab3b6a3a4f0ef88442c4d6c409987a82503346">
+  <fabric-site class="ui container">
+    <div class="ui card fluid">
+      <div class="content">
+        <h1>Example Site</h1>
+      </div>
+    </div>
+    <fabric-bridge host="localhost" port="9999" secure="false" />
+    <fabric-debug>Hello, world!</fabric-debug>
+  </fabric-site>
+</body>
 </html>

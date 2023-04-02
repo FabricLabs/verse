@@ -5,7 +5,7 @@
   "main": "scripts/verse.js",
   "scripts": {
     "test": "mocha tests",
-    "build": "# cross-env NODE_ENV=production webpack",
+    "build": "node scripts/build.js",
     "clean": "rm -f assets/verse.min.js assets/verse.min.map",
     "coverage": "c8 npm test",
     "docs": "npm run make:docs && http-server docs/",
@@ -41,15 +41,13 @@
   "homepage": "https://github.com/FabricLabs/verse#readme",
   "dependencies": {
     "@fabric/core": "FabricLabs/fabric#feature/v0.1.0-RC1",
-    "@fabric/http": "FabricLabs/fabric-http#feature/v0.1.0-RC1",
-    "fast-json-patch": "^3.1.1",
-    "pug": "2.0.3",
-    "webpack": "4.19.0"
+    "@fabric/http": "FabricLabs/fabric-http#feature/cleanup",
+    "fast-json-patch": "3.1.1",
+    "is-my-json-valid": "2.20.6"
   },
   "devDependencies": {
-    "c8": "^7.13.0",
-    "cross-env": "5.2.0",
-    "jsdoc": "FabricLabs/jsdoc#fabric",
-    "webpack-cli": "3.1.0"
+    "babel-loader": "8.2.5",
+    "c8": "7.13.0",
+    "jsdoc": "FabricLabs/jsdoc#fabric"
   }
 }

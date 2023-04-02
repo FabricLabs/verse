@@ -12,6 +12,7 @@ class Verse extends Service {
       state: {
         clock: 0,
         characters: {},
+        paths: {},
         places: {},
         players: {},
         status: 'PAUSED',
@@ -28,16 +29,32 @@ class Verse extends Service {
     return this;
   }
 
+  get _RPGPlaceIDs () {
+    return Object.values(this.state.places).map((x) => {
+      return x._id;
+    });
+  }
+
   registerCharacter (character) {
     const actor = new Actor(character);
     if (!this._state.content.characters) this._state.content.characters = {};
+    if (this.state.characters[actor.id]) return actor.id;
     this._state.content.characters[actor.id] = character;
+    return actor.id;
+  }
+
+  registerPath (path) {
+    const actor = new Actor(path);
+    if (!this._state.content.paths) this._state.content.paths = {};
+    if (this.state.paths[actor.id]) return actor.id;
+    this._state.content.paths[actor.id] = path;
     return actor.id;
   }
 
   registerPlayer (player) {
     const actor = new Actor(player);
     if (!this._state.content.players) this._state.content.players = {};
+    if (this.state.players[actor.id]) return actor.id;
     this._state.content.players[actor.id] = player;
     return actor.id;
   }
@@ -45,6 +62,7 @@ class Verse extends Service {
   registerPlace (place) {
     const actor = new Actor(place);
     if (!this._state.content.places) this._state.content.places = {};
+    if (this.state.places[actor.id]) return actor.id;
     this._state.content.places[actor.id] = place;
     return actor.id;
   }
@@ -95,16 +113,21 @@ class Verse extends Service {
     const id = this.registerPlace({ _id });
     const entity = await this.rpg._GET(`/places/${_id}`);
 
+    this._state.content.places[id].name = entity.name;
+    this._state.content.places[id].slug = entity.slug;
+    this._state.content.places[id].synopsis = entity.synopsis;
+    this._state.content.places[id].exits = entity.exits;
+
     for (const character of entity.characters) {
       const c = this.registerCharacter({ _id: character.id });
       this._state.content.characters[c].name = character.name;
       this._state.content.characters[c].slug = character.url;
     }
 
-    this._state.content.places[id].name = entity.name;
-    this._state.content.places[id].slug = entity.slug;
-    this._state.content.places[id].synopsis = entity.synopsis;
-    this._state.content.places[id].exits = entity.exits;
+    for (const exit of entity.exits) {
+      this.registerPath({ direction: exit.direction, from: _id, to: exit.destination });
+      // await this._syncPlaceID(exit.destination);
+    }
 
     this.commit();
   }

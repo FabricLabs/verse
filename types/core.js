@@ -209,6 +209,7 @@ class Core extends Service {
   }
 
   tick () {
+    const start = Date.now();
     this.clock++;
     this.verse.tick();
 
@@ -219,6 +220,14 @@ class Core extends Service {
     this.commit();
 
     this.emit('tick', {
+      meta: {
+        lastTickTime: Date.now() - start,
+        characterCount: Object.keys(this.state.verse.characters).length,
+        dbSize: Buffer.from(JSON.stringify(this.state), 'utf8').byteLength,
+        pathCount: Object.keys(this.state.verse.paths).length,
+        placeCount: Object.keys(this.state.verse.places).length,
+        playerCount: Object.keys(this.state.verse.players).length
+      },
       state: this.state
     });
   }

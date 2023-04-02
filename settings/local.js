@@ -1,5 +1,8 @@
 module.exports = {
-  contract: 'b3e42fcaca012bd2d37ac689c555c6c4ef976f98d3fe3fc22d9615b9ca082293',
+  contract: '527c524c806d651cf6912629fe81fee82c44b23a26387422afb7cb880456095c',
+  http: {
+    port: 9998
+  },
   peers: [
     'localhost:7777',
     'localhost:7778',

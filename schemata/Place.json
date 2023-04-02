@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://verse.pub/schemata/Place.json",
+  "title": "Place",
+  "description": "Describes a location in Verse.",
+  "type": "object",
+  "properties": {
+    "_id": {
+      "description": "Unique identifier for this Place.",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "_id"
+  ]
+}
