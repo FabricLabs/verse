@@ -9,6 +9,11 @@ class Verse extends Service {
     super(settings);
 
     this.settings = Object.assign({
+      constraints: {
+        places: {
+          count: 10
+        }
+      },
       state: {
         clock: 0,
         characters: {},
@@ -22,6 +27,8 @@ class Verse extends Service {
 
     this.rpg = new Remote({ authority: 'api.roleplaygateway.com' });
 
+    this._pongs = {};
+
     this._state = {
       content: this.settings.state
     };
@@ -29,10 +36,40 @@ class Verse extends Service {
     return this;
   }
 
+  get characterIDs () {
+    return Object.keys(this.state.characters);
+  }
+
+  get pathIDs () {
+    return Object.keys(this.state.paths);
+  }
+
+  get placeIDs () {
+    return Object.keys(this.state.places);
+  }
+
+  get playerIDs () {
+    return Object.keys(this.state.players);
+  }
+
   get _RPGPlaceIDs () {
     return Object.values(this.state.places).map((x) => {
       return x._id;
     });
+  }
+
+  prune () {
+    const overage = Object.keys(this.state.places).length - this.settings.constraints.places.count;
+
+    for (const id of Object.keys(this.state.places)) {
+      delete this._state.content.places[id].synced;
+    }
+
+    for (const id of Object.keys(this.state.characters)) {
+      delete this._state.content.characters[id].synced;
+    }
+
+    this.commit();
   }
 
   registerCharacter (character) {
@@ -69,6 +106,7 @@ class Verse extends Service {
 
   tick () {
     this._state.content.clock++;
+    this.prune();
     this.commit();
   }
 
@@ -84,13 +122,14 @@ class Verse extends Service {
     // Universe properties
     this._state.content.title = universe.title;
     this._state.content.slug = universe.slug;
-    this._state.content.created = (new Date('2005-07-01 00:00:00')).toISOString();
+    this._state.content.created = '2005-07-01T04:00:00.000Z';
 
-    // Permissions
+    // Game Masters
     for (const master of universe.permissions.masters) {
       this.registerPlayer({ _id: master._id });
     }
 
+    // Builders
     for (const builder of universe.permissions.builders) {
       this.registerPlayer({ _id: builder._id });
     }

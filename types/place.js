@@ -7,10 +7,12 @@ class Place extends Service {
     super(settings);
 
     this.settings = Object.assign({
-      state: {
+      // Import all supplied parameters to state
+      state: Object.assign({
         status: 'PAUSED',
-        name: 'Uninitialized Region'
-      }
+        name: settings.name || 'Uninitialized Region',
+        description: 'This devoid region of space remains untouched.'
+      }, settings)
     }, settings);
 
     this._state = {
@@ -18,6 +20,21 @@ class Place extends Service {
     };
 
     return this;
+  }
+
+  get name () {
+    return this.state.name;
+  }
+
+  toHTML () {
+    return `
+      <verse-place class="ui card">
+        <div class="content">
+          <header class="header">${this.name}</header>
+          <p>${this.description}</p>
+        </div>
+      </verse-place>
+    `.trim();
   }
 }
 
