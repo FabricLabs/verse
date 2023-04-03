@@ -10,6 +10,7 @@ npm start
 Visit http://localhost:9998 to view the demo application.
 
 ## Features
+- **Open-source development** — want to change or alter the game?  [Clone the source][verse-clone-the-source].
 - Peer-to-peer networking
 - User-defined behaviors
 - AI-assisted design
@@ -26,3 +27,5 @@ By default, `@verse/core` will check for a `contract` property in `settings/loca
 - `contract` — Fabric Contract ID
 - `http` — Fabric HTTP Settings (passed directly to `@fabric/http`)
 - `peer` — Fabric Peer list (connect by default)
+
+[verse-clone-the-source]: NEWBIE.md

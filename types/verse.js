@@ -26,6 +26,7 @@ class Verse extends Service {
     }, settings);
 
     this.rpg = new Remote({ authority: 'api.roleplaygateway.com' });
+    this.placeQueue = {};
 
     this._pongs = {};
 
@@ -61,6 +62,7 @@ class Verse extends Service {
   prune () {
     const overage = Object.keys(this.state.places).length - this.settings.constraints.places.count;
 
+    // Field deletions
     for (const id of Object.keys(this.state.places)) {
       delete this._state.content.places[id].synced;
     }
@@ -104,15 +106,45 @@ class Verse extends Service {
     return actor.id;
   }
 
-  tick () {
-    this._state.content.clock++;
-    this.prune();
-    this.commit();
+  toHTML () {
+    return [
+      `<fabric-application>`,
+        `<verse-instance class="ui card">`,
+          `<header class="header">${this.name}</header>`,
+          `<p class="content">${this.description}</p>`,
+        `</verse-instance>`,
+      `</fabric-application>`
+    ].join('');
+  }
+
+  _unsyncedLocations () {
+    const d = Object.values(this.state.paths).map(x => x.to);
+
+    const d = Object.values(this.state.paths).map(x => x.to);
+    const filtered = d.filter((x) => {
+      const target = new Actor({ _id: x });
+      if (!this.state.places[target.id]) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    return new Set(filtered);
   }
 
   async start () {
     await this._loadFromRPG();
     this._state.content.status = 'STARTED';
+    this.commit();
+  }
+
+  async tick () {
+    this._state.content.clock++;
+    await this._syncMissingPaths();
+    await this._syncOldestPlaces();
+    await this._syncRandomPlaces();
+    this.prune();
     this.commit();
   }
 
@@ -148,27 +180,107 @@ class Verse extends Service {
     this.commit();
   }
 
+  async _syncAllPaths () {
+    for (const key of Object.keys(this.state.paths)) {
+      const path = this.state.paths[key];
+      const from = this.registerPlace({ _id: path.from });
+      const to = this.registerPlace({ _id: path.to });
+    }
+  }
+
+  async _syncMissingPaths () {
+    const unsynced = this._unsyncedLocations();
+    const queue = Array.from(unsynced);
+
+
+    for (let i = 0; (i < 10 && i < queue.length); i++) {
+      await this._syncPlaceID(queue.shift());
+    }
+  }
+
+  async _syncOldestPlaces () {
+    const oldest = Object.keys(this.state.places).sort((a, b) => {
+      if (!this._pongs[a]) return -1;
+      if (!this._pongs[b]) return 1;
+      if (this._pongs[a] > this._pongs[b]) return 1;
+      if (this._pongs[a] <= this._pongs[b]) return -1;
+      return 0;
+    }).slice(0, 10).map((id) => {
+      return {
+        _id: this.state.places[id]._id,
+        name: this.state.places[id].name,
+        age: Date.now() - (this._pongs[id] || 0)
+      }
+    });
+
+    for (let i = 0; i < oldest.length; i++) {
+      await this._syncPlaceID(oldest[i]._id);
+    }
+  }
+
+  /**
+   * Import a location's latest data from RPG.
+   * @param {Number} _id RPG Place ID.
+   * @returns {Place|Error} Place or error.
+   */
   async _syncPlaceID (_id) {
-    const id = this.registerPlace({ _id });
-    const entity = await this.rpg._GET(`/places/${_id}`);
+    if (!_id) return console.trace('No place ID provided');
+    return new Promise((resolve, reject) => {
+      // Get place ID (internal)
+      const id = this.registerPlace({ _id });
+      this.rpg._GET(`/places/${_id}`).catch((exception) => {
+        this.emit('debug', `Could not sync place: ${exception}`);
+        reject(exception);
+      }).then((entity) => {
+        if (!entity) return reject(new Error(`Place ID # ${_id} did not return a result: ${entity}`));
 
-    this._state.content.places[id].name = entity.name;
-    this._state.content.places[id].slug = entity.slug;
-    this._state.content.places[id].synopsis = entity.synopsis;
-    this._state.content.places[id].exits = entity.exits;
+        this._state.content.places[id].name = entity.name;
+        this._state.content.places[id].slug = entity.slug;
+        this._state.content.places[id].synopsis = entity.synopsis;
+        this._state.content.places[id].exits = entity.exits;
 
-    for (const character of entity.characters) {
-      const c = this.registerCharacter({ _id: character.id });
-      this._state.content.characters[c].name = character.name;
-      this._state.content.characters[c].slug = character.url;
+        for (const character of entity.characters) {
+          const c = this.registerCharacter({ _id: character.id });
+          this._state.content.characters[c].name = character.name;
+          this._state.content.characters[c].slug = character.url;
+          this._state.content.characters[c].location = character.location;
+          this._pongs[c] = Date.now();
+        }
+
+        for (const exit of entity.exits) {
+          this.registerPath({
+            direction: exit.direction,
+            from: _id,
+            to: exit.destination
+          });
+          // await this._syncPlaceID(exit.destination);
+        }
+
+        this.rpg._GET(`/places/${_id}/characters`).then((characters) => {
+          for (const character of characters) {
+            if (character.universe !== 1) continue;
+            const c = this.registerCharacter({ _id: character.id });
+            this._state.content.characters[c].name = character.name;
+            this._state.content.characters[c].slug = character.url;
+            this._state.content.characters[c].location = character.location;
+            this._pongs[c] = Date.now();
+          }
+
+          this._pongs[id] = Date.now();
+          this.commit();
+
+          resolve(this._state.content.places[id]);
+        });
+      });
+    });
+  }
+
+  async _syncRandomPlaces () {
+    if (!this._RPGPlaceIDs.length) return;
+    for (let i = 0; i < 10; i++) {
+      const id = Math.floor(Math.random() * this._RPGPlaceIDs.length);
+      await this._syncPlaceID(this._RPGPlaceIDs[id]);
     }
-
-    for (const exit of entity.exits) {
-      this.registerPath({ direction: exit.direction, from: _id, to: exit.destination });
-      // await this._syncPlaceID(exit.destination);
-    }
-
-    this.commit();
   }
 }
 
