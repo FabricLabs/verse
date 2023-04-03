@@ -10,15 +10,19 @@
   <script type="text/javascript" src="/scripts/semantic.js"></script>
   <script src="/bundles/browser.js"></script>
 </head>
-<body data-bind="a46943c41cb3e06fc8d3a3db11ab3b6a3a4f0ef88442c4d6c409987a82503346" data-hash="a46943c41cb3e06fc8d3a3db11ab3b6a3a4f0ef88442c4d6c409987a82503346">
-  <fabric-site class="ui container">
-    <div class="ui card fluid">
-      <div class="content">
-        <h1>Example Site</h1>
-      </div>
-    </div>
-    <fabric-bridge host="localhost" port="9999" secure="false" />
-    <fabric-debug>Hello, world!</fabric-debug>
+<body data-bind="4546d65575c433a076286d62e9f5749196453631f353cfd1633265f6e43fd356" data-hash="4546d65575c433a076286d62e9f5749196453631f353cfd1633265f6e43fd356">
+  <fabric-site class="ui container" id="site">
+    <fabric-grid class="ui centered grid">
+      <fabric-column class="twelve wide column">
+        <fabric-card class="ui fluid card" id="overlay">
+          <fabric-card-content class="content">
+            <h1 data-bind="/title">Default Site</h1>
+            <fabric-bridge host="localhost" port="9999" secure="false" />
+            <fabric-debug>Hello, world!</fabric-debug>
+          </fabric-card-content>
+        </fabric-card>
+      </fabric-column>
+    </fabric-grid>
   </fabric-site>
 </body>
 </html>
