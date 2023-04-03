@@ -22,6 +22,10 @@ class Place extends Service {
     return this;
   }
 
+  set name (value) {
+    this._state.content.name = value;
+  }
+
   get name () {
     return this.state.name;
   }
