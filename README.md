@@ -4,7 +4,7 @@
 ## Quick Start
 ```
 npm i
-npm start
+npm run demo
 ```
 
 Visit http://localhost:9998 to view the demo application.
