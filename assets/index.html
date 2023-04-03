@@ -10,19 +10,87 @@
   <script type="text/javascript" src="/scripts/semantic.js"></script>
   <script src="/bundles/browser.js"></script>
 </head>
-<body data-bind="4546d65575c433a076286d62e9f5749196453631f353cfd1633265f6e43fd356" data-hash="4546d65575c433a076286d62e9f5749196453631f353cfd1633265f6e43fd356">
+<body data-bind="aa9acc0e3e8ab48bdd4315796cef8a27c85664bd6b2c4fe817e6e2ef12a1e4e7" data-hash="aa9acc0e3e8ab48bdd4315796cef8a27c85664bd6b2c4fe817e6e2ef12a1e4e7">
   <fabric-site class="ui container" id="site">
+    <fabric-bridge host="localhost" port="9999" secure="false" />
     <fabric-grid class="ui centered grid">
       <fabric-column class="twelve wide column">
         <fabric-card class="ui fluid card" id="overlay">
-          <fabric-card-content class="content">
-            <h1 data-bind="/title">Default Site</h1>
-            <fabric-bridge host="localhost" port="9999" secure="false" />
-            <fabric-debug>Hello, world!</fabric-debug>
+          <fabric-card-content class"extra">
+            <i class="ui remove icon"></i>
           </fabric-card-content>
+          <fabric-card-content class="content">
+            <h1 data-bind="/title">Example Application</h1>
+          </fabric-card-content>
+          <fabric-card-content class="extra">
+            <fabric-button-group class="ui vertical fluid labeled icon buttons">
+              <fabric-button class="ui primary button">
+                <i class="ui tree icon"></i> Wilderness Mode
+              </fabric-button>
+              <fabric-button class="ui secondary button">
+                <i class="ui users icon"></i> Connect to Peer
+              </fabric-button>
+            </fabric-button-group>
+          </fabric-card-content>
+          <fabric-card-content class="extra">
+            <h2>Navigation</h2>
+            <table class="ui center aligned table">
+              <tr>
+                <td>
+                  <fabric-button class="ui button">northwest</fabric-button>
+                </td>
+                <td>
+                  <fabric-button class="ui button">north</fabric-button>
+                </td>
+                <td>
+                  <fabric-button class="ui button">northeast</fabric-button>
+                </td>
+              <tr>
+              <tr>
+                <td>
+                  <fabric-button class="ui button">west</fabric-button>
+                </td>
+                <td>
+                  <fabric-button class="ui button">(you)</fabric-button>
+                </td>
+                <td>
+                  <fabric-button class="ui button">east</fabric-button>
+                </td>
+              <tr>
+              <tr>
+                <td>
+                  <fabric-button class="ui button">southwest</fabric-button>
+                </td>
+                <td>
+                  <fabric-button class="ui button">south</fabric-button>
+                </td>
+                <td>
+                  <fabric-button class="ui button">southeast</fabric-button>
+                </td>
+              <tr>
+            </table>
+          </fabric-card-content>
+          <fabric-card-content class="extra">
+            <h2>Debug</h2>
+          </fabric-card-content>
+          <fabric-card-content="bottom attached">
+            <fabric-button-group class="ui small bottom attached left aligned buttons">
+              <fabric-button class="ui labeled icon button"><i class="ui linkify icon"></i> <code>8efbc1c34bae0cc52d65051443a025c14a0152b63d443b5a68b870f3b8ebfb50</code></fabric-button>
+            </fabric-button-group>
+            </fabric-card-content>
         </fabric-card>
       </fabric-column>
     </fabric-grid>
+    <fabric-script>
+      <script type="text/javascript">
+        class FabricHTMLComponent extends HTMLComponent {
+          constructor(settings) {
+            super(settings);
+          }
+        }
+        customElements.define('fabric-site', FabricHTMLComponent);
+      </script>
+      <fabric-script>
   </fabric-site>
 </body>
 </html>

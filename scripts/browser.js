@@ -6,6 +6,7 @@ const {
 } = require('../constants');
 
 const THREE = require('three');
+const dat = require('dat.gui');
 
 const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls');
 const { ImprovedNoise } = require('three/examples/jsm/math/ImprovedNoise');
@@ -23,6 +24,8 @@ async function _loadWASM () {
 }
 
 async function main (input) {
+  const site = document.getElementById('site');
+
   window.addEventListener('load', () => {
     console.log('loaded!');
 
@@ -35,6 +38,11 @@ async function main (input) {
       antialias: true,
       precision: 'highp'
     });
+
+    const mouse = {
+      x: 0,
+      y: 0
+    };
 
     // Rover
     const vehicleGeometry = new THREE.SphereGeometry(0.5, 32, 32);
@@ -59,6 +67,14 @@ async function main (input) {
       air: null
     };
 
+    /**
+     * Nomenclature for "Vehicle" here is to reference the player's avatar and influence bubble.
+     * @alias {@link Rover}
+     */
+    const vehicle = createVehicleMesh();
+    scene.add(vehicle);
+
+    // Component state
     const animations = [];
     const state = [];
 
@@ -81,11 +97,13 @@ async function main (input) {
           camera.lookAt(vehicle.position);
           break;
         case 'first-person':
+          // TODO: FIXME
           camera.position.set(vehicle.position.x, vehicle.position.y, vehicle.position.z);
           camera.lookAt(new THREE.Vector3(0, 1.5, 0));
           break;
       }
 
+      // Look at the point over which the vehicle is hovering
       camera.lookAt(vehicle.position.x, 1, vehicle.position.z);
 
       vehicle.position.set(vehicle.position.x, (Math.sin(time * 3) * 0.0008) + vehicle.position.y, vehicle.position.z);
@@ -165,6 +183,7 @@ async function main (input) {
       // Initial voxels
       drawBasePlane();
 
+      // Relevant meshes
       scene.add(vehicle);
       scene.add(ambient);
 
@@ -175,6 +194,7 @@ async function main (input) {
       // const island = generateFloatingIsland(50, 50, 50, 1, 20, 20, 42);
       // scene.add(island);
 
+      // Camera start
       camera.position.x = 8;
       camera.position.y = 9;
       camera.position.z = 8;
@@ -182,51 +202,38 @@ async function main (input) {
       camera.lookAt(0, 1, 0);
     }
 
-    const vehicle = createVehicleMesh();
-    scene.add(vehicle);
-
-    // Main draw
-    drawSpace();
-
-    // Attach
-    document.body.appendChild(renderer.domElement);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    // Animate
-    animate();
-
-    document.onkeydown = function (e) {
+    function onDocumentKeyDown (event) {
       const px = vehicle.position.x;
       const py = vehicle.position.y;
       const pz = vehicle.position.z;
 
-      switch (e.code) {
+      switch (event.code) {
         case 'ArrowLeft':
-          e.preventDefault();
+          event.preventDefault();
           // strafe left
           vehicle.position.x -= 1;
           vehicle.position.z += 1;
           break;
         case 'ArrowUp':
           // strafe forward
-          e.preventDefault();
+          event.preventDefault();
           vehicle.position.x -= 1;
           vehicle.position.z -= 1;
           break;
         case 'ArrowRight':
           // strafe right
-          e.preventDefault();
+          event.preventDefault();
           vehicle.position.x += 1;
           vehicle.position.z -= 1;
           break;
         case 'ArrowDown':
           // strafe back
-          e.preventDefault();
+          event.preventDefault();
           vehicle.position.x += 1;
           vehicle.position.z += 1;
           break;
         case 'Space':
-          e.preventDefault();
+          event.preventDefault();
           const fireball = createFireballMesh();
           const start = new THREE.Vector3(vehicle.position.x, vehicle.position.y, vehicle.position.z);
           const end = new THREE.Vector3(0, 1.34, 0);
@@ -234,7 +241,7 @@ async function main (input) {
           scene.add(fireball);
           break;
         case 'Tab':
-          e.preventDefault();
+          event.preventDefault();
           console.log('tab pressed!');
           if (currentCameraMode !== 'loading') {
             cameraModes.push(currentCameraMode);
@@ -255,7 +262,33 @@ async function main (input) {
       if (vehicle.position.z < 0) vehicle.position.z = pz;
       if (vehicle.position.x >= SIZE) vehicle.position.x = px;
       if (vehicle.position.z >= SIZE) vehicle.position.z = pz;
-    };
+    }
+
+    function onDocumentMouseMove (event) {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
+
+    // Main draw
+    drawSpace();
+
+    const gui = new dat.GUI();
+    const cubeFolder = gui.addFolder('Location');
+
+    cubeFolder.add(vehicle.position, 'x', 0, SIZE - 1);
+    cubeFolder.add(vehicle.position, 'z', 0, SIZE - 1);
+
+    // Attach
+    document.body.appendChild(renderer.domElement);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // Animate
+    animate();
+
+    document.addEventListener('mousemove', onDocumentMouseMove, false);
+    document.addEventListener('keydown', onDocumentKeyDown, false);
+
+    console.log('site:', site);
   });
 
   const engine = { id: null };

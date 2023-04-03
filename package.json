@@ -43,6 +43,7 @@
   "dependencies": {
     "@fabric/core": "FabricLabs/fabric#feature/v0.1.0-RC1",
     "@fabric/http": "FabricLabs/fabric-http#feature/graphql",
+    "@webcomponents/custom-elements": "^1.6.0",
     "canvas": "2.11.0",
     "dat.gui": "^0.7.9",
     "fast-json-patch": "3.1.1",
