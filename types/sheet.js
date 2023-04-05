@@ -20,7 +20,7 @@ class Sheet {
   async loadFromURL (url) {
     const ctx = this.canvas.getContext('2d');
     return new Promise((resolve, reject) => {
-      loadImage(url).then((image) => {
+      loadImage(url).error(reject).then((image) => {
         this.image = image;
         this.height = image.height;
         this.width = image.width;

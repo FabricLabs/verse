@@ -118,7 +118,6 @@ class Verse extends Service {
   }
 
   _unsyncedLocations () {
-    const d = Object.values(this.state.paths).map(x => x.to);
 
     const d = Object.values(this.state.paths).map(x => x.to);
     const filtered = d.filter((x) => {
