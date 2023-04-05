@@ -1,5 +1,6 @@
-# V E R S E
-✨
+# V E R S E ✨
+## Why?
+`voxel-engine` is abandonware?
 
 ## Quick Start
 ```
@@ -28,4 +29,8 @@ By default, `@verse/core` will check for a `contract` property in `settings/loca
 - `http` — Fabric HTTP Settings (passed directly to `@fabric/http`)
 - `peer` — Fabric Peer list (connect by default)
 
+## Credits
+Pull Requests eagerly welcomed!
+
 [verse-clone-the-source]: NEWBIE.md
+[rpg-site]: https://www.roleplaygateway.com

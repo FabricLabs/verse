@@ -2,37 +2,51 @@
 <html lang="en">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width, height=device-height, target-densitydpi=device-dpi">
   <title>undefined</title>
   <!-- <link rel="manifest" href="/manifest.json"> -->
   <link rel="stylesheet" type="text/css" href="/styles/semantic.css" />
   <link rel="stylesheet" type="text/css" href="/styles/screen.css" />
-  <script type="text/javascript" src="/scripts/jquery-3.4.1.js"></script>
-  <script type="text/javascript" src="/scripts/semantic.js"></script>
+  <script src="/scripts/jquery-3.4.1.js"></script>
+  <script src="/scripts/semantic.js"></script>
   <script src="/bundles/browser.js"></script>
 </head>
-<body data-bind="aa9acc0e3e8ab48bdd4315796cef8a27c85664bd6b2c4fe817e6e2ef12a1e4e7" data-hash="aa9acc0e3e8ab48bdd4315796cef8a27c85664bd6b2c4fe817e6e2ef12a1e4e7">
+<body data-bind="78d594835b552ab4cc50c8f6fc0ea411ecb89012379aa74cc3edbf1c191c8d27" data-hash="78d594835b552ab4cc50c8f6fc0ea411ecb89012379aa74cc3edbf1c191c8d27">
   <fabric-site class="ui container" id="site">
-    <fabric-bridge host="localhost" port="9999" secure="false" />
+    <fabric-bridge host="localhost" port="9999" secure="false"></fabric-bridge>
     <fabric-grid class="ui centered grid">
       <fabric-column class="twelve wide column">
         <fabric-card class="ui fluid card" id="overlay">
-          <fabric-card-content class"extra">
-            <i class="ui remove icon"></i>
-          </fabric-card-content>
-          <fabric-card-content class="content">
-            <h1 data-bind="/title">Example Application</h1>
+          <fabric-card-content class="content" style="text-align: center;">
+            <h1 class="ui huge header" data-bind="/title"><code>V E R S E</code></h1>
+            <p>world explorer</p>
           </fabric-card-content>
           <fabric-card-content class="extra">
-            <fabric-button-group class="ui vertical fluid labeled icon buttons">
+            <fabric-button-group class="ui large fluid vertical labeled icon buttons">
               <fabric-button class="ui primary button">
+                <i class="ui bolt icon"></i> Connect
+              </fabric-button>
+              <fabric-button class="ui secondary button">
                 <i class="ui tree icon"></i> Wilderness Mode
               </fabric-button>
               <fabric-button class="ui secondary button">
-                <i class="ui users icon"></i> Connect to Peer
+                <i class="ui code icon"></i> Text Client
+              </fabric-button>
+              <fabric-button class="ui secondary button">
+                <i class="ui users icon"></i> Manage Peers
+              </fabric-button>
+              <fabric-button class="ui secondary button">
+                <i class="ui bitcoin icon"></i> Wallet
+              </fabric-button>
+              <fabric-button class="ui secondary button">
+                <i class="ui globe icon"></i> Import URL
+              </fabric-button>
+              <fabric-button class="ui secondary button">
+                <i class="ui save icon"></i> Load from File...
               </fabric-button>
             </fabric-button-group>
           </fabric-card-content>
-          <fabric-card-content class="extra">
+          <fabric-card-content class="extra hidden" style="display: none;">
             <h2>Navigation</h2>
             <table class="ui center aligned table">
               <tr>
@@ -45,7 +59,7 @@
                 <td>
                   <fabric-button class="ui button">northeast</fabric-button>
                 </td>
-              <tr>
+              </tr>
               <tr>
                 <td>
                   <fabric-button class="ui button">west</fabric-button>
@@ -56,7 +70,7 @@
                 <td>
                   <fabric-button class="ui button">east</fabric-button>
                 </td>
-              <tr>
+              </tr>
               <tr>
                 <td>
                   <fabric-button class="ui button">southwest</fabric-button>
@@ -67,30 +81,50 @@
                 <td>
                   <fabric-button class="ui button">southeast</fabric-button>
                 </td>
-              <tr>
+              </tr>
             </table>
           </fabric-card-content>
-          <fabric-card-content class="extra">
+          <fabric-card-content class="extra hidden" style="display: none;">
             <h2>Debug</h2>
           </fabric-card-content>
-          <fabric-card-content="bottom attached">
+          <fabric-card-content class="bottom attached" style="display: none;">
             <fabric-button-group class="ui small bottom attached left aligned buttons">
               <fabric-button class="ui labeled icon button"><i class="ui linkify icon"></i> <code>8efbc1c34bae0cc52d65051443a025c14a0152b63d443b5a68b870f3b8ebfb50</code></fabric-button>
             </fabric-button-group>
-            </fabric-card-content>
+          </fabric-card-content>
         </fabric-card>
       </fabric-column>
     </fabric-grid>
-    <fabric-script>
-      <script type="text/javascript">
-        class FabricHTMLComponent extends HTMLComponent {
-          constructor(settings) {
-            super(settings);
-          }
-        }
-        customElements.define('fabric-site', FabricHTMLComponent);
-      </script>
-      <fabric-script>
+    <fabric-footer>
+      <fabric-card class="ui fluid card" id="dialogue" style="display: none;">
+        <fabric-card-content class="ui content">
+          <p style="display: inline-block;"><em>Dialogue...</p>
+        </fabric-card-content>
+      </fabric-card>
+      <fabric-card class="ui fluid card" id="footer">
+        <fabric-card-content class="ui content">
+          <i class="inverted code icon" style="float: right; font-size: 18px;"></i>
+          <p style="display: inline-block;"><strong><abbr title="Message Of The Day">MOTD</abbr>:</strong> YOLO!</p>
+        </fabric-card-content>
+      </fabric-card>
+    </fabric-footer>
+    <fabric-dialog-modal style="display: none;">
+      <fabric-card class="ui fluid card" id="modal">
+        <fabric-card-content class="ui content">
+          <p style="display: inline-block;">Connecting...</p>
+        </fabric-card-content>
+      </fabric-card>
+    </fabric-dialog-modal>
   </fabric-site>
+  <fabric-script>
+    <script>
+      class FabricHTMLComponent extends HTMLElement {
+        constructor(settings) {
+          super(settings);
+        }
+      }
+      customElements.define('fabric-site', FabricHTMLComponent);
+    </script>
+  </fabric-script>
 </body>
 </html>
