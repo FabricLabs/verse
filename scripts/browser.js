@@ -290,6 +290,10 @@ async function main (input) {
             console.log('mode:', currentCameraMode);
           }
           break;
+        case 'Backquote':
+          event.preventDefault();
+          $('#console').slideToggle();
+          break;
         case 'KeyQ':
           // rotate camera left
           break;

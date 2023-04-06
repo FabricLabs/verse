@@ -11,9 +11,16 @@
   <script src="/scripts/semantic.js"></script>
   <script src="/bundles/browser.js"></script>
 </head>
-<body data-bind="78d594835b552ab4cc50c8f6fc0ea411ecb89012379aa74cc3edbf1c191c8d27" data-hash="78d594835b552ab4cc50c8f6fc0ea411ecb89012379aa74cc3edbf1c191c8d27">
+<body data-bind="80623bb4cffe6c0beda6bb48c47d7b0002485121c70194d64307c206157f7bd8" data-hash="80623bb4cffe6c0beda6bb48c47d7b0002485121c70194d64307c206157f7bd8">
   <fabric-site class="ui container" id="site">
     <fabric-bridge host="localhost" port="9999" secure="false"></fabric-bridge>
+    <fabric-console id="console" style="display: none;">
+      <fabric-card class="ui fluid card">
+        <fabric-card-content class="content">
+          <p>Console...</p>
+        </fabric-card-content>
+      </fabric-card>
+    </fabric-console>
     <fabric-grid class="ui centered grid">
       <fabric-column class="twelve wide column">
         <fabric-card class="ui fluid card" id="overlay">
@@ -23,7 +30,7 @@
           </fabric-card-content>
           <fabric-card-content class="extra">
             <fabric-button-group class="ui large fluid vertical labeled icon buttons">
-              <fabric-button class="ui primary button">
+              <fabric-button class="ui primary button" onclick="(() => { $('#overlay').fadeOut(); })()">
                 <i class="ui bolt icon"></i> Connect
               </fabric-button>
               <fabric-button class="ui secondary button">
@@ -98,7 +105,7 @@
     <fabric-footer>
       <fabric-card class="ui fluid card" id="dialogue" style="display: none;">
         <fabric-card-content class="ui content">
-          <p style="display: inline-block;"><em>Dialogue...</p>
+          <p style="display: inline-block;"><em>Dialogue...</em></p>
         </fabric-card-content>
       </fabric-card>
       <fabric-card class="ui fluid card" id="footer">

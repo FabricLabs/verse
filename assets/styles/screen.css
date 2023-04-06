@@ -22,6 +22,14 @@ fabric-site, #site {
   left: 0;
 }
 
+#console {
+  position: fixed;
+  top: 0;
+  left: 0;
+  margin: 5%;
+  width: 50%;
+}
+
 #modal {
   position: fixed;
   height: 20%;
