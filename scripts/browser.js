@@ -11,6 +11,7 @@ const dat = require('dat.gui');
 const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls');
 const { ImprovedNoise } = require('three/examples/jsm/math/ImprovedNoise');
 
+const Universe = require('../types/universe');
 const Sheet = require('../types/sheet');
 
 async function _loadWASM () {
@@ -27,9 +28,13 @@ async function _loadWASM () {
 
 async function main (input) {
   const site = document.getElementById('site');
+  const universe = new Universe();
 
-  window.addEventListener('load', () => {
+  window.addEventListener('load', async () => {
     console.log('loaded!');
+
+    await universe.start();
+    console.log('universe:', universe);
 
     // Three.js elements
     const clock = new THREE.Clock();
@@ -80,7 +85,7 @@ async function main (input) {
     const animations = [];
     const state = [];
 
-    let cameraModes = ['isometric', 'overhead', 'first-person'];
+    let cameraModes = ['third-person', 'isometric', 'overhead', 'first-person'];
     let currentCameraMode = 'loading';
 
     function animate () {
@@ -91,9 +96,13 @@ async function main (input) {
 
       switch (currentCameraMode) {
         default:
+        case 'third-person':
+          camera.position.set(vehicle.position.x + 5.2, vehicle.position.y + 5.2, vehicle.position.z);
+          camera.lookAt(vehicle.position.x, Math.floor(vehicle.position.y), vehicle.position.z);
+          break;
         case 'isometric':
           camera.position.set(vehicle.position.x + 5.2, vehicle.position.y + 5.2, vehicle.position.z + 5.2);
-          camera.lookAt(vehicle.position.x -2, Math.floor(vehicle.position.y) - 2, vehicle.position.z - 2);
+          camera.lookAt(vehicle.position.x, Math.floor(vehicle.position.y), vehicle.position.z);
           break;
         case 'overhead':
           camera.position.set(vehicle.position.x, vehicle.position.y + 8, vehicle.position.z);
@@ -193,20 +202,49 @@ async function main (input) {
       // Relevant meshes
       scene.add(vehicle);
       scene.add(ambient);
+      // scene.add(spotlight);
 
       vehicle.position.x = STARTING_POSITION.x;
       vehicle.position.y = STARTING_POSITION.y + 0.05; // slightly above terrain
       vehicle.position.z = STARTING_POSITION.z;
+
+      // Spotlight
+      spotlight.add(lightHelper);
+      spotlight.position.set(vehicle.position.x, vehicle.position.y + 5, vehicle.position.z);
+      spotlight.castShadow = true;
+      spotlight.target = vehicle;
 
       // const island = generateFloatingIsland(50, 50, 50, 1, 20, 20, 42);
       // scene.add(island);
 
       // Camera start
       camera.position.x = 4;
-      camera.position.y = 5;
+      camera.position.y = 0;
       camera.position.z = 4;
 
       camera.lookAt(0, 1, 0);
+    }
+
+    function getPixelValues (image) {
+      const rgb24 = new Uint8Array((image.data.length / 4) * 3);
+
+      var i = 0;
+      var j = 0;
+
+      while (i < image.data.length) {
+        rgb24[j++] = image.data[i++];
+        rgb24[j++] = image.data[i++];
+        rgb24[j++] = image.data[i++];
+        i++;
+
+        if (rgb24[j] > 0) console.log('data:', rgb24[j]);
+      }
+
+      return rgb24;
+    }
+
+    function hideOverlay () {
+      document.getElementById('overlay').style.display = 'none';
     }
 
     function onDocumentKeyDown (event) {
@@ -218,26 +256,22 @@ async function main (input) {
         case 'ArrowLeft':
           event.preventDefault();
           // strafe left
-          vehicle.position.x -= 1;
           vehicle.position.z += 1;
           break;
         case 'ArrowUp':
           // strafe forward
           event.preventDefault();
           vehicle.position.x -= 1;
-          vehicle.position.z -= 1;
           break;
         case 'ArrowRight':
           // strafe right
           event.preventDefault();
-          vehicle.position.x += 1;
           vehicle.position.z -= 1;
           break;
         case 'ArrowDown':
           // strafe back
           event.preventDefault();
           vehicle.position.x += 1;
-          vehicle.position.z += 1;
           break;
         case 'Space':
           event.preventDefault();
@@ -269,6 +303,8 @@ async function main (input) {
       if (vehicle.position.z < 0) vehicle.position.z = pz;
       if (vehicle.position.x >= SIZE) vehicle.position.x = px;
       if (vehicle.position.z >= SIZE) vehicle.position.z = pz;
+
+      console.log('player position:', `${vehicle.position.x}:${vehicle.position.z}`);
     }
 
     function onDocumentMouseMove (event) {
