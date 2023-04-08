@@ -4,8 +4,12 @@
 const settings = require('../settings/local');
 
 // Fabric HTTP Types
-const Site = require('@fabric/http/types/site');
+// const Site = require('@fabric/http/types/site');
 const Compiler = require('@fabric/http/types/compiler');
+
+// Types
+const Place = require('../types/place');
+const Site = require('../types/site');
 
 // Program Body
 async function main (input = {}) {

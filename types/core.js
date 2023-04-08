@@ -1,7 +1,6 @@
 'use strict';
 
 // Dependencies
-const crypto = require('crypto');
 const monitor = require('fast-json-patch');
 
 // Fabric Types
@@ -145,7 +144,7 @@ class Core extends Service {
    * Deploys the VERSE contract to the Fabric Network.
    * @returns {String} Message ID.
    */
-  deploy () {
+  async deploy () {
     // Attest to local time
     const now = (new Date()).toISOString();
     const input = {
@@ -162,8 +161,15 @@ class Core extends Service {
       }
     })])._setSigner(this.signer).sign().toBuffer();
 
+    let hash = null;
+
     // Get hash of message
-    const hash = crypto.createHash('sha256').update(PACKET_CONTRACT_GENESIS).digest('hex');
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+      const msgUint8 = new TextEncoder().encode(PACKET_CONTRACT_GENESIS.toString('utf8'));
+      hash = await crypto.subtle.digest('SHA-256', msgUint8);
+    } else {
+      hash = crypto.createHash('sha256').update(PACKET_CONTRACT_GENESIS).digest('hex');
+    }
 
     // Store locally
     this.messages[hash] = PACKET_CONTRACT_GENESIS.toString('hex');
@@ -208,10 +214,10 @@ class Core extends Service {
     };
   }
 
-  tick () {
+  async tick () {
     const start = Date.now();
     this.clock++;
-    this.verse.tick();
+    await this.verse.tick();
 
     Object.assign(this._state.content, this.state, {
       verse: _sortKeys(this.verse.state)
