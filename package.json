@@ -2,7 +2,7 @@
   "name": "@fabric/verse",
   "version": "0.1.0-dev",
   "description": "p2p game engine",
-  "main": "scripts/verse.js",
+  "main": "types/verse.js",
   "scripts": {
     "build": "node scripts/build.js",
     "clean": "rm -f assets/verse.min.js assets/verse.min.map",
