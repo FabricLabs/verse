@@ -1,12 +1,10 @@
-module.exports = {
-  contract: '527c524c806d651cf6912629fe81fee82c44b23a26387422afb7cb880456095c',
-  http: {
-    port: 9998
+{
+  "contract": "28de9a6e6dfacd64cda3deb62d84a3bd6081908de34c283877639724a78616cb",
+  "http": {
+    "port": 9998
   },
-  peers: [
-    'localhost:7777',
-    'localhost:7778',
-    'goliath:7777',
-    'hub.fabric.pub:7777'
+  "peers": [
+    "localhost:7778",
+    "hub.fabric.pub:7777"
   ]
-};
+}
