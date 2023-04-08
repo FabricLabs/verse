@@ -1,6 +1,6 @@
 module.exports = function (CHANCE_TABLE = {
-  probabilities: [0.05],
-  types: ['battle']
+  probabilities: [0.025, 0.025],
+  types: ['battle', 'item']
 }) {
   return new Promise((resolve, reject) => {
     // How lucky are we?
@@ -12,7 +12,7 @@ module.exports = function (CHANCE_TABLE = {
 
     // Select encounter type
     const encounter = {
-      type: CHANCE_TABLE.types[Math.floor(luck * CHANCE_TABLE.types.length)]
+      type: CHANCE_TABLE.types[Math.floor(Math.random() * CHANCE_TABLE.types.length)]
     };
 
     // Serve the encounter

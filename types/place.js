@@ -1,8 +1,9 @@
 'use strict';
 
-const Service = require('@fabric/core/types/service');
+const Actor = require('@fabric/core/types/actor');
+const Remote = require('@fabric/http/types/remote');
 
-class Place extends Service {
+class Place extends Actor {
   constructor (settings = {}) {
     super(settings);
 
@@ -14,6 +15,8 @@ class Place extends Service {
         description: 'This devoid region of space remains untouched.'
       }, settings)
     }, settings);
+
+    this.remote = new Remote({ host: 'api.roleplaygateway.com' });
 
     this._state = {
       content: this.settings.state
@@ -39,6 +42,15 @@ class Place extends Service {
         </div>
       </verse-place>
     `.trim();
+  }
+
+  async _loadFromRPGByID (id) {
+    const place = await this.remote._GET(`/places/${id}`);
+    this._state.content._id = place._id;
+    this._state.content.name = place.name;
+    this._state.content.synopsis = place.synopsis;
+    this.commit();
+    return this;
   }
 }
 

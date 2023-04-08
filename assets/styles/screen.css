@@ -30,6 +30,17 @@ fabric-site, #site {
   width: 50%;
 }
 
+#tray {
+  position: fixed;
+  top: 0;
+  right: 0;
+  margin: 5%;
+}
+
+#tray > i {
+  cursor: pointer;
+}
+
 #modal {
   position: fixed;
   height: 20%;
@@ -40,7 +51,7 @@ fabric-site, #site {
   left: auto;
 }
 
-#dialogue {
+#dialogue, .dialogue {
   position: fixed;
   bottom: 10%;
   left: 0;
@@ -55,17 +66,32 @@ fabric-site, #site {
   left: 0;
   margin: 5%;
   width: 90%;
+  height: 5%;
+}
+
+#footer .content {
+  padding: 0.5em;
+}
+
+#footer form {
+
+}
+
+#chat-close {
+  margin: 0;
 }
 
 #overlay {
+  z-index: 9999;
   position: fixed;
   left: 0;
   right: 0;
-  margin-top: 5%;
+  top: 15%;
   margin-left: auto;
   margin-right: auto;
   width: 90%;
   max-width: 50em;
+  max-height: 60%;
 }
 
 #overlay fabric-button.ui.button,

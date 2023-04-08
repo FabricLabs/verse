@@ -6,13 +6,17 @@ const {
 } = require('../constants');
 
 const THREE = require('three');
-const dat = require('dat.gui');
+// const dat = require('dat.gui');
 
 const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls');
 const { ImprovedNoise } = require('three/examples/jsm/math/ImprovedNoise');
 
+const Player = require('../types/player');
 const Universe = require('../types/universe');
 const Sheet = require('../types/sheet');
+const Place = require('../types/place');
+
+const maybeEncounter = require('../functions/maybeEncounter');
 
 async function _loadWASM () {
   /* fetch('cb55a346d20d4c37babb.module.wasm')
@@ -46,10 +50,7 @@ async function main (input) {
       precision: 'highp'
     });
 
-    const mouse = {
-      x: 0,
-      y: 0
-    };
+    const mouse = new THREE.Vector2();
 
     // Rover
     const vehicleGeometry = new THREE.SphereGeometry(0.5, 32, 32);
@@ -60,12 +61,20 @@ async function main (input) {
     const fireballGeometry = new THREE.SphereGeometry(0.05, 8, 8);
     const fireballMaterial = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
 
+    // Ghost
+    const ghostMaterial = new THREE.MeshBasicMaterial({
+      color: 0x2185d0,
+      transparent: true,
+      opacity: 0.2
+    });
+
     // Lighting
     const ambient = new THREE.AmbientLight(0x404040);
     const spotlight = new THREE.SpotLight(0xffffff);
     const lightHelper = new THREE.SpotLightHelper(spotlight);
 
     // Voxels
+    const selectionGlow = new THREE.PointLight(0xffffff, 1, 50);
     const materials = {
       granite: new THREE.MeshBasicMaterial({ color: 0x808080 }),
       sandstone: new THREE.MeshBasicMaterial({ color: 0xC2B280 }),
@@ -79,7 +88,10 @@ async function main (input) {
      * @alias {@link Rover}
      */
     const vehicle = createVehicleMesh();
+    const ghost = createGhostMesh();
+
     scene.add(vehicle);
+    // scene.add(ghost);
 
     // Component state
     const animations = [];
@@ -124,6 +136,7 @@ async function main (input) {
         }
       });
 
+      raycaster.setFromCamera(mouse, camera);
       renderer.render(scene, camera);
     }
 
@@ -136,16 +149,21 @@ async function main (input) {
       for (let i = 0; i < SIZE; i++) {
         for (let j = 0; j < SIZE; j++) {
           const p = createVoxelMesh();
+
           voxelMap[`${i}:${j}`] = p;
-          group.add(p);
+
           p.position.set(i, 0, j);
+          p.userData.context = 'baseplane';
+          p.userData.position = { x: i, y: j };
+
+          group.add(p);
         }
       }
 
       return group;
     }
 
-    function createMoveAnimation(mesh, startPosition, endPosition) {
+    function createMoveAnimation (mesh, startPosition, endPosition) {
       mesh.userData.mixer = new THREE.AnimationMixer(mesh);
       const track = new THREE.VectorKeyframeTrack('.position', [0, 1, 2], [
         startPosition.x,
@@ -169,6 +187,11 @@ async function main (input) {
       return fireball;
     }
 
+    function createGhostMesh () {
+      const ghost = new THREE.Mesh(vehicleGeometry, ghostMaterial);
+      return ghost;
+    }
+
     function createVehicleMesh () {
       const vehicle = new THREE.Mesh(vehicleGeometry, vehicleMaterial);
       vehicle.add(vehicleGlow);
@@ -184,6 +207,7 @@ async function main (input) {
       const mesh = new THREE.Mesh(geometry, material);
 
       mesh.add(edgesMesh);
+      mesh.userData.type = 'voxel';
 
       return mesh;
     }
@@ -208,6 +232,10 @@ async function main (input) {
       vehicle.position.y = STARTING_POSITION.y + 0.05; // slightly above terrain
       vehicle.position.z = STARTING_POSITION.z;
 
+      ghost.position.x = vehicle.position.x;
+      ghost.position.y = vehicle.position.y;
+      ghost.position.z = vehicle.position.z;
+
       // Spotlight
       spotlight.add(lightHelper);
       spotlight.position.set(vehicle.position.x, vehicle.position.y + 5, vehicle.position.z);
@@ -216,13 +244,6 @@ async function main (input) {
 
       // const island = generateFloatingIsland(50, 50, 50, 1, 20, 20, 42);
       // scene.add(island);
-
-      // Camera start
-      camera.position.x = 4;
-      camera.position.y = 0;
-      camera.position.z = 4;
-
-      camera.lookAt(0, 1, 0);
     }
 
     function getPixelValues (image) {
@@ -247,27 +268,31 @@ async function main (input) {
       document.getElementById('overlay').style.display = 'none';
     }
 
-    function onDocumentKeyDown (event) {
+    async function onDocumentKeyDown (event) {
       const px = vehicle.position.x;
       const py = vehicle.position.y;
       const pz = vehicle.position.z;
 
       switch (event.code) {
+        case 'KeyA':
         case 'ArrowLeft':
           event.preventDefault();
           // strafe left
           vehicle.position.z += 1;
           break;
+        case 'KeyW':
         case 'ArrowUp':
           // strafe forward
           event.preventDefault();
           vehicle.position.x -= 1;
           break;
+        case 'KeyD':
         case 'ArrowRight':
           // strafe right
           event.preventDefault();
           vehicle.position.z -= 1;
           break;
+        case 'KeyS':
         case 'ArrowDown':
           // strafe back
           event.preventDefault();
@@ -283,7 +308,7 @@ async function main (input) {
           break;
         case 'Tab':
           event.preventDefault();
-          console.log('tab pressed!');
+          console.log('tab pressed!  current camera mode:', currentCameraMode);
           if (currentCameraMode !== 'loading') {
             cameraModes.push(currentCameraMode);
             currentCameraMode = cameraModes.shift();
@@ -300,6 +325,12 @@ async function main (input) {
         case 'KeyE':
           // rotate camera right
           break;
+        case 'Escape':
+          if (currentCameraMode !== 'loading') {
+            event.preventDefault();
+            $('#overlay').fadeToggle();
+          }
+          break;
       }
 
       // physics (lol)
@@ -309,6 +340,49 @@ async function main (input) {
       if (vehicle.position.z >= SIZE) vehicle.position.z = pz;
 
       console.log('player position:', `${vehicle.position.x}:${vehicle.position.z}`);
+      if (vehicle.position.x !== px || vehicle.position.y !== py || vehicle.position.z !== pz) {
+        const encounter = await maybeEncounter();
+        if (encounter) {
+          console.log('[!!!] ENCOUNTER [!!!]');
+          console.log(encounter);
+        }
+      }
+    }
+
+    function onDocumentClick (event) {
+      // First, de-select any voxels on our baseplane
+      const voxels = plane.children.filter((x) => (x.userData && x.userData.type === 'voxel'));
+
+      for (let i = 0; i < voxels.length; i++) {
+        voxels[i].userData.selected = false;
+        for (let j = 0; j < voxels[i].children.length; j++) {
+          voxels[i].children[j].material.color.setHex(0x000000);
+        }
+      }
+
+      // Select the clicked cube by using the raycaster
+      raycaster.setFromCamera(mouse, camera);
+
+      const found = raycaster.intersectObjects(scene.children);
+      const filtered = found.filter((x) => (x.object.userData && x.object.userData.type === 'voxel'));
+      const selection = filtered.find((x) => (x.object.userData && x.object.userData.type === 'voxel'));
+
+      if (!selection) return;
+
+      event.preventDefault();
+      console.log('selected:', selection);
+
+      selection.object.userData.selected = true;
+
+      // Highlight the edges
+      for (let i = 0; i < selection.object.children.length; i++) {
+        // selection.object.children[i].material.color.setHex(0xffffff);
+        selection.object.children[i].add(selectionGlow);
+      }
+
+      selection.object.material.needsUpdate = true;
+
+      return false;
     }
 
     function onDocumentMouseMove (event) {
@@ -343,13 +417,22 @@ async function main (input) {
     // Main draw
     drawSpace();
 
-    const gui = new dat.GUI();
+    const raycaster = new THREE.Raycaster();
+
+    for (let x = 0; x < SIZE; x++) {
+      for (let y = 0; y < SIZE; y++) {
+        const pixel = voxelMap[`${x}:${y}`];
+        voxelMap[`${x}:${y}`].material.color = 0x000000;
+      }
+    }
+
+    /* const gui = new dat.GUI();
     const cubeFolder = gui.addFolder('Location');
 
     gui.close();
 
     cubeFolder.add(vehicle.position, 'x', 0, SIZE - 1);
-    cubeFolder.add(vehicle.position, 'z', 0, SIZE - 1);
+    cubeFolder.add(vehicle.position, 'z', 0, SIZE - 1); */
 
     // Attach
     document.body.appendChild(renderer.domElement);
@@ -358,21 +441,102 @@ async function main (input) {
     // Animate
     animate();
 
+    window.addEventListener('deviceorientation', onDeviceOrientation, true);
+
+    document.addEventListener('click', onDocumentClick, false);
     document.addEventListener('mousemove', onDocumentMouseMove, false);
     document.addEventListener('keydown', onDocumentKeyDown, false);
+    document.addEventListener('swipedown', onDocumentSwipeDown, false);
 
     console.log('site:', site);
+
+    document.getElementById('tray-settings').addEventListener('click', (event) => {
+      $('#settings').fadeIn();
+      return false;
+    });
+
+    document.getElementById('volume').addEventListener('click', (event) => {
+      const element = document.getElementById('bgm');
+      if (element.muted) {
+        event.target.classList.remove('off');
+        event.target.classList.add('up');
+        document.getElementById('bgm').muted = false;
+      } else {
+        event.target.classList.remove('up');
+        event.target.classList.add('off');
+        document.getElementById('bgm').muted = true;
+      }
+
+      return false;
+    });
+
+    document.getElementById('connect').addEventListener('click', (event) => {
+      document.getElementById('bgm').play();
+
+      event.target.innerHTML = 'Connecting...';
+      currentCameraMode = 'connecting';
+
+      setTimeout(() => {
+        event.target.innerHTML = 'Connected!';
+        setTimeout(() => {
+          $('#overlay').fadeOut();
+        }, 1000);
+      }, 2500);
+
+      return false;
+    });
+
+    document.getElementById('footer').addEventListener('click', function (event) {
+      const input = this.querySelector('input[name=input]');
+      if (currentCameraMode !== 'loading') {
+        $('#overlay').fadeOut();
+        $('#chat-close').fadeIn();
+        $(input).fadeIn();
+        $(input).focus();
+        $(this).animate({
+          height: '90%'
+        }, 500);
+
+        // this.style.height = '90%';
+      }
+    });
+
+    document.getElementById('chat-close').addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      $('#footer input[name=input]').hide();
+      $('#footer').animate({
+        height: '5%'
+      });
+
+      return false;
+    });
+
+    // const loadFromID = prompt('Character ID to load from:');
+    const loadFromID = 1;
+    const character = new Player();
+    await character._loadFromCharacter(loadFromID);
+
+    const location = new Place();
+    await location._loadFromRPGByID(character.state.location);
+
+    console.log('location:', location.state);
+
+    // createDialogue('hi hi hi');
   });
 
   const engine = { id: null };
 
   return {
-    engine: engine.id
+    engine: engine.id,
+    universe: universe
   };
 }
 
 main().catch((exception) => {
   console.log('[VERSE] Error:', exception);
 }).then((output) => {
+  window.verse = output;
   console.log('[VERSE] Process Started:', output);
 });

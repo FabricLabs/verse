@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width, height=device-height, target-densitydpi=device-dpi">
-  <title>undefined</title>
+  <title>V E R S E</title>
   <!-- <link rel="manifest" href="/manifest.json"> -->
   <link rel="stylesheet" type="text/css" href="/styles/semantic.css" />
   <link rel="stylesheet" type="text/css" href="/styles/screen.css" />
@@ -11,9 +11,12 @@
   <script src="/scripts/semantic.js"></script>
   <script src="/bundles/browser.js"></script>
 </head>
-<body data-bind="80623bb4cffe6c0beda6bb48c47d7b0002485121c70194d64307c206157f7bd8" data-hash="80623bb4cffe6c0beda6bb48c47d7b0002485121c70194d64307c206157f7bd8">
+<body data-bind="c93c0ebe06caf172a5b0e1df60a2b08441cb81a0e091fda65965a5c64a9a77f7" data-hash="c93c0ebe06caf172a5b0e1df60a2b08441cb81a0e091fda65965a5c64a9a77f7">
   <fabric-site class="ui container" id="site">
     <fabric-bridge host="localhost" port="9999" secure="false"></fabric-bridge>
+    <fabric-assets>
+      <audio id="bgm" loop="true" src="/sounds/irvingforce-crime-scanner.mp3" />
+    </fabric-assets>
     <fabric-console id="console" style="display: none;">
       <fabric-card class="ui fluid card">
         <fabric-card-content class="content">
@@ -21,6 +24,18 @@
         </fabric-card-content>
       </fabric-card>
     </fabric-console>
+    <fabric-menu id="tray">
+      <i id="tray-settings" class="ui large inverted cog icon"></i>
+      <i id="volume" class="ui large inverted volume up icon"></i>
+    </fabric-menu>
+    <fabric-menu>
+      <fabric-card id="settings" class="ui fluid card" style="display: none;">
+        <fabric-card-header class="ui header">Settings</fabric-card-header>
+        <fabric-card-content class="ui content">
+          <p>Foo</p>
+        </fabric-card-content>
+      </fabric-card>
+    </fabric-menu>
     <fabric-grid class="ui centered grid">
       <fabric-column class="twelve wide column">
         <fabric-card class="ui fluid card" id="overlay">
@@ -30,26 +45,23 @@
           </fabric-card-content>
           <fabric-card-content class="extra">
             <fabric-button-group class="ui large fluid vertical labeled icon buttons">
-              <fabric-button class="ui primary button" onclick="(() => { $('#overlay').fadeOut(); })()">
+              <fabric-button id="connect" class="ui primary button">
                 <i class="ui bolt icon"></i> Connect
               </fabric-button>
-              <fabric-button class="ui secondary button">
+              <fabric-button class="ui disabled secondary button">
                 <i class="ui tree icon"></i> Wilderness Mode
               </fabric-button>
-              <fabric-button class="ui secondary button">
-                <i class="ui code icon"></i> Text Client
+              <fabric-button class="ui disabled secondary button">
+                <i class="ui terminal icon"></i> Text Client
               </fabric-button>
-              <fabric-button class="ui secondary button">
+              <fabric-button class="ui disabled secondary button">
                 <i class="ui users icon"></i> Manage Peers
               </fabric-button>
-              <fabric-button class="ui secondary button">
+              <fabric-button class="ui disabled secondary button">
                 <i class="ui bitcoin icon"></i> Wallet
               </fabric-button>
-              <fabric-button class="ui secondary button">
-                <i class="ui globe icon"></i> Import URL
-              </fabric-button>
-              <fabric-button class="ui secondary button">
-                <i class="ui save icon"></i> Load from File...
+              <fabric-button class="ui disabled secondary button">
+                <i class="ui save icon"></i> Load...
               </fabric-button>
             </fabric-button-group>
           </fabric-card-content>
@@ -110,18 +122,31 @@
       </fabric-card>
       <fabric-card class="ui fluid card" id="footer">
         <fabric-card-content class="ui content">
-          <i class="inverted code icon" style="float: right; font-size: 18px;"></i>
-          <p style="display: inline-block;"><strong><abbr title="Message Of The Day">MOTD</abbr>:</strong> YOLO!</p>
+          <i id="chat-close" class="large inverted close icon" style="float: right; display: none;"></i>
+          <i class="inverted console icon" style="float: right;"></i>
+          <fabric-chat-view>
+            <p><strong><abbr title="Message Of The Day">MOTD</abbr>:</strong> YOLO!</p>
+          </fabric-chat-view>
+          <form class="ui inverted form">
+            <input name="input" type="text" placeholder="..." class="ui transparent input" style="display: none;" />
+          </form>
         </fabric-card-content>
       </fabric-card>
     </fabric-footer>
-    <fabric-dialog-modal style="display: none;">
-      <fabric-card class="ui fluid card" id="modal">
+    <fabric-dialog-modal>
+      <fabric-card class="ui fluid card" id="modal" style="display: none;">
         <fabric-card-content class="ui content">
           <p style="display: inline-block;">Connecting...</p>
         </fabric-card-content>
       </fabric-card>
     </fabric-dialog-modal>
+    <template id="dialogue-template">
+      <fabric-card class="ui fluid dialogue card" style="display: none;">
+        <fabric-card-content class="ui content">
+          <p style="display: inline-block;"><em>Dialogue...</em></p>
+        </fabric-card-content>
+      </fabric-card>
+    </template>
   </fabric-site>
   <fabric-script>
     <script>
