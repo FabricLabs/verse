@@ -41,11 +41,10 @@
   },
   "homepage": "https://github.com/FabricLabs/verse#readme",
   "dependencies": {
-    "@fabric/core": "FabricLabs/fabric#feature/v0.1.0-RC1",
+    "@fabric/core": "FabricLabs/fabric#feature/validation",
     "@fabric/http": "FabricLabs/fabric-http#feature/graphql",
-    "@webcomponents/custom-elements": "^1.6.0",
+    "@webcomponents/custom-elements": "1.6.0",
     "canvas": "2.11.0",
-    "dat.gui": "^0.7.9",
     "fast-json-patch": "3.1.1",
     "is-my-json-valid": "2.20.6",
     "three": "0.151.2"
@@ -53,7 +52,7 @@
   "devDependencies": {
     "babel-loader": "8.2.5",
     "c8": "7.13.0",
-    "http-server": "^14.1.1",
+    "http-server": "14.1.1",
     "jsdoc": "FabricLabs/jsdoc#fabric",
     "mocha": "10.2.0"
   }

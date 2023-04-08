@@ -168,13 +168,13 @@ class Core extends Service {
       const msgUint8 = new TextEncoder().encode(PACKET_CONTRACT_GENESIS.toString('utf8'));
       hash = await crypto.subtle.digest('SHA-256', msgUint8);
     } else {
-      hash = crypto.createHash('sha256').update(PACKET_CONTRACT_GENESIS).digest('hex');
+      hash = require('crypto').createHash('sha256').update(PACKET_CONTRACT_GENESIS).digest('hex');
     }
 
     // Store locally
     this.messages[hash] = PACKET_CONTRACT_GENESIS.toString('hex');
 
-    // Contract template
+    // Contract Template
     const template = {
       author: this.node.identity.pubkey,
       bond: null, // BTC transaction which is spent
