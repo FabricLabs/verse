@@ -34,6 +34,8 @@ async function main (input) {
   const site = document.getElementById('site');
   const universe = new Universe();
 
+  let isChatting = false;
+
   window.addEventListener('load', async () => {
     console.log('loaded!');
 
@@ -192,6 +194,26 @@ async function main (input) {
       return ghost;
     }
 
+    function createDialogue (content) {
+      const buffer = new Uint8Array(32);
+      const id = 'notification-' + Buffer.from(window.crypto.getRandomValues(buffer)).toString('hex');
+      const site = document.querySelector('verse-dialogue-stack');
+      const template = document.getElementById('dialogue-template');
+      const clone = template.content.cloneNode(true);
+
+      clone.querySelector('fabric-card').id = id;
+      clone.querySelector('.typed-out').innerHTML = content;
+      clone.querySelector('.button.dismiss').addEventListener('click', (event) => {
+        const dialogue = document.getElementById(id);
+        $(dialogue).fadeOut(1000);
+      });
+
+      site.append(clone);
+
+      // TODO: remove jquery
+      $(`#${id}`).slideDown();
+    }
+
     function createVehicleMesh () {
       const vehicle = new THREE.Mesh(vehicleGeometry, vehicleMaterial);
       vehicle.add(vehicleGlow);
@@ -269,6 +291,14 @@ async function main (input) {
     }
 
     async function onDocumentKeyDown (event) {
+      if (event.code === 'Escape') {
+        $('#chat-input').fadeOut();
+        $('#console').slideUp();
+        isChatting = false;
+      }
+
+      if (isChatting) return true;
+
       const px = vehicle.position.x;
       const py = vehicle.position.y;
       const pz = vehicle.position.z;
@@ -317,7 +347,17 @@ async function main (input) {
           break;
         case 'Backquote':
           event.preventDefault();
+
+          $('#overlay').fadeOut();
+          $('#chat-input').fadeIn();
           $('#console').slideToggle();
+          $('#console').animate({
+            bottom: 0
+          });
+
+          $('#chat-input input').focus();
+
+          isChatting = true;
           break;
         case 'KeyQ':
           // rotate camera left
@@ -480,35 +520,29 @@ async function main (input) {
         event.target.innerHTML = 'Connected!';
         setTimeout(() => {
           $('#overlay').fadeOut();
+          createDialogue('<strong>Wake up!</strong>');
         }, 1000);
       }, 2500);
 
       return false;
     });
 
-    document.getElementById('footer').addEventListener('click', function (event) {
-      const input = this.querySelector('input[name=input]');
-      if (currentCameraMode !== 'loading') {
-        $('#overlay').fadeOut();
-        $('#chat-close').fadeIn();
-        $(input).fadeIn();
-        $(input).focus();
-        $(this).animate({
-          height: '90%'
-        }, 500);
+    document.getElementById('chat-input').addEventListener('submit', function (event) {
+      event.preventDefault();
+    });
 
-        // this.style.height = '90%';
-      }
+    document.querySelector('input[name=input]').addEventListener('blur', function (event) {
+      isChatting = false;
     });
 
     document.getElementById('chat-close').addEventListener('click', function (event) {
       event.preventDefault();
       event.stopPropagation();
 
-      $('#footer input[name=input]').hide();
-      $('#footer').animate({
-        height: '5%'
-      });
+      $('#chat-input').fadeOut();
+      $('#console').slideUp();
+
+      isChatting = false;
 
       return false;
     });

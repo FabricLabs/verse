@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/FabricLabs/verse#readme",
   "dependencies": {
-    "@fabric/core": "FabricLabs/fabric#feature/validation",
+    "@fabric/core": "FabricLabs/fabric#feature/v0.1.0-RC1",
     "@fabric/http": "FabricLabs/fabric-http#feature/graphql",
     "@webcomponents/custom-elements": "1.6.0",
     "canvas": "2.11.0",

@@ -3,8 +3,52 @@ body {
   background: #000;
 }
 
+.hidden {
+  display: none;
+}
+
 fabric-site, #site {
   padding: 0 1em 0 0;
+}
+
+fabric-card.dialogue {
+  width: 100%;
+  font-size: 1.2em;
+}
+
+fabric-chat-view {
+  display: block;
+  margin-bottom: 3em;
+}
+
+fabric-chat-log {
+  width: 100%;
+}
+
+fabric-console {
+  width: '100%';
+}
+
+fabric-footer {
+  position: fixed;
+  bottom: 1em;
+  left: 0;
+  right: 0;
+  margin: 1em 1em 0;
+  padding: 0;
+}
+
+fabric-motd {
+  color: #fff !important;
+}
+
+verse-dialogue {
+  position: fixed;
+  top: 8em;
+  left: 0;
+  right: 0;
+  margin: 0 1em 1em;
+  padding: 0;
 }
 
 #site .card {
@@ -24,10 +68,14 @@ fabric-site, #site {
 
 #console {
   position: fixed;
-  top: 0;
+  top: 4em;
   left: 0;
+  right: 0;
   margin: 5%;
-  width: 50%;
+}
+
+#console fabric-card {
+  height: 100%;
 }
 
 #tray {
@@ -51,34 +99,34 @@ fabric-site, #site {
   left: auto;
 }
 
-#dialogue, .dialogue {
-  position: fixed;
-  bottom: 10%;
-  left: 0;
-  width: 90%;
-  height: 10em;
-  margin: 5% 5% 5% 5%;
+#footer {
+  height: 100%;
 }
 
-#footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  margin: 5%;
-  width: 90%;
-  height: 5%;
+.dialogue .content {
+  display: inline-block;
 }
 
 #footer .content {
-  padding: 0.5em;
+  padding: 1em;
 }
 
 #footer form {
-
+  position: fixed;
+  bottom: 1em;
+  left: 1em;
+  right: 1em;
 }
 
 #chat-close {
   margin: 0;
+}
+
+#chat-input {
+  position: fixed;
+  bottom: 1em;
+  left: 1em;
+  right: 1em;
 }
 
 #overlay {

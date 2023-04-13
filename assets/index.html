@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width, height=device-height, target-densitydpi=device-dpi">
-  <title>V E R S E</title>
+  <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>@fabric/http</title>
   <!-- <link rel="manifest" href="/manifest.json"> -->
   <link rel="stylesheet" type="text/css" href="/styles/semantic.css" />
   <link rel="stylesheet" type="text/css" href="/styles/screen.css" />
@@ -11,16 +11,28 @@
   <script src="/scripts/semantic.js"></script>
   <script src="/bundles/browser.js"></script>
 </head>
-<body data-bind="c93c0ebe06caf172a5b0e1df60a2b08441cb81a0e091fda65965a5c64a9a77f7" data-hash="c93c0ebe06caf172a5b0e1df60a2b08441cb81a0e091fda65965a5c64a9a77f7">
-  <fabric-site class="ui container" id="site">
+<body data-bind="46eff9b9e67b15602f91e0bcc6f80085d3beffde4aae9686932049f1845081a4" data-hash="46eff9b9e67b15602f91e0bcc6f80085d3beffde4aae9686932049f1845081a4">
+  <fabric-site class="ui fluid container" id="site">
     <fabric-bridge host="localhost" port="9999" secure="false"></fabric-bridge>
     <fabric-assets>
       <audio id="bgm" loop="true" src="/sounds/irvingforce-crime-scanner.mp3" />
     </fabric-assets>
     <fabric-console id="console" style="display: none;">
       <fabric-card class="ui fluid card">
-        <fabric-card-content class="content">
-          <p>Console...</p>
+        <fabric-card-content class="ui content">
+          <i class="remove icon" id="chat-close" style="float: right;"></i>
+          <h3 class="header">Chat</h3>
+          <fabric-chat-view class="ui inverted segment">
+            <fabric-chat-log>
+              <p><strong><abbr title="Message Of The Day">MOTD</abbr>:</strong> YOLO!</p>
+            </fabric-chat-log>
+          </fabric-chat-view>
+          <form id="chat-input" autocomplete="off" method="POST" class="ui inverted form">
+            <fabric-input class="ui labeled fluid input">
+              <fabric-label class="ui label">Say:</fabric-label>
+              <input name="input" type="text" placeholder="..." />
+            </fabric-input>
+          </form>
         </fabric-card-content>
       </fabric-card>
     </fabric-console>
@@ -108,31 +120,15 @@
           </fabric-card-content>
           <fabric-card-content class="bottom attached" style="display: none;">
             <fabric-button-group class="ui small bottom attached left aligned buttons">
-              <fabric-button class="ui labeled icon button"><i class="ui linkify icon"></i> <code>8efbc1c34bae0cc52d65051443a025c14a0152b63d443b5a68b870f3b8ebfb50</code></fabric-button>
+              <fabric-button class="ui labeled icon button"><i class="ui linkify icon"></i> <code>d8d37169e8c752ee66ac06de89778bc74b9280bc84019df0a7874a689156f8e4</code></fabric-button>
             </fabric-button-group>
           </fabric-card-content>
         </fabric-card>
       </fabric-column>
     </fabric-grid>
-    <fabric-footer>
-      <fabric-card class="ui fluid card" id="dialogue" style="display: none;">
-        <fabric-card-content class="ui content">
-          <p style="display: inline-block;"><em>Dialogue...</em></p>
-        </fabric-card-content>
-      </fabric-card>
-      <fabric-card class="ui fluid card" id="footer">
-        <fabric-card-content class="ui content">
-          <i id="chat-close" class="large inverted close icon" style="float: right; display: none;"></i>
-          <i class="inverted console icon" style="float: right;"></i>
-          <fabric-chat-view>
-            <p><strong><abbr title="Message Of The Day">MOTD</abbr>:</strong> YOLO!</p>
-          </fabric-chat-view>
-          <form class="ui inverted form">
-            <input name="input" type="text" placeholder="..." class="ui transparent input" style="display: none;" />
-          </form>
-        </fabric-card-content>
-      </fabric-card>
-    </fabric-footer>
+    <verse-dialogue>
+      <verse-dialogue-stack></verse-dialogue-stack>
+    </verse-dialogue>
     <fabric-dialog-modal>
       <fabric-card class="ui fluid card" id="modal" style="display: none;">
         <fabric-card-content class="ui content">
@@ -143,7 +139,12 @@
     <template id="dialogue-template">
       <fabric-card class="ui fluid dialogue card" style="display: none;">
         <fabric-card-content class="ui content">
-          <p style="display: inline-block;"><em>Dialogue...</em></p>
+          <div class="typed-out">&hellip;</div>
+        </fabric-card-content>
+        <fabric-card-content class="extra content">
+          <fabric-buttons class="ui one right floated buttons">
+            <fabric-button class="ui basic inverted icon right labeled dismiss button">Next <i class="right chevron icon"></i></fabric-button>
+          </fabric-buttons>
         </fabric-card-content>
       </fabric-card>
     </template>
