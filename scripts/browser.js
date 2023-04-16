@@ -550,7 +550,7 @@ async function main (input) {
     // const loadFromID = prompt('Character ID to load from:');
     const loadFromID = 1;
     const character = new Player();
-    await character._loadFromCharacter(loadFromID);
+    // await character._loadFromCharacter(loadFromID);
 
     const location = new Place();
     await location._loadFromRPGByID(character.state.location);
