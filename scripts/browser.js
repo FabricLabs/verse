@@ -34,7 +34,9 @@ async function main (input) {
   const site = document.getElementById('site');
   const universe = new Universe();
 
+  let isViewingOverlay = true;
   let isChatting = false;
+  let username = 'anonymous';
 
   window.addEventListener('load', async () => {
     console.log('loaded!');
@@ -298,6 +300,7 @@ async function main (input) {
       }
 
       if (isChatting) return true;
+      if (isViewingOverlay) return false;
 
       const px = vehicle.position.x;
       const py = vehicle.position.y;
@@ -483,7 +486,7 @@ async function main (input) {
 
     window.addEventListener('deviceorientation', onDeviceOrientation, true);
 
-    document.addEventListener('click', onDocumentClick, false);
+    // document.addEventListener('click', onDocumentClick, false);
     document.addEventListener('mousemove', onDocumentMouseMove, false);
     document.addEventListener('keydown', onDocumentKeyDown, false);
     document.addEventListener('swipedown', onDocumentSwipeDown, false);
@@ -491,7 +494,7 @@ async function main (input) {
     console.log('site:', site);
 
     document.getElementById('tray-settings').addEventListener('click', (event) => {
-      $('#settings').fadeIn();
+      $('#settings').fadeToggle();
       return false;
     });
 
@@ -531,6 +534,33 @@ async function main (input) {
       event.preventDefault();
     });
 
+    document.getElementById('rpg-login-form').addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      $(this).addClass('loading');
+
+      const data = new FormData(this);
+      const map = {};
+
+      for (const [name, value] of data) {
+        map[name] = value;
+      }
+
+      const login = await character._loginRPG(map.username, map.password);
+
+      // TODO: report error
+      if (login) {
+        username = map.username;
+        $(this).slideUp();
+        const card = document.createElement('fabric-identity-card');
+        card.innerHTML = `<abbr class="ui label" title="Your username">${username}</abbr>`;
+        document.querySelector('#identity-manager .content').appendChild(card);
+      } else {
+        $(this).removeClass('loading');
+        $(this).addClass('error');
+      }
+    });
+
     document.querySelector('input[name=input]').addEventListener('blur', function (event) {
       isChatting = false;
     });
@@ -547,17 +577,26 @@ async function main (input) {
       return false;
     });
 
+    document.getElementById('settings-close').addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      $('#settings').fadeOut();
+
+      return false;
+    });
+
     // const loadFromID = prompt('Character ID to load from:');
     const loadFromID = 1;
     const character = new Player();
     // await character._loadFromCharacter(loadFromID);
 
-    const location = new Place();
-    await location._loadFromRPGByID(character.state.location);
+    // const location = new Place();
+    // await location._loadFromRPGByID(character.state.location);
 
-    console.log('location:', location.state);
+    // const login = await character._loginRPG(username, password);
 
-    // createDialogue('hi hi hi');
+    // console.log('logged in:', login);
   });
 
   const engine = { id: null };

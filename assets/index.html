@@ -11,12 +11,31 @@
   <script src="/scripts/semantic.js"></script>
   <script src="/bundles/browser.js"></script>
 </head>
-<body data-bind="46eff9b9e67b15602f91e0bcc6f80085d3beffde4aae9686932049f1845081a4" data-hash="46eff9b9e67b15602f91e0bcc6f80085d3beffde4aae9686932049f1845081a4">
+<body data-bind="d66d573044d5bb3996f3a2145117abc3ff312d904b9c8a43bec52924518eca18" data-hash="d66d573044d5bb3996f3a2145117abc3ff312d904b9c8a43bec52924518eca18">
   <fabric-site class="ui fluid container" id="site">
     <fabric-bridge host="localhost" port="9999" secure="false"></fabric-bridge>
     <fabric-assets>
       <audio id="bgm" loop="true" src="/sounds/irvingforce-crime-scanner.mp3" />
     </fabric-assets>
+    <fabric-card class="ui fluid card" id="identity-manager">
+      <fabric-card-content class="content">
+        <form id="rpg-login-form" class="ui inverted inline form" method="POST">
+          <fabric-fields class="ui fields">
+            <fabric-form-field class="ui field">
+              <input type="text" name="username" class="input" placeholder="Your RPG username" />
+              <label for="username">Username</label>
+            </fabric-form-field>
+            <fabric-form-field class="ui field">
+              <input type="password" name="password" placeholder="Your RPG password" autocomplete="current-password" />
+              <label for="password">Password</label>
+            </fabric-form-field>
+            <fabric-form-field class="ui field">
+              <input class="ui submit button" type="submit" value="Log In" />
+            </fabric-form-field>
+          </fabric-fields>
+        </form>
+      </fabric-card-content>
+    </fabric-card>
     <fabric-console id="console" style="display: none;">
       <fabric-card class="ui fluid card">
         <fabric-card-content class="ui content">
@@ -42,9 +61,12 @@
     </fabric-menu>
     <fabric-menu>
       <fabric-card id="settings" class="ui fluid card" style="display: none;">
-        <fabric-card-header class="ui header">Settings</fabric-card-header>
-        <fabric-card-content class="ui content">
-          <p>Foo</p>
+        <fabric-card-content class="extra content">
+          <i class="right floated inverted remove icon" id="settings-close"></i>
+        </fabric-card-content>
+        <fabric-card-content class="content">
+          <h2>Settings</h2>
+          <p>Not yet implemented...</p>
         </fabric-card-content>
       </fabric-card>
     </fabric-menu>

@@ -4,6 +4,35 @@
 const FabricSite = require('@fabric/http/types/site');
 
 class Site extends FabricSite {
+  constructor (settings = {}) {
+    // Adopt Fabric semantics
+    super(settings);
+
+    // Define local settings
+    this.settings = Object.assign({
+      authority: 'http://localhost:9332/services/fabric', // loopback service
+      fabric: {
+        name: '@sites/default'
+      },
+      state: {
+        title: 'Default Site'
+      },
+      spa: null
+    }, this.settings, settings);
+
+    // Set local state
+    this._state = {
+      content: this.settings.state,
+      status: 'PAUSED'
+    };
+
+    // Fabric Components
+    // this.bridge = new Bridge();
+
+    // Ensure chainability
+    return this;
+  }
+
   _getHTML (state) {
     // TODO: obvious modularization...
     // - fabric-site
@@ -12,15 +41,46 @@ class Site extends FabricSite {
     //   - fabric-menu
     //   - fabric-grid
     return `
-      <fabric-site class="ui container" id="site">
+      <fabric-site class="ui fluid container" id="site">
         <fabric-bridge host="localhost" port="9999" secure="false"></fabric-bridge>
         <fabric-assets>
           <audio id="bgm" loop="true" src="/sounds/irvingforce-crime-scanner.mp3" />
         </fabric-assets>
+        <fabric-card class="ui fluid card" id="identity-manager">
+          <fabric-card-content class="content">
+            <form id="rpg-login-form" class="ui inverted inline form" method="POST">
+              <fabric-fields class="ui fields">
+                <fabric-form-field class="ui field">
+                  <input type="text" name="username" class="input" placeholder="Your RPG username" />
+                  <label for="username">Username</label>
+                </fabric-form-field>
+                <fabric-form-field class="ui field">
+                  <input type="password" name="password" placeholder="Your RPG password" autocomplete="current-password" />
+                  <label for="password">Password</label>
+                </fabric-form-field>
+                <fabric-form-field class="ui field">
+                  <input class="ui submit button" type="submit" value="Log In" />
+                </fabric-form-field>
+              </fabric-fields>
+            </form>
+          </fabric-card-content>
+        </fabric-card>
         <fabric-console id="console" style="display: none;">
           <fabric-card class="ui fluid card">
-            <fabric-card-content class="content">
-              <p>Console...</p>
+            <fabric-card-content class="ui content">
+              <i class="remove icon" id="chat-close" style="float: right;"></i>
+              <h3 class="header">Chat</h3>
+              <fabric-chat-view class="ui inverted segment">
+                <fabric-chat-log>
+                  <p><strong><abbr title="Message Of The Day">MOTD</abbr>:</strong> YOLO!</p>
+                </fabric-chat-log>
+              </fabric-chat-view>
+              <form id="chat-input" autocomplete="off" method="POST" class="ui inverted form">
+                <fabric-input class="ui labeled fluid input">
+                  <fabric-label class="ui label">Say:</fabric-label>
+                  <input name="input" type="text" placeholder="..." />
+                </fabric-input>
+              </form>
             </fabric-card-content>
           </fabric-card>
         </fabric-console>
@@ -30,9 +90,12 @@ class Site extends FabricSite {
         </fabric-menu>
         <fabric-menu>
           <fabric-card id="settings" class="ui fluid card" style="display: none;">
-            <fabric-card-header class="ui header">Settings</fabric-card-header>
-            <fabric-card-content class="ui content">
-              <p>Foo</p>
+            <fabric-card-content class="extra content">
+              <i class="right floated inverted remove icon" id="settings-close"></i>
+            </fabric-card-content>
+            <fabric-card-content class="content">
+              <h2>Settings</h2>
+              <p>Not yet implemented...</p>
             </fabric-card-content>
           </fabric-card>
         </fabric-menu>
@@ -40,7 +103,7 @@ class Site extends FabricSite {
           <fabric-column class="twelve wide column">
             <fabric-card class="ui fluid card" id="overlay">
               <fabric-card-content class="content" style="text-align: center;">
-                <h1 class="ui huge header" data-bind="/title"><code>${state.title || this.title || this.state.title || 'V E R S E' || 'Example Application'}</code></h1>
+                <h1 class="ui huge header" data-bind="/title"><code>V E R S E</code></h1>
                 <p>world explorer</p>
               </fabric-card-content>
               <fabric-card-content class="extra">
@@ -96,25 +159,9 @@ class Site extends FabricSite {
             </fabric-card>
           </fabric-column>
         </fabric-grid>
-        <fabric-footer>
-          <fabric-card class="ui fluid card" id="dialogue" style="display: none;">
-            <fabric-card-content class="ui content">
-              <p style="display: inline-block;"><em>Dialogue...</em></p>
-            </fabric-card-content>
-          </fabric-card>
-          <fabric-card class="ui fluid card" id="footer">
-            <fabric-card-content class="ui content">
-              <i id="chat-close" class="large inverted close icon" style="float: right; display: none;"></i>
-              <i class="inverted console icon" style="float: right;"></i>
-              <fabric-chat-view>
-                <p><strong><abbr title="Message Of The Day">MOTD</abbr>:</strong> YOLO!</p>
-              </fabric-chat-view>
-              <form class="ui inverted form">
-                <input name="input" type="text" placeholder="..." class="ui transparent input" style="display: none;" />
-              </form>
-            </fabric-card-content>
-          </fabric-card>
-        </fabric-footer>
+        <verse-dialogue>
+          <verse-dialogue-stack></verse-dialogue-stack>
+        </verse-dialogue>
         <fabric-dialog-modal>
           <fabric-card class="ui fluid card" id="modal" style="display: none;">
             <fabric-card-content class="ui content">
@@ -125,7 +172,12 @@ class Site extends FabricSite {
         <template id="dialogue-template">
           <fabric-card class="ui fluid dialogue card" style="display: none;">
             <fabric-card-content class="ui content">
-              <p style="display: inline-block;"><em>Dialogue...</em></p>
+              <div class="typed-out">&hellip;</div>
+            </fabric-card-content>
+            <fabric-card-content class="extra content">
+              <fabric-buttons class="ui one right floated buttons">
+                <fabric-button class="ui basic inverted icon right labeled dismiss button">Next <i class="right chevron icon"></i></fabric-button>
+              </fabric-buttons>
             </fabric-card-content>
           </fabric-card>
         </template>

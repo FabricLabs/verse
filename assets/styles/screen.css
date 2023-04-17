@@ -78,6 +78,25 @@ verse-dialogue {
   height: 100%;
 }
 
+#identity-manager {
+  position: fixed;
+  margin: 0;
+  left: 1em;
+  top: 1em;
+  right: 1em;
+  width: calc(100% - 2em);
+}
+
+#settings {
+  z-index: 20;
+  background: #111 !important;
+  position: fixed;
+  top: 20%;
+  bottom: 20%;
+  left: 10%;
+  width: 80%
+}
+
 #tray {
   position: fixed;
   top: 0;
@@ -130,7 +149,7 @@ verse-dialogue {
 }
 
 #overlay {
-  z-index: 9999;
+  z-index: 10;
   position: fixed;
   left: 0;
   right: 0;
