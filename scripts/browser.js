@@ -87,10 +87,12 @@ async function main (input) {
       air: null
     };
 
-    /**
-     * Nomenclature for "Vehicle" here is to reference the player's avatar and influence bubble.
-     * @alias {@link Rover}
-     */
+    // ### Player Instance
+    // Keep track of the current client's player object.
+    const player = new Player();
+
+    // NOTE: Nomenclature for "Vehicle" here is to reference the player's avatar and influence bubble.
+    // AKA: "Rover"
     const vehicle = createVehicleMesh();
     const ghost = createGhostMesh();
 
@@ -513,7 +515,7 @@ async function main (input) {
       return false;
     });
 
-    document.getElementById('connect').addEventListener('click', (event) => {
+    /* document.getElementById('connect').addEventListener('click', (event) => {
       document.getElementById('bgm').play();
 
       event.target.innerHTML = 'Connecting...';
@@ -528,16 +530,51 @@ async function main (input) {
       }, 2500);
 
       return false;
+    }); */
+
+    document.getElementById('chat-bar').addEventListener('click', function (event) {
+      event.preventDefault();
+      $('#chat-log').slideDown();
+      $('#chat-collapse').fadeIn();
+      $('#chat-input').focus();
+    });
+
+    document.getElementById('chat-collapse').addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      $('#chat-log').slideUp();
+      $('#chat-collapse').fadeOut();
     });
 
     document.getElementById('chat-input').addEventListener('submit', function (event) {
       event.preventDefault();
+
+      const now = new Date();
+      const data = new FormData(this);
+      const map = {};
+
+      for (let [key, value] of data) {
+        map[key] = value;
+      }
+
+      this.querySelector('input[name=input]').value = '';
+
+      const log = document.querySelector('fabric-chat-log');
+      const element = document.createElement('fabric-chat-entry');
+      element.classList.add('pending');
+      element.innerHTML = `<p><abbr title="${now.toISOString()}">${now.toISOString()}</abbr> &lt;${username}&gt;: ${map.input}</p>`;
+
+      log.appendChild(element);
+      log.scrollTop = log.scrollHeight;
     });
 
     document.getElementById('rpg-login-form').addEventListener('submit', async function (event) {
       event.preventDefault();
+      event.stopPropagation();
 
-      $(this).addClass('loading');
+      const overlay = document.getElementById('overlay');
+
+      $(overlay).addClass('loading');
 
       const data = new FormData(this);
       const map = {};
@@ -546,35 +583,70 @@ async function main (input) {
         map[name] = value;
       }
 
-      const login = await character._loginRPG(map.username, map.password);
+      const login = await player._loginRPG(map.username, map.password);
+      const selector = document.querySelector('verse-character-list');
 
       // TODO: report error
       if (login) {
+        // Listen for character events
+        player.on('character', (character) => {
+          const element = document.createElement('verse-character-card');
+
+          if (character.universe !== 1) return; // element.classList.add('disabled');
+
+          element.classList.add('ui');
+          element.classList.add('fluid');
+          element.classList.add('card');
+          element.setAttribute('ledger-id', `characters/${character.id}`);
+          element.innerHTML = `
+            <fabric-card-content class="content" style="padding-bottom: 0;">
+              <img
+                src="https://www.roleplaygateway.com/universes/the-multiverse/characters/${character.slug}/image"
+                alt="Portrait of ${character.name}"
+                class="ui left floated image"
+              />
+              <h4>${character.name}</h4>
+              <p>${character.synopsis}</p>
+            </fabric-card-content>
+            <fabric-card-content class="extra content">
+              <button class="ui primary right labeled fluid icon button">Resume this Story <i class="right chevron icon"></i></button>
+            </fabric-card-content>
+          `;
+
+          selector.appendChild(element);
+        });
+
+        // Start search for characters
+        player._getCharacters();
+
+        // Assign username
         username = map.username;
-        $(this).slideUp();
+
         const card = document.createElement('fabric-identity-card');
         card.innerHTML = `<abbr class="ui label" title="Your username">${username}</abbr>`;
+
         document.querySelector('#identity-manager .content').appendChild(card);
+        $(overlay).removeClass('loading');
+
+        $('#overlay').fadeOut();
+
+        $('#character-selection').fadeIn();
+        document.getElementById('bgm').play();
+
+        // createDialogue('<strong>Wake up!</strong>');
+        // createDialogue('Something terrible has happened...');
+        // createDialogue('Our systems have failed, leaving us blind in this wilderness.');
       } else {
-        $(this).removeClass('loading');
+        $(overlay).removeClass('loading');
         $(this).addClass('error');
       }
+
+      return false;
     });
 
     document.querySelector('input[name=input]').addEventListener('blur', function (event) {
+      console.log('blur event');
       isChatting = false;
-    });
-
-    document.getElementById('chat-close').addEventListener('click', function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      $('#chat-input').fadeOut();
-      $('#console').slideUp();
-
-      isChatting = false;
-
-      return false;
     });
 
     document.getElementById('settings-close').addEventListener('click', function (event) {
@@ -585,18 +657,6 @@ async function main (input) {
 
       return false;
     });
-
-    // const loadFromID = prompt('Character ID to load from:');
-    const loadFromID = 1;
-    const character = new Player();
-    // await character._loadFromCharacter(loadFromID);
-
-    // const location = new Place();
-    // await location._loadFromRPGByID(character.state.location);
-
-    // const login = await character._loginRPG(username, password);
-
-    // console.log('logged in:', login);
   });
 
   const engine = { id: null };

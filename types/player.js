@@ -31,6 +31,13 @@ class Player extends Actor {
     });
   }
 
+  async _getCharacters () {
+    const characters = await this.remote._GET(`/players/${this.user.id}/characters`);
+    characters.forEach((character) => {
+      this.emit('character', character);
+    });
+  }
+
   async _loadFromCharacter (id) {
     const character = await this.remote._GET(`/characters/${id}`);
 
@@ -54,10 +61,20 @@ class Player extends Actor {
         }
       }));
 
-      return (result && result.auth && result.auth.success) ? true : false;
+      const status = (result && result.auth && result.auth.success) ? true : false;
+
+      if (status) {
+        this.user = {
+          id: parseInt(result.auth.id.value),
+          name: result.auth.profile.display_name
+        };
+      }
+
+      return status;
     } catch (exception) {
       console.error('could not login:', exception);
     }
+
     return false;
   }
 }

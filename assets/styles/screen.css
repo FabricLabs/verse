@@ -16,13 +16,30 @@ fabric-card.dialogue {
   font-size: 1.2em;
 }
 
-fabric-chat-view {
-  display: block;
-  margin-bottom: 3em;
+fabric-chat-bar {
+  position: fixed;
+  margin: 0;
+  bottom: 1em;
+  left: 1em;
+  right: 1em;
+}
+
+fabric-chat-bar input {
+  color: #fff !important;
+}
+
+fabric-chat-entry {
+  color: #fff !important;
 }
 
 fabric-chat-log {
-  width: 100%;
+  display: block;
+  overflow-y: scroll;
+}
+
+fabric-chat-view {
+  display: block;
+  margin-bottom: 3em;
 }
 
 fabric-console {
@@ -42,13 +59,15 @@ fabric-motd {
   color: #fff !important;
 }
 
-verse-dialogue {
+verse-character-list {
+  overflow: scroll;
+}
+
+verse-dialogue-stack {
   position: fixed;
-  top: 8em;
-  left: 0;
-  right: 0;
-  margin: 0 1em 1em;
-  padding: 0;
+  left: 1em;
+  right: 1em;
+  bottom: 7em;
 }
 
 #site .card {
@@ -64,6 +83,25 @@ verse-dialogue {
   position: fixed;
   top: 0;
   left: 0;
+}
+
+#chat-log {
+  height: 30em;
+}
+
+#character-selection {
+  position: fixed;
+  margin: 1em 0 0;
+  left: 1em;
+  top: 5em;
+  right: 1em;
+  bottom: 7em;
+  width: calc(100% - 2em);
+}
+
+#character-selection img {
+  border: 1px solid white;
+  margin-bottom: 0;
 }
 
 #console {
@@ -131,17 +169,6 @@ verse-dialogue {
 }
 
 #footer form {
-  position: fixed;
-  bottom: 1em;
-  left: 1em;
-  right: 1em;
-}
-
-#chat-close {
-  margin: 0;
-}
-
-#chat-input {
   position: fixed;
   bottom: 1em;
   left: 1em;

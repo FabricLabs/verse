@@ -11,50 +11,31 @@
   <script src="/scripts/semantic.js"></script>
   <script src="/bundles/browser.js"></script>
 </head>
-<body data-bind="d66d573044d5bb3996f3a2145117abc3ff312d904b9c8a43bec52924518eca18" data-hash="d66d573044d5bb3996f3a2145117abc3ff312d904b9c8a43bec52924518eca18">
+<body data-bind="967ae8b240443c7365c757dc6850f6439be5971ffe7b234779c1f0328869d4c7" data-hash="967ae8b240443c7365c757dc6850f6439be5971ffe7b234779c1f0328869d4c7">
   <fabric-site class="ui fluid container" id="site">
     <fabric-bridge host="localhost" port="9999" secure="false"></fabric-bridge>
     <fabric-assets>
       <audio id="bgm" loop="true" src="/sounds/irvingforce-crime-scanner.mp3" />
     </fabric-assets>
-    <fabric-card class="ui fluid card" id="identity-manager">
-      <fabric-card-content class="content">
-        <form id="rpg-login-form" class="ui inverted inline form" method="POST">
-          <fabric-fields class="ui fields">
-            <fabric-form-field class="ui field">
-              <input type="text" name="username" class="input" placeholder="Your RPG username" />
-              <label for="username">Username</label>
-            </fabric-form-field>
-            <fabric-form-field class="ui field">
-              <input type="password" name="password" placeholder="Your RPG password" autocomplete="current-password" />
-              <label for="password">Password</label>
-            </fabric-form-field>
-            <fabric-form-field class="ui field">
-              <input class="ui submit button" type="submit" value="Log In" />
-            </fabric-form-field>
-          </fabric-fields>
-        </form>
-      </fabric-card-content>
+    <fabric-card class="ui fluid card" id="identity-manager" style="display: none;">
+      <fabric-card-content class="content" />
     </fabric-card>
-    <fabric-console id="console" style="display: none;">
-      <fabric-card class="ui fluid card">
-        <fabric-card-content class="ui content">
-          <i class="remove icon" id="chat-close" style="float: right;"></i>
-          <h3 class="header">Chat</h3>
-          <fabric-chat-view class="ui inverted segment">
-            <fabric-chat-log>
-              <p><strong><abbr title="Message Of The Day">MOTD</abbr>:</strong> YOLO!</p>
-            </fabric-chat-log>
-          </fabric-chat-view>
-          <form id="chat-input" autocomplete="off" method="POST" class="ui inverted form">
-            <fabric-input class="ui labeled fluid input">
-              <fabric-label class="ui label">Say:</fabric-label>
-              <input name="input" type="text" placeholder="..." />
-            </fabric-input>
-          </form>
-        </fabric-card-content>
-      </fabric-card>
-    </fabric-console>
+    <verse-character-selection id="character-selection" class="ui fluid card" style="display: none;">
+      <fabric-card-content class="content">
+        <h3>Character Selection</h3>
+        <p>Select your character to resume a story or create a new one.</p>
+      </fabric-card-content>
+      <fabric-card-content class="content">
+        <h4>Start a New Story</h4>
+        <button class="ui huge green fluid right labeled icon button"><span><i class="leaf icon"></i> New Story</span><i class="right chevron icon"></i></button>
+      </fabric-card-content>
+      <fabric-card-content class="content">
+        <h4>Existing Stories (Your Characters)</h4>
+      </fabric-card-content>
+      <fabric-card-content class="content" style="overflow: scroll;">
+        <verse-character-list class="ui cards"></verse-character-list>
+      </fabric-card-content>
+    </verse-character-selection>
     <fabric-menu id="tray">
       <i id="tray-settings" class="ui large inverted cog icon"></i>
       <i id="volume" class="ui large inverted volume up icon"></i>
@@ -68,6 +49,25 @@
           <h2>Settings</h2>
           <p>Not yet implemented...</p>
         </fabric-card-content>
+        <fabric-card-content class="extra content">
+          <fabric-button-group class="ui large fluid vertical labeled icon buttons">
+            <fabric-button class="ui disabled secondary button">
+              <i class="ui tree icon"></i> Wilderness Mode
+            </fabric-button>
+            <fabric-button class="ui disabled secondary button">
+              <i class="ui terminal icon"></i> Text Client
+            </fabric-button>
+            <fabric-button class="ui disabled secondary button">
+              <i class="ui users icon"></i> Manage Peers
+            </fabric-button>
+            <fabric-button class="ui disabled secondary button">
+              <i class="ui bitcoin icon"></i> Wallet
+            </fabric-button>
+            <fabric-button class="ui disabled secondary button">
+              <i class="ui save icon"></i> Load...
+            </fabric-button>
+          </fabric-button-group>
+        </fabric-card-content>
       </fabric-card>
     </fabric-menu>
     <fabric-grid class="ui centered grid">
@@ -78,26 +78,22 @@
             <p>world explorer</p>
           </fabric-card-content>
           <fabric-card-content class="extra">
-            <fabric-button-group class="ui large fluid vertical labeled icon buttons">
-              <fabric-button id="connect" class="ui primary button">
-                <i class="ui bolt icon"></i> Connect
-              </fabric-button>
-              <fabric-button class="ui disabled secondary button">
-                <i class="ui tree icon"></i> Wilderness Mode
-              </fabric-button>
-              <fabric-button class="ui disabled secondary button">
-                <i class="ui terminal icon"></i> Text Client
-              </fabric-button>
-              <fabric-button class="ui disabled secondary button">
-                <i class="ui users icon"></i> Manage Peers
-              </fabric-button>
-              <fabric-button class="ui disabled secondary button">
-                <i class="ui bitcoin icon"></i> Wallet
-              </fabric-button>
-              <fabric-button class="ui disabled secondary button">
-                <i class="ui save icon"></i> Load...
-              </fabric-button>
-            </fabric-button-group>
+            <fabric-container class="ui fluid text container">
+              <form id="rpg-login-form" class="ui inverted form" method="POST">
+                <fabric-form-field class="ui field">
+                  <label for="username">Username</label>
+                  <input type="text" name="username" class="input" placeholder="Your RPG username" />
+                </fabric-form-field>
+                <fabric-form-field class="ui field">
+                  <label for="password">Password</label>
+                  <input type="password" name="password" placeholder="Your RPG password" autocomplete="current-password" />
+                </fabric-form-field>
+                <button class="ui fluid primary right labeled icon button" type="submit" style="margin-top: 1em;">
+                  <i class="right chevron icon"></i>
+                  Authenticate
+                </button>
+              </form>
+            </fabric-container>
           </fabric-card-content>
           <fabric-card-content class="extra hidden" style="display: none;">
             <h2>Navigation</h2>
@@ -148,9 +144,29 @@
         </fabric-card>
       </fabric-column>
     </fabric-grid>
-    <verse-dialogue>
-      <verse-dialogue-stack></verse-dialogue-stack>
-    </verse-dialogue>
+    <verse-dialogue-stack class="ui stacked cards"></verse-dialogue-stack>
+    <fabric-chat-bar id="chat-bar">
+      <fabric-card class="ui fluid card">
+        <fabric-card-content id="chat-log" class="extra content" style="display: none;">
+          <fabric-chat-log style="height: 30em;">
+            <fabric-chat-entry>
+              <p><strong><abbr title="Message Of The Day">MOTD</abbr>:</strong> YOLO!</p>
+            </fabric-chat-entry>
+          </fabric-chat-log>
+        </fabric-card-content>
+        <fabric-card-content class="content">
+          <form class="ui form" id="chat-input">
+            <fabric-form-field class="ui field">
+              <fabric-input class="ui transparent inverted left action fluid input">
+                <fabric-button class="ui inverted basic button">Say:</fabric-button>
+                <input type="text" name="input" placeholder="..." autocomplete="off" />
+                <fabric-button class="icon button" id="chat-collapse" style="display: none;"><i class="down chevron icon"></i></fabric-button>
+              </fabric-input>
+            </fabric-form-field>
+          </form>
+        </fabric-card-content>
+      </fabric-card>
+    </fabric-chat-bar>
     <fabric-dialog-modal>
       <fabric-card class="ui fluid card" id="modal" style="display: none;">
         <fabric-card-content class="ui content">
