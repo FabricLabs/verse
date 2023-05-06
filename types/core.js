@@ -284,6 +284,17 @@ class Core extends Service {
 
     return this;
   }
+
+  async stop () {
+    clearInterval(this.ticker);
+
+    await this.node.stop();
+    await this.http.stop();
+    await this.verse.stop();
+    await this.fs.stop();
+
+    return this;
+  }
 }
 
 // Make a Promise

@@ -469,6 +469,12 @@ async function main (input) {
       }
     }
 
+    function onWindowResize () {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight );
+    }
+
     // Main draw
     drawSpace();
 
@@ -497,6 +503,7 @@ async function main (input) {
     animate();
 
     window.addEventListener('deviceorientation', onDeviceOrientation, true);
+    window.addEventListener('resize', onWindowResize, true);
 
     // document.addEventListener('click', onDocumentClick, false);
     document.addEventListener('mousemove', onDocumentMouseMove, false);
