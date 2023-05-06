@@ -11,5 +11,15 @@ describe('@fabric/verse/types/core', function () {
       assert.ok(core);
       assert.ok(core.id);
     });
+
+    it('can start and stop', async function () {
+      const core = new Core();
+
+      await core.start();
+      await core.stop();
+
+      assert.ok(core);
+      assert.ok(core.id);
+    });
   });
 });
