@@ -1,6 +1,22 @@
+@media (min-width:961px)  {
+  .desktop-only {
+    display: block;
+  }
+}
+
+@media (max-width:960px)  {
+  .desktop-only {
+    display: none;
+  }
+}
+
 body {
   /* background: #333; */
   background: #000;
+}
+
+h1, h2, h3 {
+  text-transform: uppercase;
 }
 
 .hidden {
@@ -89,11 +105,29 @@ verse-dialogue-stack {
   height: 30em;
 }
 
+#character-creator {
+  position: fixed;
+  margin: 1em 0 0;
+  left: 1em;
+  top: 7em;
+  right: 1em;
+  bottom: 7em;
+  width: calc(100% - 2em);
+}
+
+#character-creator .field label {
+  margin-top: 1em;
+}
+
+#character-creator label {
+  color: #fff;
+}
+
 #character-selection {
   position: fixed;
   margin: 1em 0 0;
   left: 1em;
-  top: 5em;
+  top: 7em;
   right: 1em;
   bottom: 7em;
   width: calc(100% - 2em);
@@ -123,6 +157,11 @@ verse-dialogue-stack {
   top: 1em;
   right: 1em;
   width: calc(100% - 2em);
+}
+
+#rpg-login-form {
+  max-width: 15em;
+  margin: 2em auto;
 }
 
 #settings {
@@ -184,8 +223,9 @@ verse-dialogue-stack {
   margin-left: auto;
   margin-right: auto;
   width: 90%;
-  max-width: 50em;
+  max-width: 30em;
   max-height: 60%;
+  padding: 3em;
 }
 
 #overlay fabric-button.ui.button,

@@ -11,8 +11,15 @@ const THREE = require('three');
 const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls');
 const { ImprovedNoise } = require('three/examples/jsm/math/ImprovedNoise');
 
+// Fabric Types
+const Actor = require('@fabric/core/types/actor');
+// const Filesystem = require('@fabric/core/types/filesystem');
+
+// const Stats = require('stats.js');
+const Verse = require('../types/verse');
 const Player = require('../types/player');
 const Universe = require('../types/universe');
+
 const Sheet = require('../types/sheet');
 const Place = require('../types/place');
 
@@ -103,9 +110,12 @@ async function main (input) {
     const animations = [];
     const state = [];
 
+    // Camera modes
     let cameraModes = ['third-person', 'isometric', 'overhead', 'first-person'];
     let currentCameraMode = 'loading';
 
+    // ### Core Functions
+    // #### Animate
     function animate () {
       const time = clock.getElapsedTime();
 
@@ -597,7 +607,7 @@ async function main (input) {
           element.classList.add('ui');
           element.classList.add('fluid');
           element.classList.add('card');
-          element.setAttribute('ledger-id', `characters/${character.id}`);
+          element.setAttribute('data-ledger-id', `characters/${character.id}`);
           element.innerHTML = `
             <fabric-card-content class="content" style="padding-bottom: 0;">
               <img
@@ -609,9 +619,13 @@ async function main (input) {
               <p>${character.synopsis}</p>
             </fabric-card-content>
             <fabric-card-content class="extra content">
-              <button class="ui primary right labeled fluid icon button">Resume this Story <i class="right chevron icon"></i></button>
+              <button data-ledger-id="characters/${character.id}" class="ui primary right labeled fluid icon button">Resume this Story <i class="right chevron icon"></i></button>
             </fabric-card-content>
           `;
+
+          element.querySelector(`button[data-ledger-id="characters/${character.id}"`).addEventListener('click', (event) => {
+            assumeCharacterView(character);
+          });
 
           selector.appendChild(element);
         });
@@ -657,12 +671,14 @@ async function main (input) {
 
       return false;
     });
+
+    $('.dropdown').dropdown();
   });
 
-  const engine = { id: null };
+  // const engine = { id: null };
 
   return {
-    engine: engine.id,
+    // engine: engine,
     universe: universe
   };
 }

@@ -52,19 +52,61 @@ class Site extends FabricSite {
         <verse-character-selection id="character-selection" class="ui fluid card" style="display: none;">
           <fabric-card-content class="content">
             <h3>Character Selection</h3>
-            <p>Select your character to resume a story or create a new one.</p>
           </fabric-card-content>
           <fabric-card-content class="content">
-            <h4>Start a New Story</h4>
-            <button class="ui huge green fluid right labeled icon button"><span><i class="leaf icon"></i> New Story</span><i class="right chevron icon"></i></button>
+            <button id="start-new-story" class="ui huge green fluid right labeled icon button"><span><i class="leaf icon"></i> New Story</span><i class="right chevron icon"></i></button>
           </fabric-card-content>
           <fabric-card-content class="content">
-            <h4>Existing Stories (Your Characters)</h4>
+            <fabric-input class="ui fluid input">
+              <input type="text" name="characterQuery" placeholder="Filter..." />
+            </fabric-input>
           </fabric-card-content>
           <fabric-card-content class="content" style="overflow: scroll;">
             <verse-character-list class="ui cards"></verse-character-list>
           </fabric-card-content>
         </verse-character-selection>
+        <verse-character-creator style="display: none;" id="character-creator">
+          <fabric-card class="ui fluid card">
+            <fabric-card-content class="content">
+              <h3>Create a New Character</h3>
+              <form id="creator-form" class="ui large form" method="POST">
+                <fabric-field class="ui field">
+                  <label>Name</label>
+                  <input type="text" name="name" class="ui required input" placeholder="(your character's name)" required="true" />
+                </fabric-field>
+                <fabric-field class="ui field">
+                  <label>Synopsis</label>
+                  <textarea name="synopsis" class="ui required input" placeholder="(a short description of your character)" required="true"></textarea>
+                </fabric-field>
+                <fabric-field class="ui disabled field" style="display: none;">
+                  <label>Background</label>
+                  <div class="ui selection dropdown">
+                    <input type="hidden" name="background" value="0">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Background</div>
+                    <div class="menu">
+                      <div class="default item" data-value="0">Generic</div>
+                    </div>
+                  </div>
+                </fabric-field>
+                <fabric-field class="ui disabled field" style="display: none;">
+                  <label>Spawn Location</label>
+                  <div class="ui selection dropdown">
+                    <input type="hidden" name="spawn" value="175">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Spawn Location</div>
+                    <div class="menu">
+                      <div class="default item" data-value="175">Wing City Spaceport</div>
+                    </div>
+                  </div>
+                </fabric-field>
+                <fabric-field class="ui field">
+                  <button class="ui large fluid right labeled icon button" style="margin-top: 1em;">Generate Seed <i class="right chevron icon"></i></button>
+                </fabric-field>
+              </form>
+            </fabric-card-content>
+          </fabric-card>
+        </verse-character-creator>
         <fabric-menu id="tray">
           <i id="tray-settings" class="ui large inverted cog icon"></i>
           <i id="volume" class="ui large inverted volume up icon"></i>
@@ -77,25 +119,6 @@ class Site extends FabricSite {
             <fabric-card-content class="content">
               <h2>Settings</h2>
               <p>Not yet implemented...</p>
-            </fabric-card-content>
-            <fabric-card-content class="extra content">
-              <fabric-button-group class="ui large fluid vertical labeled icon buttons">
-                <fabric-button class="ui disabled secondary button">
-                  <i class="ui tree icon"></i> Wilderness Mode
-                </fabric-button>
-                <fabric-button class="ui disabled secondary button">
-                  <i class="ui terminal icon"></i> Text Client
-                </fabric-button>
-                <fabric-button class="ui disabled secondary button">
-                  <i class="ui users icon"></i> Manage Peers
-                </fabric-button>
-                <fabric-button class="ui disabled secondary button">
-                  <i class="ui bitcoin icon"></i> Wallet
-                </fabric-button>
-                <fabric-button class="ui disabled secondary button">
-                  <i class="ui save icon"></i> Load...
-                </fabric-button>
-              </fabric-button-group>
             </fabric-card-content>
           </fabric-card>
         </fabric-menu>
@@ -111,11 +134,11 @@ class Site extends FabricSite {
                   <form id="rpg-login-form" class="ui inverted form" method="POST">
                     <fabric-form-field class="ui field">
                       <label for="username">Username</label>
-                      <input type="text" name="username" class="input" placeholder="Your RPG username" />
+                      <input type="text" name="username" class="required input" required="true" placeholder="Your RPG username" autocomplete="username" />
                     </fabric-form-field>
                     <fabric-form-field class="ui field">
                       <label for="password">Password</label>
-                      <input type="password" name="password" placeholder="Your RPG password" autocomplete="current-password" />
+                      <input type="password" name="password" class="required input" required="true" placeholder="Your RPG password" autocomplete="current-password" />
                     </fabric-form-field>
                     <button class="ui fluid primary right labeled icon button" type="submit" style="margin-top: 1em;">
                       <i class="right chevron icon"></i>
@@ -123,6 +146,22 @@ class Site extends FabricSite {
                     </button>
                   </form>
                 </fabric-container>
+              </fabric-card-content>
+              <fabric-card-content class="extra content desktop-only">
+                <fabric-button-group class="ui large fluid vertical labeled icon buttons">
+                  <fabric-button class="ui disabled secondary button">
+                    <i class="ui tree icon"></i> Wilderness Mode
+                  </fabric-button>
+                  <fabric-button class="ui disabled secondary button">
+                    <i class="ui users icon"></i> Manage Peers
+                  </fabric-button>
+                  <fabric-button class="ui disabled secondary button">
+                    <i class="ui bitcoin icon"></i> Wallet
+                  </fabric-button>
+                  <fabric-button class="ui disabled secondary button">
+                    <i class="ui save icon"></i> Load...
+                  </fabric-button>
+                </fabric-button-group>
               </fabric-card-content>
               <fabric-card-content class="extra hidden" style="display: none;">
                 <h2>Navigation</h2>
