@@ -8,20 +8,20 @@ const {
 const THREE = require('three');
 // const dat = require('dat.gui');
 
-const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls');
-const { ImprovedNoise } = require('three/examples/jsm/math/ImprovedNoise');
+// const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls');
+// const { ImprovedNoise } = require('three/examples/jsm/math/ImprovedNoise');
 
 // Fabric Types
-const Actor = require('@fabric/core/types/actor');
+// const Actor = require('@fabric/core/types/actor');
 // const Filesystem = require('@fabric/core/types/filesystem');
 
 // const Stats = require('stats.js');
-const Verse = require('../types/verse');
+// const Verse = require('../types/verse');
 const Player = require('../types/player');
 const Universe = require('../types/universe');
 
 const Sheet = require('../types/sheet');
-const Place = require('../types/place');
+// const Place = require('../types/place');
 
 const maybeEncounter = require('../functions/maybeEncounter');
 
