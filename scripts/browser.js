@@ -14,6 +14,7 @@ const THREE = require('three');
 // Fabric Types
 // const Actor = require('@fabric/core/types/actor');
 // const Filesystem = require('@fabric/core/types/filesystem');
+const Message = require('@fabric/core/types/message');
 
 // const Stats = require('stats.js');
 // const Verse = require('../types/verse');
@@ -110,6 +111,10 @@ async function main (input) {
     const animations = [];
     const state = [];
 
+    // Baseplane maps
+    const pixelMap = {};
+    const voxelMap = {};
+
     // Camera modes
     let cameraModes = ['third-person', 'isometric', 'overhead', 'first-person'];
     let currentCameraMode = 'loading';
@@ -156,8 +161,6 @@ async function main (input) {
       renderer.render(scene, camera);
     }
 
-    const pixelMap = {}
-    const voxelMap = {}
 
     function createPlaneMesh () {
       const group = new THREE.Group();
@@ -583,6 +586,36 @@ async function main (input) {
 
       log.appendChild(element);
       log.scrollTop = log.scrollHeight;
+
+      const message = Message.fromVector(['P2P_CHAT_MESSAGE', JSON.stringify({
+        actor: {
+          id: username // TODO: pubkey?
+        },
+        author: username, // TODO: pubkey?
+        content: map.input,
+        object: {
+          created: now.toISOString(),
+          content: map.input
+        },
+        target: '/messages',
+        type: 'P2P_CHAT_MESSAGE'
+      })]);
+    });
+
+    document.getElementById('creator-form').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      $('#character-creator').addClass('loading');
+
+      const data = new FormData(this);
+      const map = {};
+
+      for (let [key, value] of data) {
+        map[key] = value;
+      }
+
+      return false;
     });
 
     document.getElementById('rpg-login-form').addEventListener('submit', async function (event) {
@@ -675,6 +708,21 @@ async function main (input) {
       event.stopPropagation();
 
       $('#settings').fadeOut();
+
+      return false;
+    });
+
+    document.getElementById('start-new-story').addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Hide other panes
+      $('#overlay').fadeOut();
+      $('#character-selection').fadeOut();
+
+      // Show our pane
+      $('#character-creator').fadeIn();
+      $(document.getElementById('character-creator').querySelector('input[name]')).focus();
 
       return false;
     });

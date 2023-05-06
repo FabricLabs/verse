@@ -1,7 +1,7 @@
 'use strict';
 
 const Actor = require('@fabric/core/types/actor');
-const Remote = require('@fabric/http/types/remote');
+const Remote = require('@fabric/core/types/remote');
 
 class Player extends Actor {
   constructor (settings = {}) {
