@@ -30,6 +30,8 @@ By default, `@verse/core` will check for a `contract` property in `settings/loca
 - `peer` — Fabric Peer list (connect by default)
 
 ## Credits
+@chrisinajar, @chjj, @jlukic, @indutry, @mafintosh, @anandsuresh
+
 Pull Requests eagerly welcomed!
 
 [verse-clone-the-source]: NEWBIE.md

@@ -8,6 +8,11 @@ class Space extends Service {
   constructor (settings = {}) {
 
     this.settings = Object.assign({
+      dimensions: {
+        x: 32,
+        y: 32,
+        z: 32
+      },
       state: {}
     }, settings);
 

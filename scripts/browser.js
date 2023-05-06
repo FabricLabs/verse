@@ -8,13 +8,21 @@ const {
 const THREE = require('three');
 // const dat = require('dat.gui');
 
-const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls');
-const { ImprovedNoise } = require('three/examples/jsm/math/ImprovedNoise');
+// const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls');
+// const { ImprovedNoise } = require('three/examples/jsm/math/ImprovedNoise');
 
+// Fabric Types
+// const Actor = require('@fabric/core/types/actor');
+// const Filesystem = require('@fabric/core/types/filesystem');
+const Message = require('@fabric/core/types/message');
+
+// const Stats = require('stats.js');
+// const Verse = require('../types/verse');
 const Player = require('../types/player');
 const Universe = require('../types/universe');
+
 const Sheet = require('../types/sheet');
-const Place = require('../types/place');
+// const Place = require('../types/place');
 
 const maybeEncounter = require('../functions/maybeEncounter');
 
@@ -33,6 +41,10 @@ async function _loadWASM () {
 async function main (input) {
   const site = document.getElementById('site');
   const universe = new Universe();
+
+  let isViewingOverlay = true;
+  let isChatting = false;
+  let username = 'anonymous';
 
   window.addEventListener('load', async () => {
     console.log('loaded!');
@@ -83,10 +95,12 @@ async function main (input) {
       air: null
     };
 
-    /**
-     * Nomenclature for "Vehicle" here is to reference the player's avatar and influence bubble.
-     * @alias {@link Rover}
-     */
+    // ### Player Instance
+    // Keep track of the current client's player object.
+    const player = new Player();
+
+    // NOTE: Nomenclature for "Vehicle" here is to reference the player's avatar and influence bubble.
+    // AKA: "Rover"
     const vehicle = createVehicleMesh();
     const ghost = createGhostMesh();
 
@@ -97,9 +111,16 @@ async function main (input) {
     const animations = [];
     const state = [];
 
+    // Baseplane maps
+    const pixelMap = {};
+    const voxelMap = {};
+
+    // Camera modes
     let cameraModes = ['third-person', 'isometric', 'overhead', 'first-person'];
     let currentCameraMode = 'loading';
 
+    // ### Core Functions
+    // #### Animate
     function animate () {
       const time = clock.getElapsedTime();
 
@@ -140,8 +161,6 @@ async function main (input) {
       renderer.render(scene, camera);
     }
 
-    const pixelMap = {}
-    const voxelMap = {}
 
     function createPlaneMesh () {
       const group = new THREE.Group();
@@ -190,6 +209,26 @@ async function main (input) {
     function createGhostMesh () {
       const ghost = new THREE.Mesh(vehicleGeometry, ghostMaterial);
       return ghost;
+    }
+
+    function createDialogue (content) {
+      const buffer = new Uint8Array(32);
+      const id = 'notification-' + Buffer.from(window.crypto.getRandomValues(buffer)).toString('hex');
+      const site = document.querySelector('verse-dialogue-stack');
+      const template = document.getElementById('dialogue-template');
+      const clone = template.content.cloneNode(true);
+
+      clone.querySelector('fabric-card').id = id;
+      clone.querySelector('.typed-out').innerHTML = content;
+      clone.querySelector('.button.dismiss').addEventListener('click', (event) => {
+        const dialogue = document.getElementById(id);
+        $(dialogue).fadeOut(1000);
+      });
+
+      site.append(clone);
+
+      // TODO: remove jquery
+      $(`#${id}`).slideDown();
     }
 
     function createVehicleMesh () {
@@ -269,6 +308,15 @@ async function main (input) {
     }
 
     async function onDocumentKeyDown (event) {
+      if (event.code === 'Escape') {
+        $('#chat-input').fadeOut();
+        $('#console').slideUp();
+        isChatting = false;
+      }
+
+      if (isChatting) return true;
+      if (isViewingOverlay) return false;
+
       const px = vehicle.position.x;
       const py = vehicle.position.y;
       const pz = vehicle.position.z;
@@ -317,7 +365,17 @@ async function main (input) {
           break;
         case 'Backquote':
           event.preventDefault();
+
+          $('#overlay').fadeOut();
+          $('#chat-input').fadeIn();
           $('#console').slideToggle();
+          $('#console').animate({
+            bottom: 0
+          });
+
+          $('#chat-input input').focus();
+
+          isChatting = true;
           break;
         case 'KeyQ':
           // rotate camera left
@@ -414,6 +472,12 @@ async function main (input) {
       }
     }
 
+    function onWindowResize () {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight );
+    }
+
     // Main draw
     drawSpace();
 
@@ -442,8 +506,9 @@ async function main (input) {
     animate();
 
     window.addEventListener('deviceorientation', onDeviceOrientation, true);
+    window.addEventListener('resize', onWindowResize, true);
 
-    document.addEventListener('click', onDocumentClick, false);
+    // document.addEventListener('click', onDocumentClick, false);
     document.addEventListener('mousemove', onDocumentMouseMove, false);
     document.addEventListener('keydown', onDocumentKeyDown, false);
     document.addEventListener('swipedown', onDocumentSwipeDown, false);
@@ -451,7 +516,7 @@ async function main (input) {
     console.log('site:', site);
 
     document.getElementById('tray-settings').addEventListener('click', (event) => {
-      $('#settings').fadeIn();
+      $('#settings').fadeToggle();
       return false;
     });
 
@@ -470,7 +535,7 @@ async function main (input) {
       return false;
     });
 
-    document.getElementById('connect').addEventListener('click', (event) => {
+    /* document.getElementById('connect').addEventListener('click', (event) => {
       document.getElementById('bgm').play();
 
       event.target.innerHTML = 'Connecting...';
@@ -480,56 +545,195 @@ async function main (input) {
         event.target.innerHTML = 'Connected!';
         setTimeout(() => {
           $('#overlay').fadeOut();
+          createDialogue('<strong>Wake up!</strong>');
         }, 1000);
       }, 2500);
 
       return false;
+    }); */
+
+    document.getElementById('chat-bar').addEventListener('click', function (event) {
+      event.preventDefault();
+      $('#chat-log').slideDown();
+      $('#chat-collapse').fadeIn();
+      $('#chat-input').focus();
     });
 
-    document.getElementById('footer').addEventListener('click', function (event) {
-      const input = this.querySelector('input[name=input]');
-      if (currentCameraMode !== 'loading') {
-        $('#overlay').fadeOut();
-        $('#chat-close').fadeIn();
-        $(input).fadeIn();
-        $(input).focus();
-        $(this).animate({
-          height: '90%'
-        }, 500);
+    document.getElementById('chat-collapse').addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      $('#chat-log').slideUp();
+      $('#chat-collapse').fadeOut();
+    });
 
-        // this.style.height = '90%';
+    document.getElementById('chat-input').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const now = new Date();
+      const data = new FormData(this);
+      const map = {};
+
+      for (let [key, value] of data) {
+        map[key] = value;
       }
+
+      this.querySelector('input[name=input]').value = '';
+
+      const log = document.querySelector('fabric-chat-log');
+      const element = document.createElement('fabric-chat-entry');
+      element.classList.add('pending');
+      element.innerHTML = `<p><abbr title="${now.toISOString()}">${now.toISOString()}</abbr> &lt;${username}&gt;: ${map.input}</p>`;
+
+      log.appendChild(element);
+      log.scrollTop = log.scrollHeight;
+
+      const message = Message.fromVector(['P2P_CHAT_MESSAGE', JSON.stringify({
+        actor: {
+          id: username // TODO: pubkey?
+        },
+        author: username, // TODO: pubkey?
+        content: map.input,
+        object: {
+          created: now.toISOString(),
+          content: map.input
+        },
+        target: '/messages',
+        type: 'P2P_CHAT_MESSAGE'
+      })]);
     });
 
-    document.getElementById('chat-close').addEventListener('click', function (event) {
+    document.getElementById('creator-form').addEventListener('submit', async function (event) {
       event.preventDefault();
       event.stopPropagation();
 
-      $('#footer input[name=input]').hide();
-      $('#footer').animate({
-        height: '5%'
-      });
+      $('#character-creator').addClass('loading');
+
+      const data = new FormData(this);
+      const map = {};
+
+      for (let [key, value] of data) {
+        map[key] = value;
+      }
 
       return false;
     });
 
-    // const loadFromID = prompt('Character ID to load from:');
-    const loadFromID = 1;
-    const character = new Player();
-    await character._loadFromCharacter(loadFromID);
+    document.getElementById('rpg-login-form').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      event.stopPropagation();
 
-    const location = new Place();
-    await location._loadFromRPGByID(character.state.location);
+      const overlay = document.getElementById('overlay');
 
-    console.log('location:', location.state);
+      $(overlay).addClass('loading');
 
-    // createDialogue('hi hi hi');
+      const data = new FormData(this);
+      const map = {};
+
+      for (const [name, value] of data) {
+        map[name] = value;
+      }
+
+      const login = await player._loginRPG(map.username, map.password);
+      const selector = document.querySelector('verse-character-list');
+
+      // TODO: report error
+      if (login) {
+        // Listen for character events
+        player.on('character', (character) => {
+          const element = document.createElement('verse-character-card');
+
+          if (character.universe !== 1) return; // element.classList.add('disabled');
+
+          element.classList.add('ui');
+          element.classList.add('fluid');
+          element.classList.add('card');
+          element.setAttribute('data-ledger-id', `characters/${character.id}`);
+          element.innerHTML = `
+            <fabric-card-content class="content" style="padding-bottom: 0;">
+              <img
+                src="https://www.roleplaygateway.com/universes/the-multiverse/characters/${character.slug}/image"
+                alt="Portrait of ${character.name}"
+                class="ui left floated image"
+              />
+              <h4>${character.name}</h4>
+              <p>${character.synopsis}</p>
+            </fabric-card-content>
+            <fabric-card-content class="extra content">
+              <button data-ledger-id="characters/${character.id}" class="ui primary right labeled fluid icon button">Resume this Story <i class="right chevron icon"></i></button>
+            </fabric-card-content>
+          `;
+
+          element.querySelector(`button[data-ledger-id="characters/${character.id}"`).addEventListener('click', (event) => {
+            assumeCharacterView(character);
+          });
+
+          selector.appendChild(element);
+        });
+
+        // Start search for characters
+        player._getCharacters();
+
+        // Assign username
+        username = map.username;
+
+        const card = document.createElement('fabric-identity-card');
+        card.innerHTML = `<abbr class="ui label" title="Your username">${username}</abbr>`;
+
+        document.querySelector('#identity-manager .content').appendChild(card);
+        $(overlay).removeClass('loading');
+
+        $('#overlay').fadeOut();
+
+        $('#character-selection').fadeIn();
+        document.getElementById('bgm').play();
+
+        // createDialogue('<strong>Wake up!</strong>');
+        // createDialogue('Something terrible has happened...');
+        // createDialogue('Our systems have failed, leaving us blind in this wilderness.');
+      } else {
+        $(overlay).removeClass('loading');
+        $(this).addClass('error');
+      }
+
+      return false;
+    });
+
+    document.querySelector('input[name=input]').addEventListener('blur', function (event) {
+      console.log('blur event');
+      isChatting = false;
+    });
+
+    document.getElementById('settings-close').addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      $('#settings').fadeOut();
+
+      return false;
+    });
+
+    document.getElementById('start-new-story').addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Hide other panes
+      $('#overlay').fadeOut();
+      $('#character-selection').fadeOut();
+
+      // Show our pane
+      $('#character-creator').fadeIn();
+      $(document.getElementById('character-creator').querySelector('input[name]')).focus();
+
+      return false;
+    });
+
+    $('.dropdown').dropdown();
   });
 
-  const engine = { id: null };
+  // const engine = { id: null };
 
   return {
-    engine: engine.id,
+    // engine: engine,
     universe: universe
   };
 }

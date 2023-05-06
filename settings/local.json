@@ -1,0 +1,29 @@
+{
+  "contract": "28de9a6e6dfacd64cda3deb62d84a3bd6081908de34c283877639724a78616cb",
+  "http": {
+    "hostname": "localhost",
+    "port": 9998
+  },
+  "peers": [
+    "localhost:7778",
+    "hub.fabric.pub:7777",
+    "hub.roleplaygateway.com:9999"
+  ],
+  "resources": {
+    "Place": {
+      "fields": [
+        { "name": "_id", "type": "String", "description": "Internal ID for RPG." },
+        { "name": "id", "type": "String", "description": "Fabric ID", "required": true },
+        { "name": "name", "type": "String" }
+      ]
+    },
+    "Player": {
+      "fields": [
+        { "name": "_id", "type": "String", "description": "Internal ID for RPG." },
+        { "name": "id", "type": "String", "description": "Fabric ID", "required": true },
+        { "name": "name", "type": "String" }
+      ],
+      "price": 1
+    }
+  }
+}
