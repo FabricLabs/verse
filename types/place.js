@@ -33,6 +33,17 @@ class Place extends Actor {
     return this.state.name;
   }
 
+  get _RPGExitDestinationIDs () {
+    return [];
+  }
+
+  isSurroundedByRPGPlaceID (target) {
+    if (!target) return false;
+    if (!this._RPGExitDestinationIDs.includes(target)) return false;
+    // all normal exits lead to target
+    return true;
+  }
+
   toHTML () {
     return `
       <verse-place class="ui card">
