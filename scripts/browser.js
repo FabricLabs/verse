@@ -5,8 +5,11 @@ const {
   STARTING_POSITION
 } = require('../constants');
 
-const THREE = require('three');
-// const dat = require('dat.gui');
+const settings = require('../settings/local');
+
+// 3D Frameworks
+const AFRAME = require('aframe');
+const THREE = AFRAME.THREE;
 
 // const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls');
 // const { ImprovedNoise } = require('three/examples/jsm/math/ImprovedNoise');
@@ -21,7 +24,7 @@ const Message = require('@fabric/core/types/message');
 const Player = require('../types/player');
 const Universe = require('../types/universe');
 
-const Sheet = require('../types/sheet');
+// const Sheet = require('../types/sheet');
 // const Place = require('../types/place');
 
 const maybeEncounter = require('../functions/maybeEncounter');
@@ -39,6 +42,21 @@ async function _loadWASM () {
 }
 
 async function main (input) {
+  console.log('[VERSE:SPA]', 'main()', '...');
+
+  customElements.define('fabric-chat-bar', FabricChatBar);
+
+  /* const actor = new Actor({
+    settings: input
+  });
+
+  console.log('Actor:', actor);
+  console.log('Actor preimage:', actor.preimage);
+  console.log('Actor ID:', actor.id); */
+
+  // const engine = new Verse(input);
+  // document.write(engine.toHTML());
+
   const site = document.getElementById('site');
   const universe = new Universe();
 
@@ -94,6 +112,13 @@ async function main (input) {
       sand: new THREE.MeshBasicMaterial({ color: 0xF4A460 }),
       air: null
     };
+
+    // const logo = new Sheet({ size: 256 });
+    // const chunk = logo.getChunk();
+
+    // console.log('chunk:', chunk);
+    // const values = getPixelValues(chunk);
+    // console.log('values:', values);
 
     // ### Player Instance
     // Keep track of the current client's player object.
@@ -161,6 +186,12 @@ async function main (input) {
       renderer.render(scene, camera);
     }
 
+    function assumeCharacterView (character) {
+      console.log('assuming character view:', character);
+      $('#character-selection').fadeOut();
+      isViewingOverlay = false;
+      universe._syncPlaceID(character.location);
+    }
 
     function createPlaneMesh () {
       const group = new THREE.Group();
@@ -208,6 +239,7 @@ async function main (input) {
 
     function createGhostMesh () {
       const ghost = new THREE.Mesh(vehicleGeometry, ghostMaterial);
+      // const vehicleMixer = new THREE.AnimationMixer(vehicle);
       return ghost;
     }
 
@@ -231,9 +263,19 @@ async function main (input) {
       $(`#${id}`).slideDown();
     }
 
+    function createPreviewSprite (url = '/images/fabric-labs.png') {
+      const map = new THREE.TextureLoader().load(url);
+      const material = new THREE.SpriteMaterial({ map: map });
+      const sprite = new THREE.Sprite(material);
+      sprite.renderOrder = 10;
+      // sprite.scale.set(1, 1, 1);
+      return sprite;
+    }
+
     function createVehicleMesh () {
       const vehicle = new THREE.Mesh(vehicleGeometry, vehicleMaterial);
       vehicle.add(vehicleGlow);
+      // const vehicleMixer = new THREE.AnimationMixer(vehicle);
       return vehicle;
     }
 
@@ -309,8 +351,7 @@ async function main (input) {
 
     async function onDocumentKeyDown (event) {
       if (event.code === 'Escape') {
-        $('#chat-input').fadeOut();
-        $('#console').slideUp();
+        $('#chat-input').blur();
         isChatting = false;
       }
 
@@ -368,6 +409,8 @@ async function main (input) {
 
           $('#overlay').fadeOut();
           $('#chat-input').fadeIn();
+
+          // $('#chat-input').fadeToggle();
           $('#console').slideToggle();
           $('#console').animate({
             bottom: 0
@@ -738,7 +781,7 @@ async function main (input) {
   };
 }
 
-main().catch((exception) => {
+main(settings).catch((exception) => {
   console.log('[VERSE] Error:', exception);
 }).then((output) => {
   window.verse = output;

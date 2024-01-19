@@ -42,13 +42,13 @@
   "homepage": "https://github.com/FabricLabs/verse#readme",
   "dependencies": {
     "@fabric/core": "FabricLabs/fabric#feature/v0.1.0-RC1",
-    "@fabric/http": "FabricLabs/fabric-http#feature/graphql",
+    "@fabric/http": "FabricLabs/fabric-http#feature/v0.1.0-RC1",
     "@webcomponents/custom-elements": "1.6.0",
+    "aframe": "^1.4.2",
     "canvas": "2.11.0",
     "fast-json-patch": "3.1.1",
     "is-my-json-valid": "2.20.6",
-    "querystring-es3": "0.2.1",
-    "three": "0.151.2"
+    "querystring-es3": "0.2.1"
   },
   "devDependencies": {
     "babel-loader": "8.2.5",

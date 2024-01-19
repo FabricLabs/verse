@@ -4,10 +4,9 @@
     "hostname": "localhost",
     "port": 9998
   },
+  "networking": false,
   "peers": [
-    "localhost:7778",
-    "hub.fabric.pub:7777",
-    "hub.roleplaygateway.com:9999"
+    "localhost:7778"
   ],
   "resources": {
     "Place": {

@@ -1,7 +1,10 @@
  'use strict';
 
+const Peer = require('@fabric/core/types/peer');
+
 // Fabric HTTP Types
 const FabricSite = require('@fabric/http/types/site');
+const SPA = require('@fabric/http/types/spa');
 
 class Site extends FabricSite {
   constructor (settings = {}) {
@@ -27,6 +30,8 @@ class Site extends FabricSite {
     };
 
     // Fabric Components
+    this.peer = new Peer(this.settings.fabric);
+    this.spa = new SPA(this.settings);
     // this.bridge = new Bridge();
 
     // Ensure chainability
