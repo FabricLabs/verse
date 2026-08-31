@@ -1,0 +1,9 @@
+{
+  "name": "Genesis",
+  "number": 0,
+  "subtitle": "\"Origin Stories\"",
+  "description": "The first chapter in the game.",
+  "scenes": [
+    "00000-genesis"
+  ]
+}

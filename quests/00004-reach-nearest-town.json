@@ -1,0 +1,12 @@
+{
+  "name": "Reach the Nearest Town",
+  "description": "The note is satisfied. Follow the arrow across the wilderness to the nearest size-5 settlement.",
+  "world": "SPECIAL:WILDERNESS",
+  "objectives": [
+    {
+      "type": "locate",
+      "target": "nearest_town",
+      "count": 1
+    }
+  ]
+}

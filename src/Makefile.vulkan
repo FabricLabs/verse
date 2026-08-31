@@ -1,0 +1,166 @@
+# Makefile for Vulkan Voxel Renderer
+# This Makefile builds the Vulkan renderer components
+
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -O2 -g
+LDFLAGS = -lm
+
+# Platform-specific paths
+ifeq ($(shell uname),Darwin)
+    # macOS with Homebrew
+    CFLAGS += -I/opt/homebrew/opt/sdl2/include -I/opt/homebrew/opt/vulkan-headers/include
+    LDFLAGS += -L/opt/homebrew/opt/sdl2/lib -L/opt/homebrew/opt/vulkan-loader/lib -L/opt/homebrew/Cellar/molten-vk/1.3.0/lib
+else
+    # Linux
+    CFLAGS += $(shell pkg-config --cflags sdl2 2>/dev/null)
+    LDFLAGS += $(shell pkg-config --libs-only-L sdl2 2>/dev/null)
+endif
+
+# Vulkan and SDL2 libraries
+VULKAN_LIBS = -lvulkan -lMoltenVK
+SDL2_LIBS = -lSDL2
+
+# Source files for Vulkan renderer
+VULKAN_SOURCES = vulkan_utils.c vulkan_renderer.c vulkan_fp_renderer.c shader_loader.c
+VULKAN_OBJECTS = $(VULKAN_SOURCES:.c=.o)
+
+# Demo program
+DEMO_SOURCES = vulkan_voxel_demo.c
+DEMO_OBJECTS = $(DEMO_SOURCES:.c=.o)
+
+# Dependencies
+DEPENDENCY_SOURCES = simple_world.c marching_cubes.c
+DEPENDENCY_OBJECTS = $(DEPENDENCY_SOURCES:.c=.o)
+
+# Header files
+VULKAN_HEADERS = vulkan_renderer.h vulkan_utils.h vulkan_fp_renderer.h vulkan_shaders.h shader_loader.h
+DEPENDENCY_HEADERS = simple_world.h marching_cubes.h
+
+# Targets
+all: vulkan_voxel_demo
+
+# Build the demo program
+vulkan_voxel_demo: $(DEMO_OBJECTS) $(VULKAN_OBJECTS) $(DEPENDENCY_OBJECTS)
+	$(CC) $(DEMO_OBJECTS) $(VULKAN_OBJECTS) $(DEPENDENCY_OBJECTS) -o $@ $(LDFLAGS) $(VULKAN_LIBS) $(SDL2_LIBS)
+
+# Build Vulkan renderer objects
+$(VULKAN_OBJECTS): $(VULKAN_HEADERS)
+
+# Build dependency objects
+$(DEPENDENCY_OBJECTS): $(DEPENDENCY_HEADERS)
+
+# Build demo objects
+$(DEMO_OBJECTS): $(VULKAN_HEADERS) $(DEPENDENCY_HEADERS)
+
+# Build object files
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean build artifacts
+clean:
+	rm -f *.o vulkan_voxel_demo
+
+# Install (optional - requires sudo)
+install: vulkan_voxel_demo
+ifeq ($(shell uname),Darwin)
+	cp vulkan_voxel_demo /opt/homebrew/bin/
+	cp $(VULKAN_HEADERS) /opt/homebrew/include/
+	cp $(VULKAN_OBJECTS) /opt/homebrew/lib/
+else
+	cp vulkan_voxel_demo /usr/local/bin/
+	cp $(VULKAN_HEADERS) /usr/local/include/
+	cp $(VULKAN_OBJECTS) /usr/local/lib/
+endif
+
+# Uninstall
+uninstall:
+ifeq ($(shell uname),Darwin)
+	rm -f /opt/homebrew/bin/vulkan_voxel_demo
+	rm -f /opt/homebrew/include/vulkan_*.h
+	rm -f /opt/homebrew/lib/vulkan_*.o
+else
+	rm -f /usr/local/bin/vulkan_voxel_demo
+	rm -f /usr/local/include/vulkan_*.h
+	rm -f /usr/local/lib/vulkan_*.o
+endif
+
+# Run the demo
+run: vulkan_voxel_demo
+	./vulkan_voxel_demo
+
+# Test build without Vulkan (fallback mode)
+test_fallback: vulkan_voxel_demo
+	VK_LOADER_DRIVERS_SELECT= ./vulkan_voxel_demo
+
+# Build with debug symbols
+debug: CFLAGS += -DDEBUG -g3 -O0
+debug: vulkan_voxel_demo
+
+# Build with optimization
+release: CFLAGS += -O3 -DNDEBUG
+release: vulkan_voxel_demo
+
+# Check Vulkan availability
+check_vulkan:
+	@echo "Checking Vulkan availability..."
+	@if command -v vulkaninfo >/dev/null 2>&1; then \
+		echo "Vulkan info available:"; \
+		vulkaninfo --summary | head -20; \
+	else \
+		echo "Vulkan info not available. Checking for Vulkan libraries..."; \
+		ldconfig -p | grep vulkan || echo "No Vulkan libraries found in system paths"; \
+	fi
+
+# Show help
+help:
+	@echo "Available targets:"
+	@echo "  all              - Build the Vulkan voxel demo program"
+	@echo "  vulkan_voxel_demo - Build the demo program"
+	@echo "  clean            - Remove build artifacts"
+	@echo "  install          - Install to system (requires sudo)"
+	@echo "  uninstall        - Remove from system (requires sudo)"
+	@echo "  run              - Build and run the demo"
+	@echo "  test_fallback    - Test fallback mode without Vulkan"
+	@echo "  debug            - Build with debug symbols"
+	@echo "  release          - Build with optimization"
+	@echo "  check_vulkan     - Check Vulkan availability on system"
+	@echo "  help             - Show this help message"
+	@echo ""
+	@echo "Dependencies:"
+	@echo "  - Vulkan SDK (libvulkan-dev)"
+	@echo "  - SDL2 development libraries (libsdl2-dev)"
+	@echo "  - GCC compiler"
+	@echo "  - Math library (libm)"
+
+# Dependencies check
+check_deps:
+	@echo "Checking build dependencies..."
+	@if [ "$(shell uname)" = "Darwin" ]; then \
+		echo "macOS detected, checking Homebrew packages..."; \
+		if ! brew list vulkan-headers >/dev/null 2>&1; then \
+			echo "Warning: Vulkan headers not found"; \
+			echo "Install with: brew install vulkan-headers"; \
+		fi; \
+		if ! brew list molten-vk >/dev/null 2>&1; then \
+			echo "Warning: MoltenVK not found"; \
+			echo "Install with: brew install molten-vk"; \
+		fi; \
+		if ! brew list sdl2 >/dev/null 2>&1; then \
+			echo "Warning: SDL2 not found"; \
+			echo "Install with: brew install sdl2"; \
+		fi; \
+	else \
+		if ! pkg-config --exists vulkan; then \
+			echo "Warning: Vulkan development files not found"; \
+			echo "Install with: sudo apt-get install libvulkan-dev"; \
+		fi; \
+		if ! pkg-config --exists sdl2; then \
+			echo "Install with: sudo apt-get install libsdl2-dev"; \
+		fi; \
+	fi
+	@echo "Dependencies check complete"
+
+# Build with dependency checking
+build: check_deps all
+
+.PHONY: all clean install uninstall run test_fallback debug release check_vulkan help check_deps build

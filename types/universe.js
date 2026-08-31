@@ -1,7 +1,7 @@
 'use strict';
 
 const Actor = require('@fabric/core/types/actor');
-const Remote = require('@fabric/http/types/remote');
+const Remote = require('@fabric/core/types/remote');
 // const Service = require('@fabric/core/types/service');
 
 class RPGUniverse extends Actor {
@@ -51,6 +51,10 @@ class RPGUniverse extends Actor {
     });
   }
 
+  get _startingLocationIDs () {
+    return [];
+  }
+
   prune () {
     const overage = Object.keys(this.state.places).length - this.settings.constraints.places.count;
 
@@ -87,6 +91,7 @@ class RPGUniverse extends Actor {
   }
 
   registerPlayer (player) {
+    console.log('registering player:', player);
     const actor = new Actor(player);
     if (!this._state.content.players) this._state.content.players = {};
     if (this.state.players[actor.id]) return actor.id;
@@ -122,34 +127,7 @@ class RPGUniverse extends Actor {
       secure: this.settings.secure
     });
 
-    this.universe = await this.remote._GET(`/universes/${this.settings.universe.id}`);
-
-    // Universe properties
-    this._state.content.title = this.universe.title;
-    this._state.content.slug = this.universe.slug;
-    this._state.content.created = '2005-07-01T04:00:00.000Z';
-
-    // Game Masters
-    for (const master of this.universe.permissions.masters) {
-      this.registerPlayer({ _id: master._id });
-    }
-
-    // Builders
-    for (const builder of this.universe.permissions.builders) {
-      this.registerPlayer({ _id: builder._id });
-    }
-
-    // Players
-    for (const player of this.universe._players) {
-      const id = this.registerPlayer({ _id: player._id });
-      this._state.content.players[id].name = player.username;
-    }
-
-    // Places
-    for (const place of this.universe._places) {
-      this._syncPlaceID(place.id);
-    }
-
+    // await this._syncUniverse();
     // await this._loadFromRPG();
     // await this._syncAllPaths();
     // await this._navigate(3, 29154);
@@ -160,9 +138,9 @@ class RPGUniverse extends Actor {
   async tick () {
     this._state.content.clock++;
 
-    await this._syncMissingPaths();
-    await this._syncOldestPlaces();
-    await this._syncRandomPlaces();
+    // await this._syncMissingPaths();
+    // await this._syncOldestPlaces();
+    // await this._syncRandomPlaces();
     // this.prune();
 
     this.commit();
@@ -219,7 +197,7 @@ class RPGUniverse extends Actor {
       this.remote._GET(`/places/${_id}`).catch((exception) => {
         this.emit('debug', `Could not sync place: ${exception}`);
         reject(exception);
-      }).then((entity) => {
+      }).then(async (entity) => {
         // console.log('entity:', entity);
         if (!entity) return reject(new Error(`Place ID # ${_id} did not return a result: ${entity}`));
 
@@ -242,7 +220,7 @@ class RPGUniverse extends Actor {
             from: _id,
             to: exit.destination
           });
-          // await this._syncPlaceID(exit.destination);
+          await this._syncPlaceID(exit.destination);
         }
 
         this.remote._GET(`/places/${_id}/characters`).then((characters) => {
@@ -270,6 +248,41 @@ class RPGUniverse extends Actor {
       const id = Math.floor(Math.random() * this._RPGPlaceIDs.length);
       await this._syncPlaceID(this._RPGPlaceIDs[id]);
     }
+  }
+
+  async _syncUniverse () {
+    // RPG
+    this.universe = await this.remote._GET(`/universes/${this.settings.universe.id}`);
+
+    // Universe properties
+    this._state.content.title = this.universe.title;
+    this._state.content.slug = this.universe.slug;
+    this._state.content.created = '2005-07-01T04:00:00.000Z';
+
+    // Game Masters
+    for (const master of this.universe.permissions.masters) {
+      console.log('master:', master);
+      this.registerPlayer({ _id: master._id });
+    }
+
+    // Builders
+    for (const builder of this.universe.permissions.builders) {
+      this.registerPlayer({ _id: builder._id });
+    }
+
+    // Players
+    for (const player of this.universe._players) {
+      const id = this.registerPlayer({ _id: player._id });
+      this._state.content.players[id].name = player.username;
+    }
+
+    // Places
+    for (const place of this.universe._places) {
+      // await this._syncPlaceID(place.id);
+      this._syncPlaceID(place.id);
+    }
+
+    return this;
   }
 }
 

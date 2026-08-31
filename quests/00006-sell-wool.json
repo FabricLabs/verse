@@ -1,0 +1,12 @@
+{
+  "name": "Sell the Wool",
+  "description": "The hunter's note is done. Sell the gathered wool to the shopkeeper for copper, silver, or gold.",
+  "world": "SPECIAL:WILDERNESS",
+  "objectives": [
+    {
+      "type": "sell",
+      "target": "wool",
+      "count": 1
+    }
+  ]
+}

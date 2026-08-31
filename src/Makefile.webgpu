@@ -1,0 +1,75 @@
+# Makefile for WebGPU First-Person Renderer
+
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -g
+CFLAGS = -std=c99 -Wall -Wextra -O2 -g
+
+# Dawn/WebGPU paths - adjust these to your system
+DAWN_DIR = /usr/local/dawn
+DAWN_INCLUDE = -I$(DAWN_DIR)/include -I$(DAWN_DIR)/gen/include
+DAWN_LIB = -L$(DAWN_DIR)/lib -ldawn_native -ldawn_platform -ldawn_proc
+
+# SDL2
+SDL2_FLAGS = $(shell sdl2-config --cflags)
+SDL2_LIBS = $(shell sdl2-config --libs)
+
+# GLM
+GLM_INCLUDE = -I/usr/local/include
+
+# Project includes
+INCLUDES = -I. -Inoise-c/include $(DAWN_INCLUDE) $(GLM_INCLUDE) $(SDL2_FLAGS)
+
+# Libraries
+LIBS = $(DAWN_LIB) $(SDL2_LIBS) -lm
+
+# Platform-specific settings
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+    CXXFLAGS += -ObjC++
+    LIBS += -framework Cocoa -framework Metal -framework QuartzCore
+else ifeq ($(UNAME_S),Linux)
+    LIBS += -lX11
+endif
+
+# Source files
+CPP_SOURCES = webgpu_fp_renderer.cpp test_webgpu_renderer.cpp
+C_SOURCES = world.c world_core.c world_voxel.c world_generation_dispatch.c \
+            world_generation_simple.c world_generation_wilderness.c \
+            world_generation_scoured.c world_noise.c \
+            noise-c/src/crypto/sha2/sha256.c
+
+CPP_OBJECTS = $(CPP_SOURCES:.cpp=.o)
+C_OBJECTS = $(C_SOURCES:.c=.o)
+OBJECTS = $(CPP_OBJECTS) $(C_OBJECTS)
+
+TARGET = webgpu_renderer_test
+
+# Build rules
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Special rule for Objective-C++ files on macOS
+ifeq ($(UNAME_S),Darwin)
+%.o: %.mm
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+endif
+
+clean:
+	rm -f $(OBJECTS) $(TARGET)
+
+run: $(TARGET)
+	./$(TARGET)
+
+.PHONY: all clean run
+
+# Dependencies
+webgpu_fp_renderer.o: webgpu_fp_renderer.cpp webgpu_fp_renderer.h world.h voxel.h
+test_webgpu_renderer.o: test_webgpu_renderer.cpp webgpu_fp_renderer.h world.h voxel.h

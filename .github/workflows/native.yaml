@@ -1,0 +1,33 @@
+name: Native
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+jobs:
+  linux:
+    name: Linux (headless + verse-client)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config \
+            libsdl2-dev libsdl2-ttf-dev libwebsockets-dev libjansson-dev \
+            libmicrohttpd-dev libgl1-mesa-dev
+      - name: Native release check
+        run: make release-check-native
+
+  macos:
+    name: macOS (Homebrew + verse-client)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Homebrew dependencies
+        run: brew install sdl2 sdl2_ttf jansson libwebsockets libmicrohttpd
+      - name: Native release check
+        run: make release-check-native

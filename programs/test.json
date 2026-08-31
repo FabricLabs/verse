@@ -1,0 +1,12 @@
+{
+  "name": "Test",
+  "description": "Program to test the game.",
+  "steps": [
+    { "name": "Press Enter", "description": "Presses the enter key.", "method": "KEY_PRESS_ENTER" },
+    { "name": "Press Down", "description": "Presses the down key.", "method": "KEY_PRESS_DOWN" },
+    { "name": "Press Up", "description": "Presses the up key.", "method": "KEY_PRESS_UP" },
+    { "name": "Press Enter", "description": "Presses the enter key.", "method": "KEY_PRESS_ENTER" },
+    { "name": "Press Enter", "description": "Presses the enter key.", "method": "KEY_PRESS_ENTER" },
+    { "name": "Wait for Game to Load", "description": "Waits for the game to load.", "method": "SLEEP", "params": [5000] }
+  ]
+}

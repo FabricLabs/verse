@@ -1,6 +1,36 @@
 ./types/core.js:  // TODO: debug memory leak here
+./types/core.js:      checksum: '', // TODO: checksum of all messages
 ./types/core.js:    // TODO: $BTC psbt
+./types/site.js:    // TODO: obvious modularization...
 ./components/application.jade:    // TODO: finish <canvas> renderer
 ./components/verse.js:          <Log type="TODO" />
-./package.json:    "report:todo": "grep --exclude-dir=.git --exclude-dir=_book --exclude-dir=assets --exclude-dir=node_modules --exclude-dir=reports --exclude-dir=coverage --exclude-dir=docs -rEI \"TODO|FIXME\" . > reports/TODO.txt",
-./verse.js:// TODO: use app.configure
+./package.json:    "report:todo": "grep --exclude-dir=.git --exclude-dir=_book --exclude-dir=assets --exclude-dir=node_modules --exclude-dir=reports --exclude-dir=coverage --exclude-dir=docs --exclude-dir=noise-c --exclude-dir=libwebsockets -rEI \"TODO|FIXME\" . > reports/TODO.txt",
+./WORLD_VISIBILITY_ISSUE.md:  // TODO: Implement save file selection UI
+./WORLD_VISIBILITY_ISSUE.md:- This is expected behavior and documented as TODO
+./scripts/browser.js:          // TODO: FIXME
+./scripts/browser.js:      // TODO: remove jquery
+./scripts/browser.js:          id: username // TODO: pubkey?
+./scripts/browser.js:        author: username, // TODO: pubkey?
+./scripts/browser.js:      // TODO: report error
+./GAME.md:## TODO
+./CLICKABLE_UI_SUMMARY.md:        // TODO: Add spawns here when spawn system is implemented
+./src/window_interactive_test.c:      // TODO: Add skills screen (screen 6 or similar)
+./src/proxy.c:        // TODO: Implement actual interaction logic
+./src/song_editor.c:    // TODO: Implement song saving to file
+./src/song_editor.c:    // TODO: Implement track removal
+./src/game_state.c:    // TODO: Load player save data (position, stats, etc.)
+./src/game_state.c:    // TODO: Save player data (position, stats, inventory, etc.)
+./src/world.c:    // TODO: Implement proper world deserialization
+./src/world.c:        // TODO: Add spawn table for random actors
+./src/world.c:    // TODO: generate "universe map" of all worlds connected to the teleport world,
+./src/dynamic_music.c:    // TODO: Implement JSON config loading
+./src/dynamic_music.c:    // TODO: Implement JSON config saving
+./src/character.h:// TODO: let this define the official Fabric Message structure; all "types" in our system are Fabric Messages.
+./src/character.h:// TODO:
+./src/experiment.c:      // TODO: Implement game loading
+./src/engine.c:                // TODO: Implement world deserialization
+./src/engine.c:            // TODO: Implement world serialization
+./src/verse_client.c:    // TODO: Implement continue game - for now just start a new game
+./src/character.c:  // TODO: store this as just `id` for player and actor; player should inherit from actor
+./src/window.c:            // TODO: could render isometric miniature using isometric_renderer
+./src/window.c:            // TODO: actor-centric top-down around player

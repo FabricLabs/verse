@@ -6,6 +6,8 @@ on:
   push:
     branches:
     - master
+  workflow_dispatch:
+
 jobs:
   test:
     name: Run tests
@@ -17,9 +19,9 @@ jobs:
         - ubuntu-latest
     steps:
     - name: Checkout branch
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Install Node.js on ${{ matrix.os }}
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v4
       with:
         node-version-file: '.nvmrc'
         cache: 'npm'
@@ -27,8 +29,10 @@ jobs:
     - name: Install dependencies
       run: npm ci
     - name: Generate coverage report
-      run: npm run report:coverage
+      run: npm run report:coverage:ci
     - name: Send coverage report
-      uses: codecov/codecov-action@v3.1.1
+      continue-on-error: true
+      uses: codecov/codecov-action@v4
       with:
         directory: ./reports/
+        fail_ci_if_error: false

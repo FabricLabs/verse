@@ -1,0 +1,32 @@
+#!/bin/bash
+
+echo "=== VERSE Window Input Demo ==="
+echo ""
+echo "The window system is now running with full input support!"
+echo ""
+echo "Try these inputs in the window:"
+echo ""
+echo "Keyboard Controls:"
+echo "  ESC - Exit the program"
+echo "  1 - Switch to Main Menu"
+echo "  2 - Switch to Game World"
+echo "  3 - Switch to Battle Screen"
+echo "  WASD - Move the player around"
+echo "  Space - Interact with objects"
+echo "  I - Open inventory"
+echo "  C - Open character sheet"
+echo "  N - Open navigation"
+echo "  B - Open building mode"
+echo "  Enter - Confirm actions"
+echo ""
+echo "Mouse Controls:"
+echo "  Left Click - Click anywhere in the window"
+echo "  Window Resize - Drag window corners"
+echo ""
+echo "You should see input feedback in the terminal!"
+echo ""
+echo "Press Ctrl+C to stop this demo"
+echo ""
+
+# Run the interactive test
+./window-interactive

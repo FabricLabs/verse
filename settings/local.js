@@ -4,9 +4,9 @@ module.exports = {
     port: 9998
   },
   peers: [
-    'localhost:7777',
+    // 'localhost:7777',
     'localhost:7778',
-    'goliath:7777',
-    'hub.fabric.pub:7777'
+    // 'goliath:7777',
+    // 'hub.fabric.pub:7777'
   ]
 };

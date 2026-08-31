@@ -1,0 +1,68 @@
+# Makefile for Mob SOLVER Test
+# Build the test program for the maze-solving mob AI
+
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -O2 -g -I. -Inoise-c/include
+LDFLAGS = -lm
+
+# Source files for the test
+TEST_SOURCES = test_mob_solver.c \
+               mob_ai.c \
+               world.c \
+               world_core.c \
+               world_voxel.c \
+               world_physics.c \
+               world_generation_dispatch.c \
+               world_generation_labyrinth.c \
+               world_generation_simple.c \
+               world_generation_wilderness.c \
+               world_generation_scoured.c \
+               world_generation_farm.c \
+               world_noise.c \
+               world_bulk_ops.c \
+               world_step_actors_extended.c \
+               actor.c \
+               constants.c \
+               entropy_field.c \
+               universe.c \
+               character.c \
+               noise-c/src/crypto/sha2/sha256.c
+
+TEST_OBJECTS = $(TEST_SOURCES:.c=.o)
+TEST_TARGET = test_mob_solver
+
+# Default target
+all: $(TEST_TARGET)
+
+# Build the test executable
+$(TEST_TARGET): $(TEST_OBJECTS)
+	$(CC) $(TEST_OBJECTS) -o $@ $(LDFLAGS)
+
+# Build object files
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean build artifacts
+clean:
+	rm -f $(TEST_OBJECTS) $(TEST_TARGET)
+
+# Run the test
+run: $(TEST_TARGET)
+	./$(TEST_TARGET) --verbose
+
+# Run test with custom parameters
+run-fast: $(TEST_TARGET)
+	./$(TEST_TARGET) --step-time 0.05 --max-steps 5000
+
+# Help
+help:
+	@echo "Mob SOLVER Test Makefile"
+	@echo "======================="
+	@echo "Targets:"
+	@echo "  all       - Build the test program"
+	@echo "  clean     - Remove build artifacts"
+	@echo "  run       - Run the test with verbose output"
+	@echo "  run-fast  - Run with faster simulation"
+	@echo "  help      - Show this help message"
+
+.PHONY: all clean run run-fast help

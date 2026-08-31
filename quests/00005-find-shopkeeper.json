@@ -1,0 +1,12 @@
+{
+  "name": "Find the Shopkeeper",
+  "description": "The town has a shop. Seek out the shopkeeper and speak with them to browse goods from the villagers.",
+  "world": "SPECIAL:WILDERNESS",
+  "objectives": [
+    {
+      "type": "locate",
+      "target": "shopkeeper",
+      "count": 1
+    }
+  ]
+}
