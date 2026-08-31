@@ -1,0 +1,30 @@
+# Makefile for render test
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -g -O0
+LDFLAGS = -lSDL2 -lSDL2_ttf -lm
+
+# Source files
+SOURCES = render_test.c isometric_renderer.c world.c
+OBJECTS = $(SOURCES:.c=.o)
+TARGET = render_test
+
+# Default target
+all: $(TARGET)
+
+# Compile the test program
+$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
+
+# Compile source files
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean up
+clean:
+	rm -f $(OBJECTS) $(TARGET)
+
+# Run the test
+test: $(TARGET)
+	./$(TARGET)
+
+.PHONY: all clean test

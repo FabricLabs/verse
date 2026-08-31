@@ -1,0 +1,8 @@
+{
+  "name": "Fire Bolt",
+  "description": "Cast a fire bolt at a target",
+  "cast_time": 1,
+  "cooldown": 10,
+  "range": 100,
+  "target": "self"
+}

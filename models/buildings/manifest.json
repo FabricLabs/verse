@@ -1,0 +1,304 @@
+{
+  "buildings": [
+    {
+      "name": "hut_reed",
+      "type": "hut",
+      "source": "models/cc0_settlements/oga_buildings/12.vox",
+      "size": [
+        8,
+        8,
+        7
+      ],
+      "voxels": 231,
+      "note": "Small sparse hut",
+      "vox": "models/buildings/hut_reed.vox",
+      "vbuild": "models/buildings/hut_reed.vbuild",
+      "materials": {
+        "36": 27,
+        "39": 44,
+        "146": 111,
+        "130": 36,
+        "3": 2,
+        "143": 11
+      }
+    },
+    {
+      "name": "hut_thatch",
+      "type": "hut",
+      "source": "models/cc0_settlements/oga_buildings/13.vox",
+      "size": [
+        8,
+        8,
+        7
+      ],
+      "voxels": 247,
+      "note": "Small thatched hut",
+      "vox": "models/buildings/hut_thatch.vox",
+      "vbuild": "models/buildings/hut_thatch.vbuild",
+      "materials": {
+        "36": 31,
+        "39": 39,
+        "146": 122,
+        "3": 2,
+        "130": 42,
+        "143": 11
+      }
+    },
+    {
+      "name": "cottage_a",
+      "type": "cottage",
+      "source": "models/cc0_settlements/oga_buildings/1.vox",
+      "size": [
+        9,
+        9,
+        8
+      ],
+      "voxels": 316,
+      "note": "Cottage with pitched roof",
+      "vox": "models/buildings/cottage_a.vox",
+      "vbuild": "models/buildings/cottage_a.vbuild",
+      "materials": {
+        "146": 183,
+        "36": 46,
+        "39": 37,
+        "143": 50
+      }
+    },
+    {
+      "name": "cottage_b",
+      "type": "cottage",
+      "source": "models/cc0_settlements/oga_buildings/2.vox",
+      "size": [
+        9,
+        9,
+        9
+      ],
+      "voxels": 401,
+      "note": "Cottage variant",
+      "vox": "models/buildings/cottage_b.vox",
+      "vbuild": "models/buildings/cottage_b.vbuild",
+      "materials": {
+        "146": 214,
+        "39": 43,
+        "36": 52,
+        "143": 73,
+        "3": 19
+      }
+    },
+    {
+      "name": "cottage_c",
+      "type": "cottage",
+      "source": "models/cc0_settlements/oga_buildings/3.vox",
+      "size": [
+        9,
+        9,
+        10
+      ],
+      "voxels": 458,
+      "note": "Cottage variant",
+      "vox": "models/buildings/cottage_c.vox",
+      "vbuild": "models/buildings/cottage_c.vbuild",
+      "materials": {
+        "146": 252,
+        "36": 62,
+        "39": 46,
+        "143": 98
+      }
+    },
+    {
+      "name": "cottage_d",
+      "type": "cottage",
+      "source": "models/cc0_settlements/oga_buildings/4.vox",
+      "size": [
+        9,
+        9,
+        9
+      ],
+      "voxels": 435,
+      "note": "Cottage variant",
+      "vox": "models/buildings/cottage_d.vox",
+      "vbuild": "models/buildings/cottage_d.vbuild",
+      "materials": {
+        "146": 249,
+        "36": 56,
+        "39": 40,
+        "143": 90
+      }
+    },
+    {
+      "name": "house_a",
+      "type": "house",
+      "source": "models/cc0_settlements/oga_buildings/5.vox",
+      "size": [
+        11,
+        11,
+        11
+      ],
+      "voxels": 693,
+      "note": "Two-storey house",
+      "vox": "models/buildings/house_a.vox",
+      "vbuild": "models/buildings/house_a.vbuild",
+      "materials": {
+        "39": 216,
+        "146": 475,
+        "3": 2
+      }
+    },
+    {
+      "name": "house_b",
+      "type": "house",
+      "source": "models/cc0_settlements/oga_buildings/8.vox",
+      "size": [
+        11,
+        11,
+        12
+      ],
+      "voxels": 1029,
+      "note": "Village house",
+      "vox": "models/buildings/house_b.vox",
+      "vbuild": "models/buildings/house_b.vbuild",
+      "materials": {
+        "39": 341,
+        "146": 666,
+        "3": 22
+      }
+    },
+    {
+      "name": "house_c",
+      "type": "house",
+      "source": "models/cc0_settlements/oga_buildings/9.vox",
+      "size": [
+        11,
+        11,
+        12
+      ],
+      "voxels": 1012,
+      "note": "Village house",
+      "vox": "models/buildings/house_c.vox",
+      "vbuild": "models/buildings/house_c.vbuild",
+      "materials": {
+        "129": 29,
+        "39": 225,
+        "146": 758
+      }
+    },
+    {
+      "name": "shop_a",
+      "type": "shop",
+      "source": "models/cc0_settlements/oga_buildings/7.vox",
+      "size": [
+        12,
+        12,
+        19
+      ],
+      "voxels": 1372,
+      "note": "Wide shop / storefront",
+      "vox": "models/buildings/shop_a.vox",
+      "vbuild": "models/buildings/shop_a.vbuild",
+      "materials": {
+        "146": 961,
+        "39": 387,
+        "3": 24
+      }
+    },
+    {
+      "name": "tower_a",
+      "type": "tower",
+      "source": "models/cc0_settlements/oga_buildings/10.vox",
+      "size": [
+        12,
+        12,
+        9
+      ],
+      "voxels": 682,
+      "note": "House with tower accent",
+      "vox": "models/buildings/tower_a.vox",
+      "vbuild": "models/buildings/tower_a.vbuild",
+      "materials": {
+        "147": 88,
+        "39": 146,
+        "146": 437,
+        "3": 5,
+        "129": 6
+      }
+    },
+    {
+      "name": "tower_tall",
+      "type": "tower",
+      "source": "models/cc0_settlements/oga_buildings/6.vox",
+      "size": [
+        12,
+        12,
+        27
+      ],
+      "voxels": 1500,
+      "note": "Tall narrow tower-house",
+      "vox": "models/buildings/tower_tall.vox",
+      "vbuild": "models/buildings/tower_tall.vbuild",
+      "materials": {
+        "146": 1212,
+        "39": 90,
+        "147": 196,
+        "3": 2
+      }
+    },
+    {
+      "name": "hall_a",
+      "type": "hall",
+      "source": "models/cc0_settlements/oga_buildings/7.vox",
+      "size": [
+        14,
+        14,
+        22
+      ],
+      "voxels": 2235,
+      "note": "Communal hall",
+      "vox": "models/buildings/hall_a.vox",
+      "vbuild": "models/buildings/hall_a.vbuild",
+      "materials": {
+        "146": 1576,
+        "39": 122,
+        "143": 536,
+        "3": 1
+      }
+    },
+    {
+      "name": "manor",
+      "type": "manor",
+      "source": "models/cc0_settlements/oga_buildings/11.vox",
+      "size": [
+        16,
+        16,
+        12
+      ],
+      "voxels": 1710,
+      "note": "Large manor / hall",
+      "vox": "models/buildings/manor.vox",
+      "vbuild": "models/buildings/manor.vbuild",
+      "materials": {
+        "39": 126,
+        "146": 1235,
+        "3": 10,
+        "130": 42,
+        "147": 297
+      }
+    },
+    {
+      "name": "castle",
+      "type": "castle",
+      "source": "models/castle.vox",
+      "size": [
+        14,
+        14,
+        14
+      ],
+      "voxels": 1084,
+      "note": "MagicaVoxel sample castle",
+      "vox": "models/buildings/castle.vox",
+      "vbuild": "models/buildings/castle.vbuild",
+      "materials": {
+        "147": 1084
+      }
+    }
+  ]
+}

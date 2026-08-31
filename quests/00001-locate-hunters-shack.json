@@ -1,0 +1,12 @@
+{
+  "name": "Locate the Hunter's Shack",
+  "description": "A lone shack waits on the wilderness below home. Follow the arrow and find it.",
+  "world": "SPECIAL:WILDERNESS_HOME_DROP",
+  "objectives": [
+    {
+      "type": "locate",
+      "target": "hunters_shack",
+      "count": 1
+    }
+  ]
+}

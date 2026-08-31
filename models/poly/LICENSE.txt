@@ -1,0 +1,15 @@
+CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Included animated polygon sources:
+
+- Goleling_Evolved and Pigeon from Ultimate Monsters by Quaternius
+  https://quaternius.com/packs/ultimatemonsters.html
+- Sheep from Farm Animal Pack by Quaternius
+  https://quaternius.com/packs/farmanimal.html
+  (also mirrored on OpenGameArt)
+- animal-chick from Cube Pets by Kenney
+  https://opengameart.org/content/cube-pets
+  https://kenney.nl
+- Vampire bat (bat_v5.blend) by J-Toastie on OpenGameArt
+  https://opengameart.org/content/vampire-bat-animated

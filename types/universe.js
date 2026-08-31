@@ -91,6 +91,7 @@ class RPGUniverse extends Actor {
   }
 
   registerPlayer (player) {
+    console.log('registering player:', player);
     const actor = new Actor(player);
     if (!this._state.content.players) this._state.content.players = {};
     if (this.state.players[actor.id]) return actor.id;
@@ -196,7 +197,7 @@ class RPGUniverse extends Actor {
       this.remote._GET(`/places/${_id}`).catch((exception) => {
         this.emit('debug', `Could not sync place: ${exception}`);
         reject(exception);
-      }).then((entity) => {
+      }).then(async (entity) => {
         // console.log('entity:', entity);
         if (!entity) return reject(new Error(`Place ID # ${_id} did not return a result: ${entity}`));
 
@@ -219,7 +220,7 @@ class RPGUniverse extends Actor {
             from: _id,
             to: exit.destination
           });
-          // await this._syncPlaceID(exit.destination);
+          await this._syncPlaceID(exit.destination);
         }
 
         this.remote._GET(`/places/${_id}/characters`).then((characters) => {

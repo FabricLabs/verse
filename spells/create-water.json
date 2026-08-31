@@ -1,0 +1,9 @@
+{
+  "name": "Create Water",
+  "description": "Conjure a puddle at your feet",
+  "cast_time": 0,
+  "cooldown": 1.2,
+  "range": 4,
+  "target": "ground",
+  "unlock": "skill_tree"
+}

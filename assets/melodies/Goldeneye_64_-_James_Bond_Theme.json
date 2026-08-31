@@ -1,0 +1,15 @@
+{
+  "name": "Theme",
+  "description": "Converted from MIDI",
+  "melodies": [
+    {
+      "name": "Main",
+      "description": "Converted from MIDI",
+      "notes": [
+        "F#4",
+        "F#4",
+        "F#4"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,328 @@
+{
+  "name": "Dynamic Background Music",
+  "description": "Adaptive background music system with 5 instruments that respond to game states",
+  "version": "1.0",
+  "sample_rate": 44100,
+  "master_volume": 0.7,
+
+  "instruments": [
+    {
+      "name": "Ambient Pad",
+      "type": "sine",
+      "base_frequency": 220.0,
+      "base_amplitude": 0.3,
+      "adsr": {
+        "attack": 0.5,
+        "decay": 0.3,
+        "sustain": 0.6,
+        "release": 1.0
+      },
+      "description": "Atmospheric background layer"
+    },
+    {
+      "name": "Rhythm Bass",
+      "type": "triangle",
+      "base_frequency": 110.0,
+      "base_amplitude": 0.4,
+      "adsr": {
+        "attack": 0.1,
+        "decay": 0.2,
+        "sustain": 0.7,
+        "release": 0.3
+      },
+      "description": "Rhythmic bass foundation"
+    },
+    {
+      "name": "Melody Lead",
+      "type": "saw",
+      "base_frequency": 440.0,
+      "base_amplitude": 0.25,
+      "adsr": {
+        "attack": 0.05,
+        "decay": 0.1,
+        "sustain": 0.8,
+        "release": 0.2
+      },
+      "description": "Main melodic voice"
+    },
+    {
+      "name": "Harmony Voice",
+      "type": "square",
+      "base_frequency": 330.0,
+      "base_amplitude": 0.2,
+      "adsr": {
+        "attack": 0.2,
+        "decay": 0.4,
+        "sustain": 0.5,
+        "release": 0.6
+      },
+      "description": "Harmonic accompaniment"
+    },
+    {
+      "name": "Percussion",
+      "type": "sine",
+      "base_frequency": 880.0,
+      "base_amplitude": 0.15,
+      "adsr": {
+        "attack": 0.01,
+        "decay": 0.05,
+        "sustain": 0.3,
+        "release": 0.1
+      },
+      "description": "Rhythmic percussion elements"
+    }
+  ],
+
+  "game_states": {
+    "PREGAME": {
+      "name": "Main Menu",
+      "description": "Calm, welcoming music for the main menu",
+      "tempo": 80,
+      "key": "C",
+      "scale": "major",
+      "instruments": {
+        "Ambient Pad": {
+          "active": true,
+          "amplitude_multiplier": 0.8,
+          "frequency_multiplier": 1.0,
+          "pattern": "sustained"
+        },
+        "Rhythm Bass": {
+          "active": false,
+          "amplitude_multiplier": 0.0,
+          "frequency_multiplier": 1.0,
+          "pattern": "none"
+        },
+        "Melody Lead": {
+          "active": true,
+          "amplitude_multiplier": 0.6,
+          "frequency_multiplier": 1.0,
+          "pattern": "gentle_arpeggio"
+        },
+        "Harmony Voice": {
+          "active": true,
+          "amplitude_multiplier": 0.4,
+          "frequency_multiplier": 1.0,
+          "pattern": "chord_progression"
+        },
+        "Percussion": {
+          "active": false,
+          "amplitude_multiplier": 0.0,
+          "frequency_multiplier": 1.0,
+          "pattern": "none"
+        }
+      }
+    },
+
+    "TUTORIAL": {
+      "name": "Tutorial Mode",
+      "description": "Guiding, educational music with clear structure",
+      "tempo": 90,
+      "key": "G",
+      "scale": "major",
+      "instruments": {
+        "Ambient Pad": {
+          "active": true,
+          "amplitude_multiplier": 0.7,
+          "frequency_multiplier": 1.0,
+          "pattern": "sustained"
+        },
+        "Rhythm Bass": {
+          "active": true,
+          "amplitude_multiplier": 0.5,
+          "frequency_multiplier": 1.0,
+          "pattern": "simple_rhythm"
+        },
+        "Melody Lead": {
+          "active": true,
+          "amplitude_multiplier": 0.8,
+          "frequency_multiplier": 1.0,
+          "pattern": "clear_melody"
+        },
+        "Harmony Voice": {
+          "active": true,
+          "amplitude_multiplier": 0.6,
+          "frequency_multiplier": 1.0,
+          "pattern": "supportive_chords"
+        },
+        "Percussion": {
+          "active": true,
+          "amplitude_multiplier": 0.3,
+          "frequency_multiplier": 1.0,
+          "pattern": "gentle_beat"
+        }
+      }
+    },
+
+    "HOME": {
+      "name": "Home Base",
+      "description": "Comfortable, safe haven music",
+      "tempo": 75,
+      "key": "F",
+      "scale": "major",
+      "instruments": {
+        "Ambient Pad": {
+          "active": true,
+          "amplitude_multiplier": 1.0,
+          "frequency_multiplier": 1.0,
+          "pattern": "warm_sustained"
+        },
+        "Rhythm Bass": {
+          "active": true,
+          "amplitude_multiplier": 0.6,
+          "frequency_multiplier": 1.0,
+          "pattern": "gentle_pulse"
+        },
+        "Melody Lead": {
+          "active": true,
+          "amplitude_multiplier": 0.7,
+          "frequency_multiplier": 1.0,
+          "pattern": "comforting_melody"
+        },
+        "Harmony Voice": {
+          "active": true,
+          "amplitude_multiplier": 0.8,
+          "frequency_multiplier": 1.0,
+          "pattern": "rich_harmony"
+        },
+        "Percussion": {
+          "active": false,
+          "amplitude_multiplier": 0.0,
+          "frequency_multiplier": 1.0,
+          "pattern": "none"
+        }
+      }
+    },
+
+    "EXPLORE": {
+      "name": "Exploration",
+      "description": "Adventurous, mysterious exploration music",
+      "tempo": 100,
+      "key": "D",
+      "scale": "minor",
+      "instruments": {
+        "Ambient Pad": {
+          "active": true,
+          "amplitude_multiplier": 0.9,
+          "frequency_multiplier": 1.0,
+          "pattern": "mysterious_pad"
+        },
+        "Rhythm Bass": {
+          "active": true,
+          "amplitude_multiplier": 0.8,
+          "frequency_multiplier": 1.0,
+          "pattern": "exploration_rhythm"
+        },
+        "Melody Lead": {
+          "active": true,
+          "amplitude_multiplier": 0.9,
+          "frequency_multiplier": 1.0,
+          "pattern": "adventure_melody"
+        },
+        "Harmony Voice": {
+          "active": true,
+          "amplitude_multiplier": 0.7,
+          "frequency_multiplier": 1.0,
+          "pattern": "tension_chords"
+        },
+        "Percussion": {
+          "active": true,
+          "amplitude_multiplier": 0.6,
+          "frequency_multiplier": 1.0,
+          "pattern": "exploration_beat"
+        }
+      }
+    },
+
+    "COMBAT": {
+      "name": "Combat",
+      "description": "Intense, fast-paced battle music",
+      "tempo": 140,
+      "key": "A",
+      "scale": "minor",
+      "instruments": {
+        "Ambient Pad": {
+          "active": false,
+          "amplitude_multiplier": 0.0,
+          "frequency_multiplier": 1.0,
+          "pattern": "none"
+        },
+        "Rhythm Bass": {
+          "active": true,
+          "amplitude_multiplier": 1.0,
+          "frequency_multiplier": 1.0,
+          "pattern": "aggressive_bass"
+        },
+        "Melody Lead": {
+          "active": true,
+          "amplitude_multiplier": 1.0,
+          "frequency_multiplier": 1.0,
+          "pattern": "intense_melody"
+        },
+        "Harmony Voice": {
+          "active": true,
+          "amplitude_multiplier": 0.9,
+          "frequency_multiplier": 1.0,
+          "pattern": "dramatic_chords"
+        },
+        "Percussion": {
+          "active": true,
+          "amplitude_multiplier": 1.0,
+          "frequency_multiplier": 1.0,
+          "pattern": "intense_beat"
+        }
+      }
+    }
+  },
+
+  "adaptive_parameters": {
+    "health_based": {
+      "low_health_threshold": 0.3,
+      "high_health_threshold": 0.7,
+      "effects": {
+        "low_health": {
+          "tempo_multiplier": 0.8,
+          "amplitude_multiplier": 0.7,
+          "frequency_shift": -0.1
+        },
+        "high_health": {
+          "tempo_multiplier": 1.2,
+          "amplitude_multiplier": 1.1,
+          "frequency_shift": 0.05
+        }
+      }
+    },
+    "battle_time": {
+      "short_battle_threshold": 30,
+      "long_battle_threshold": 120,
+      "effects": {
+        "short_battle": {
+          "tempo_multiplier": 1.1,
+          "intensity_increase": 0.2
+        },
+        "long_battle": {
+          "tempo_multiplier": 0.9,
+          "intensity_decrease": 0.1
+        }
+      }
+    },
+    "player_level": {
+      "effects": {
+        "low_level": {
+          "complexity_reduction": 0.3,
+          "melody_simplification": true
+        },
+        "high_level": {
+          "complexity_increase": 0.2,
+          "additional_harmonies": true
+        }
+      }
+    }
+  },
+
+  "transition_settings": {
+    "crossfade_duration": 2.0,
+    "smooth_transitions": true,
+    "state_change_delay": 0.5
+  }
+}

@@ -1,0 +1,81 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'pub.verse'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "pub.verse"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        externalNativeBuild {
+            cmake {
+                cFlags "-std=c11"
+                abiFilters 'arm64-v8a'
+            }
+        }
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+        }
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging true
+        }
+    }
+}
+
+dependencies {
+}
+
+// Copy assets from project root into the app's assets before build
+def projectRoot = file("${rootDir}/..")
+tasks.register('syncAssets', Sync) {
+    // Allowlist only essential subdirectories to keep APK size and entry count manageable
+    from(new File(projectRoot, 'assets')) {
+        include 'fonts/**'
+        include 'shaders/**'
+        include 'sounds/**'
+        include 'melodies/**'
+        // Exclude heavy or invalid trees explicitly
+        exclude 'pokemondb.net/**'
+        exclude '**/* *' // any path with spaces
+        exclude '**/*+*' // any path with '+'
+        exclude '**/../**' // any path components containing '..'
+    }
+    into(new File(projectDir, 'src/main/assets'))
+    includeEmptyDirs = false
+    // Exclude invalid Android asset entry names (e.g., containing '..', '+', or spaces)
+    eachFile { FileCopyDetails details ->
+        def p = details.path
+        if (p.contains("..") || p.contains("+") || p.contains(" ")) {
+            details.exclude()
+        }
+    }
+}
+
+preBuild.dependsOn tasks.named('syncAssets')
+
+

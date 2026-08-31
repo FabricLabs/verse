@@ -1,0 +1,49 @@
+# Makefile for Simple Universe Map Generator
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -O2 -g
+INCLUDES = -I. $(shell pkg-config --cflags sdl2)
+LIBS = $(shell pkg-config --libs sdl2) -lm
+
+# Source files
+SOURCES = small_universe_map_generator.c world.c constants.c entropy_field.c universe_coords.c world_bulk_ops.c universe.c world_entropy_generator.c
+SHA256_OBJ = noise-c/src/crypto/sha2/sha256.o
+OBJECTS = $(SOURCES:.c=.o) $(SHA256_OBJ)
+TARGET = small_universe_map_generator
+
+# Default target
+all: $(TARGET)
+
+# Build the main executable
+$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $(TARGET) $(LIBS)
+
+# SHA256 object file
+$(SHA256_OBJ): noise-c/src/crypto/sha2/sha256.c
+	$(CC) $(CFLAGS) -c noise-c/src/crypto/sha2/sha256.c -o $(SHA256_OBJ)
+
+# Compile source files
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Clean build artifacts
+clean:
+	rm -f $(OBJECTS) $(TARGET)
+
+# Create assets directory
+assets:
+	mkdir -p assets
+
+# Run the generator (creates assets directory first)
+run: assets $(TARGET)
+	./$(TARGET)
+
+# Help target
+help:
+	@echo "Available targets:"
+	@echo "  all          - Build the simple universe map generator"
+	@echo "  clean        - Remove build artifacts"
+	@echo "  assets       - Create assets directory"
+	@echo "  run          - Build and run the generator"
+	@echo "  help         - Show this help message"
+
+.PHONY: all clean assets run help

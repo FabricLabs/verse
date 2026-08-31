@@ -1,0 +1,10 @@
+{
+  "name": "Ice Bolt",
+  "description": "Freeze a target solid",
+  "cast_time": 0,
+  "cooldown": 1.0,
+  "range": 35,
+  "target": "actor",
+  "unlock": "skill_tree",
+  "effect": "freeze"
+}

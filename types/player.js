@@ -33,6 +33,7 @@ class Player extends Actor {
 
   async _getCharacters () {
     const characters = await this.remote._GET(`/players/${this.user.id}/characters`);
+    console.log('characters:', characters);
     characters.forEach((character) => {
       this.emit('character', character);
     });
@@ -68,6 +69,8 @@ class Player extends Actor {
           id: parseInt(result.auth.id.value),
           name: result.auth.profile.display_name
         };
+
+        console.log('user:', this.user);
       }
 
       return status;

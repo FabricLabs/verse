@@ -1,0 +1,72 @@
+# Makefile for VERSE World Editor UI Layout Test
+# This tests the improved layout system with consistent spacing and positioning
+
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -g
+SDL2_CFLAGS = $(shell sdl2-config --cflags)
+SDL2_LIBS = $(shell sdl2-config --libs) -lSDL2_ttf
+
+# Source files
+LAYOUT_TEST_SRC = src/world_editor_ui_layout_test.c
+UI_SYSTEM_SRC = src/ui_system.c
+WORLD_EDITOR_UI_SRC = src/world_editor_ui.c
+
+# Object files
+LAYOUT_TEST_OBJ = build/layout_test.o
+UI_SYSTEM_OBJ = build/ui_system.o
+WORLD_EDITOR_UI_OBJ = build/world_editor_ui.o
+
+# Build directory
+BUILD_DIR = build
+
+# Default target
+all: layout_test
+
+# Create build directory
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+# Layout test executable
+layout_test: $(BUILD_DIR) $(LAYOUT_TEST_OBJ) $(UI_SYSTEM_OBJ) $(WORLD_EDITOR_UI_OBJ)
+	$(CC) $(LAYOUT_TEST_OBJ) $(UI_SYSTEM_OBJ) $(WORLD_EDITOR_UI_OBJ) -o $@ $(SDL2_LIBS)
+
+# Compile layout test
+$(LAYOUT_TEST_OBJ): $(LAYOUT_TEST_SRC) | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c $< -o $@
+
+# Compile UI system
+$(UI_SYSTEM_OBJ): $(UI_SYSTEM_SRC) | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c $< -o $@
+
+# Compile world editor UI
+$(WORLD_EDITOR_UI_OBJ): $(WORLD_EDITOR_UI_SRC) | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(SDL2_CFLAGS) -c $< -o $@
+
+# Run the layout test
+test: layout_test
+	./layout_test
+
+# Clean build artifacts
+clean:
+	rm -rf $(BUILD_DIR) layout_test
+
+# Show help
+help:
+	@echo "VERSE World Editor UI Layout Test Makefile"
+	@echo ""
+	@echo "Targets:"
+	@echo "  all        - Build the layout test executable (default)"
+	@echo "  layout_test - Build the layout test executable"
+	@echo "  test       - Build and run the layout test"
+	@echo "  clean      - Remove build artifacts"
+	@echo "  help       - Show this help message"
+	@echo ""
+	@echo "The layout test demonstrates:"
+	@echo "- Consistent margins and spacing (20px margin, 15px panel spacing)"
+	@echo "- File menu positioned at top left as first element"
+	@echo "- Toolbar below file menu, followed by palette and other tools"
+	@echo "- Info, actor, and settings panels on the right side"
+	@echo "- Responsive positioning based on window dimensions"
+	@echo "- White borders on all buttons for consistent visual language"
+
+.PHONY: all test clean help
