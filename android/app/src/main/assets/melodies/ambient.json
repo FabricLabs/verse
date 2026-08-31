@@ -1,0 +1,20 @@
+{
+  "name": "Ambient",
+  "description": "Peaceful ambient background music",
+  "melodies": [
+    {
+      "name": "Peaceful",
+      "description": "Gentle ambient pad with subtle movement",
+      "notes": [
+        "Am4", "Em4", "Dm4", "G4", "Am4", "Em4", "Dm4", "C4"
+      ]
+    },
+    {
+      "name": "Drifting",
+      "description": "Floating ambient textures",
+      "notes": [
+        "F4", "C4", "G4", "D4", "F4", "C4", "G4", "A4"
+      ]
+    }
+  ]
+}

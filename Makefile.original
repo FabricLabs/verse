@@ -1,0 +1,478 @@
+# VERSE ENGINE MAKEFILE
+## This makefile is used to build the VERSE engine.
+## It is used to build the engine, the proxy, and the tests.
+## It is also used to build the UI components.
+## It is also used to build the synthesizer.
+## It is also used to build the dynamic music system.
+## It is also used to build the world storage system.
+## It is also used to build the world generation system.
+
+# Compiler selection - can be overridden with CC=clang make target
+CC ?= gcc
+CLANG = clang
+
+# Common flags for both compilers
+COMMON_CFLAGS = -Wall -Wextra -I/opt/homebrew/include -I/usr/local/include -I$(CURDIR)/src/noise-c/include -I$(CURDIR)/src \
+                 -I/opt/homebrew/include/libwebsockets -I/opt/homebrew/include/jansson -I/opt/homebrew/include/microhttpd \
+                 -I/opt/homebrew/include/SDL2
+
+# GCC-specific flags
+GCC_CFLAGS = $(COMMON_CFLAGS)
+
+# Clang-specific flags (more detailed error messages)
+CLANG_CFLAGS = $(COMMON_CFLAGS) -Weverything -Wno-disabled-macro-expansion -Wno-padded -Wno-covered-switch-default \
+                -Wno-reserved-id-macro -Wno-documentation -Wno-documentation-unknown-command \
+                -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-unused-macros \
+                -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-vla -Wno-vla-extension
+
+# Default to GCC flags
+CFLAGS = $(GCC_CFLAGS)
+LDFLAGS = -L/opt/homebrew/lib -lm -lwebsockets -ljansson -lmicrohttpd -lSDL2 -lSDL2_ttf
+
+NOISE_LIB = src/noise-c/src/protocol/libnoiseprotocol.a \
+            src/noise-c/src/protobufs/libnoiseprotobufs.a \
+            src/noise-c/src/keys/libnoisekeys.a
+
+SOURCES = src/main.c src/world.c src/server.c src/engine.c src/client.c src/verse.c src/player.c \
+          src/noise-c/src/crypto/sha2/sha256.c
+
+OBJECTS = $(SOURCES:.c=.o)
+
+PROXY_SOURCES = src/proxy.c src/world.c src/engine.c src/noise-c/src/crypto/sha2/sha256.c
+PROXY_OBJECTS = $(PROXY_SOURCES:.c=.o)
+
+TARGET = verse
+PROXY_TARGET = proxy
+
+all: $(TARGET)
+
+# Clang build targets
+clang: CFLAGS = $(CLANG_CFLAGS)
+clang: CC = $(CLANG)
+clang: $(TARGET)
+
+clang-clean:
+	@echo "Cleaning clang build artifacts..."
+	@rm -f $(OBJECTS) $(PROXY_OBJECTS) $(TARGET) $(PROXY_TARGET)
+	@echo "Clang cleanup complete"
+
+# Show compiler info
+compiler-info:
+	@echo "Current compiler: $(CC)"
+	@echo "Compiler version:"
+	@$(CC) --version
+	@echo ""
+	@echo "CFLAGS: $(CFLAGS)"
+
+# Clang build all tests
+clang-tests: CFLAGS = $(CLANG_CFLAGS)
+clang-tests: CC = $(CLANG)
+clang-tests: test-level-system test-level-progression test-comprehensive-level test-melody-system test-save-system test-fullscreen-scale test-character-save-immediate test-arrow-selection test-actor-system test-world-transition test-exit-prompt test-spawn-system
+	@echo "All clang tests built successfully"
+
+# Clang build main application
+clang-app: CFLAGS = $(CLANG_CFLAGS)
+clang-app: CC = $(CLANG)
+clang-app: window-interactive
+	@echo "Clang application built successfully"
+
+# Clang build everything
+clang-all: clang-app clang-tests
+	@echo "All clang builds completed"
+
+$(TARGET): $(OBJECTS) $(NOISE_LIB)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+proxy: $(PROXY_OBJECTS) $(NOISE_LIB)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+server: src/server.o src/world.o $(SHA256_OBJ)
+	$(CC) $(CFLAGS) -DMAIN_SERVER -c src/server.c -o src/server.o
+	$(CC) $(CFLAGS) -o server src/server.o src/world.o $(SHA256_OBJ) $(NOISE_LIBS) $(LDFLAGS)
+
+condition_test: src/condition_test.o src/world.o $(SHA256_OBJ)
+	$(CC) $(CFLAGS) -o condition_test src/condition_test.o src/world.o $(SHA256_OBJ) $(LDFLAGS)
+
+engine_test: src/engine_test.o src/engine.o src/world.o src/client.o $(SHA256_OBJ)
+	$(CC) $(CFLAGS) -o engine_test src/engine_test.o src/engine.o src/world.o src/client.o $(SHA256_OBJ) $(NOISE_LIBS) $(LDFLAGS)
+
+src/proxy.o: src/proxy.c
+	$(CC) $(CFLAGS) -c src/proxy.c -o src/proxy.o
+
+src/engine_proxy.o: src/engine.c
+	$(CC) $(CFLAGS) -DPROXY_BUILD -c src/engine.c -o src/engine_proxy.o
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OBJECTS) $(PROXY_OBJECTS) $(TARGET) $(PROXY_TARGET)
+
+# UI Compilation for C Game Engine
+UI_OUTPUT = assets/compiled-ui
+UI_SOURCES = src/ui.c src/renderer.c src/interface.c src/window.c
+UI_OBJECTS = $(UI_SOURCES:.c=.o)
+
+ui: compile-ui generate-assets
+
+compile-ui: $(UI_OBJECTS)
+	@echo "Compiling UI components for C game engine..."
+	@mkdir -p $(UI_OUTPUT)
+	@mkdir -p $(UI_OUTPUT)/data
+	@mkdir -p $(UI_OUTPUT)/resources
+	@echo "UI compilation complete"
+
+generate-assets: compile-ui
+	@echo "Generating game assets..."
+	@mkdir -p $(UI_OUTPUT)/assets
+	@mkdir -p $(UI_OUTPUT)/assets/textures
+	@mkdir -p $(UI_OUTPUT)/assets/sounds
+	@mkdir -p $(UI_OUTPUT)/assets/fonts
+	@mkdir -p $(UI_OUTPUT)/assets/maps
+	@echo "Asset generation complete"
+
+clean-ui:
+	@echo "Cleaning compiled UI..."
+	@rm -rf $(UI_OUTPUT)
+	@rm -f $(UI_OBJECTS)
+	@echo "UI cleanup complete"
+
+# UI-specific compilation flags
+UI_CFLAGS = $(CFLAGS) -DUI_BUILD -DINTERFACE_MODE
+
+# Compile UI objects with UI-specific flags
+src/ui.o: src/ui.c
+	$(CC) $(UI_CFLAGS) -c src/ui.c -o src/ui.o
+
+src/renderer.o: src/renderer.c
+	$(CC) $(UI_CFLAGS) -c src/renderer.c -o src/renderer.o
+
+src/interface.o: src/interface.c
+	$(CC) $(UI_CFLAGS) -c src/interface.c -o src/interface.o
+
+src/window.o: src/window.c
+	$(CC) $(UI_CFLAGS) -c src/window.c -o src/window.o
+
+# UI test program
+ui-test: src/ui_test.o $(UI_OBJECTS)
+	$(CC) $(UI_CFLAGS) -o ui-test src/ui_test.o $(UI_OBJECTS) $(LDFLAGS)
+
+src/ui_test.o: src/ui_test.c
+	$(CC) $(UI_CFLAGS) -c src/ui_test.c -o src/ui_test.o
+
+# Standalone UI test program
+ui-standalone: src/ui_standalone_test.o src/ui.o
+	$(CC) $(UI_CFLAGS) -o ui-standalone src/ui_standalone_test.o src/ui.o $(LDFLAGS)
+
+src/ui_standalone_test.o: src/ui_standalone_test.c
+	$(CC) $(UI_CFLAGS) -c src/ui_standalone_test.c -o src/ui_standalone_test.o
+
+# Window test program
+window-test: src/window_test.o src/window.o src/world.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(UI_CFLAGS) -o window-test src/window_test.o src/window.o src/world.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+
+src/window_test.o: src/window_test.c
+	$(CC) $(UI_CFLAGS) -c src/window_test.c -o src/window_test.o
+
+# Window demo program
+window-demo: src/window_demo.o src/window.o src/world.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(UI_CFLAGS) -o window-demo src/window_demo.o src/window.o src/world.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+
+src/window_demo.o: src/window_demo.c
+	$(CC) $(UI_CFLAGS) -c src/window_demo.c -o src/window_demo.o
+
+# Interactive window test program
+window-interactive: src/window_interactive_test.o src/window.o src/world.o src/character.o src/actor.o src/world_transition.o src/world_spawn.o src/input_manager.o src/noise-c/src/crypto/sha2/sha256.o src/sequencer/melody_loader.o src/background_music.o src/synthesizer/synthesizer.o
+	$(CC) $(UI_CFLAGS) -o window-interactive src/window_interactive_test.o src/window.o src/world.o src/character.o src/actor.o src/world_transition.o src/world_spawn.o src/input_manager.o src/noise-c/src/crypto/sha2/sha256.o src/sequencer/melody_loader.o src/background_music.o src/synthesizer/synthesizer.o $(LDFLAGS) -ljansson
+
+# Clang version of window-interactive
+clang-window-interactive: CFLAGS = $(CLANG_CFLAGS)
+clang-window-interactive: CC = $(CLANG)
+clang-window-interactive: window-interactive
+
+# New simplified verse client
+verse-client: src/verse_client.o src/game_state.o src/window.o src/world.o src/character.o src/actor.o src/world_transition.o src/world_spawn.o src/input_manager.o src/engine.o src/noise-c/src/crypto/sha2/sha256.o src/sequencer/melody_loader.o src/background_music.o src/synthesizer/synthesizer.o src/songwriter/songwriter.o src/isometric_renderer.o
+	$(CC) $(UI_CFLAGS) -o verse-client src/verse_client.o src/game_state.o src/window.o src/world.o src/character.o src/actor.o src/world_transition.o src/world_spawn.o src/input_manager.o src/engine.o src/noise-c/src/crypto/sha2/sha256.o src/sequencer/melody_loader.o src/background_music.o src/synthesizer/synthesizer.o src/songwriter/songwriter.o src/isometric_renderer.o $(LDFLAGS) -ljansson
+
+src/verse_client.o: src/verse_client.c
+	$(CC) $(UI_CFLAGS) -c src/verse_client.c -o src/verse_client.o
+
+src/game_state.o: src/game_state.c
+	$(CC) $(UI_CFLAGS) -c src/game_state.c -o src/game_state.o
+
+src/isometric_renderer.o: src/isometric_renderer.c
+	$(CC) $(UI_CFLAGS) -c src/isometric_renderer.c -o src/isometric_renderer.o
+
+src/window_interactive_test.o: src/window_interactive_test.c
+	$(CC) $(UI_CFLAGS) -c src/window_interactive_test.c -o src/window_interactive_test.o
+
+src/sequencer/melody_loader.o: src/sequencer/melody_loader.c
+	$(CC) $(UI_CFLAGS) -c src/sequencer/melody_loader.c -o src/sequencer/melody_loader.o
+
+src/background_music.o: src/background_music.c
+	$(CC) $(UI_CFLAGS) -c src/background_music.c -o src/background_music.o
+
+src/songwriter/songwriter.o: src/songwriter/songwriter.c
+	$(CC) $(UI_CFLAGS) -c src/songwriter/songwriter.c -o src/songwriter/songwriter.o
+
+src/song_editor.o: src/song_editor.c
+	$(CC) $(UI_CFLAGS) -c src/song_editor.c -o src/song_editor.o
+
+# Song editor object for standalone build
+src/song_editor_standalone_song.o: src/song_editor.c
+	$(CC) $(UI_CFLAGS) -DSONG_EDITOR_STANDALONE -c src/song_editor.c -o src/song_editor_standalone_song.o
+
+# Standalone song editor
+song-editor: src/song_editor_standalone.o src/song_editor_standalone_song.o src/songwriter/songwriter.o src/synthesizer/synthesizer.o src/sequencer/melody_loader.o
+	$(CC) $(UI_CFLAGS) -DSONG_EDITOR_STANDALONE -o song-editor src/song_editor_standalone.o src/song_editor_standalone_song.o src/songwriter/songwriter.o src/synthesizer/synthesizer.o src/sequencer/melody_loader.o $(LDFLAGS) -lm
+
+src/song_editor_standalone.o: src/song_editor_standalone.c
+	$(CC) $(UI_CFLAGS) -DSONG_EDITOR_STANDALONE -c src/song_editor_standalone.c -o src/song_editor_standalone.o
+
+src/character.o: src/character.c
+	$(CC) $(UI_CFLAGS) -c src/character.c -o src/character.o
+
+# Synthesizer test program
+synthesizer-test: src/synthesizer/test_synthesizer.o src/synthesizer/synthesizer.o
+	$(CC) $(CFLAGS) -o synthesizer-test src/synthesizer/test_synthesizer.o src/synthesizer/synthesizer.o $(LDFLAGS) -lm
+
+src/synthesizer/test_synthesizer.o: src/synthesizer/test_synthesizer.c
+	$(CC) $(CFLAGS) -c src/synthesizer/test_synthesizer.c -o src/synthesizer/test_synthesizer.o
+
+src/synthesizer/synthesizer.o: src/synthesizer/synthesizer.c
+	$(CC) $(CFLAGS) -c src/synthesizer/synthesizer.c -o src/synthesizer/synthesizer.o
+
+# Synthesizer demo program
+synthesizer-demo: src/synthesizer/synthesizer_demo.o src/synthesizer/synthesizer.o
+	$(CC) $(CFLAGS) -o synthesizer-demo src/synthesizer/synthesizer_demo.o src/synthesizer/synthesizer.o $(LDFLAGS) -lm
+
+src/synthesizer/synthesizer_demo.o: src/synthesizer/synthesizer_demo.c
+	$(CC) $(CFLAGS) -c src/synthesizer/synthesizer_demo.c -o src/synthesizer/synthesizer_demo.o
+
+# Synthesizer audio demo program
+synthesizer-audio-demo: src/synthesizer/synthesizer_audio_demo.o src/synthesizer/synthesizer.o
+	$(CC) $(CFLAGS) -o synthesizer-audio-demo src/synthesizer/synthesizer_audio_demo.o src/synthesizer/synthesizer.o $(LDFLAGS) -lm -lSDL2
+
+src/synthesizer/synthesizer_audio_demo.o: src/synthesizer/synthesizer_audio_demo.c
+	$(CC) $(CFLAGS) -c src/synthesizer/synthesizer_audio_demo.c -o src/synthesizer/synthesizer_audio_demo.o
+
+# Synthesizer integration example
+synthesizer-integration: src/synthesizer/synthesizer_integration_example.o src/synthesizer/synthesizer.o
+	$(CC) $(CFLAGS) -o synthesizer-integration src/synthesizer/synthesizer_integration_example.o src/synthesizer/synthesizer.o $(LDFLAGS) -lm -lSDL2
+
+src/synthesizer/synthesizer_integration_example.o: src/synthesizer/synthesizer_integration_example.c
+	$(CC) $(CFLAGS) -c src/synthesizer/synthesizer_integration_example.c -o src/synthesizer/synthesizer_integration_example.o
+
+# World storage test program
+test-world-storage: test_world_storage.o src/world.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-world-storage test_world_storage.o src/world.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+	./test-world-storage
+
+test_world_storage.o: test_world_storage.c
+	$(CC) $(CFLAGS) -c test_world_storage.c -o test_world_storage.o
+
+test-world-log: test_world_log.o src/world.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-world-log test_world_log.o src/world.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+	./test-world-log
+
+test_world_log.o: test_world_log.c
+	$(CC) $(CFLAGS) -c test_world_log.c -o test_world_log.o
+
+# Save system test
+test-save-system: test_save_system.o src/character.o
+	$(CC) $(CFLAGS) -o test-save-system test_save_system.o src/character.o $(LDFLAGS)
+	./test-save-system
+
+test_save_system.o: test_save_system.c
+	$(CC) $(CFLAGS) -c test_save_system.c -o test_save_system.o
+
+# State transition system test
+test-state-transition: test_state_transition.o src/state_transition.o src/world.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-state-transition test_state_transition.o src/state_transition.o src/world.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+	./test-state-transition
+
+test_state_transition.o: test_state_transition.c
+	$(CC) $(CFLAGS) -c test_state_transition.c -o test_state_transition.o
+
+src/state_transition.o: src/state_transition.c
+	$(CC) $(CFLAGS) -c src/state_transition.c -o src/state_transition.o
+
+# Dynamic music system test
+test-dynamic-music: test_dynamic_music.o src/dynamic_music.o src/synthesizer/synthesizer.o
+	$(CC) $(CFLAGS) -o test-dynamic-music test_dynamic_music.o src/dynamic_music.o src/synthesizer/synthesizer.o $(LDFLAGS)
+
+test_dynamic_music.o: test_dynamic_music.c
+	$(CC) $(CFLAGS) -c test_dynamic_music.c -o test_dynamic_music.o
+
+src/dynamic_music.o: src/dynamic_music.c
+	$(CC) $(CFLAGS) -c src/dynamic_music.c -o src/dynamic_music.o
+
+test-player-id: test_player_id.o src/character.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-player-id test_player_id.o src/character.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+
+test_player_id.o: test_player_id.c
+	$(CC) $(CFLAGS) -c test_player_id.c -o test_player_id.o
+
+test-spring-generation: test_spring_generation.o src/world.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-spring-generation test_spring_generation.o src/world.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+
+test_spring_generation.o: test_spring_generation.c
+	$(CC) $(CFLAGS) -c test_spring_generation.c -o test_spring_generation.o
+
+test-terminal-render: test_terminal_render.o src/terminal_render.o
+	$(CC) $(CFLAGS) -o test-terminal-render test_terminal_render.o src/terminal_render.o $(LDFLAGS) -lm
+
+test_terminal_render.o: test_terminal_render.c
+	$(CC) $(CFLAGS) -c test_terminal_render.c -o test_terminal_render.o
+
+src/terminal_render.o: src/terminal_render.c
+	$(CC) $(CFLAGS) -c src/terminal_render.c -o src/terminal_render.o
+
+# World generation types test
+test-world-generation-types: test_world_generation_types.o src/world.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-world-generation-types test_world_generation_types.o src/world.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+	./test-world-generation-types
+
+test_world_generation_types.o: test_world_generation_types.c
+	$(CC) $(CFLAGS) -c test_world_generation_types.c -o test_world_generation_types.o
+
+test-terminal-simple: test_terminal_simple.o src/terminal_render.o
+	$(CC) $(CFLAGS) -o test-terminal-simple test_terminal_simple.o src/terminal_render.o $(LDFLAGS)
+
+test_terminal_simple.o: test_terminal_simple.c
+	$(CC) $(CFLAGS) -c test_terminal_simple.c -o test_terminal_simple.o
+
+test-spring-bedrock: test_spring_bedrock.o src/world.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-spring-bedrock test_spring_bedrock.o src/world.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+
+test_spring_bedrock.o: test_spring_bedrock.c
+	$(CC) $(CFLAGS) -c test_spring_bedrock.c -o test_spring_bedrock.o
+
+# Level system test
+test-level-system: test_level_system.o src/world.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-level-system test_level_system.o src/world.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+	./test-level-system
+
+test_level_system.o: test_level_system.c
+	$(CC) $(CFLAGS) -c test_level_system.c -o test_level_system.o
+
+# Level progression test
+test-level-progression: test_level_progression.o src/world.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-level-progression test_level_progression.o src/world.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+	./test-level-progression
+
+test_level_progression.o: test_level_progression.c
+	$(CC) $(CFLAGS) -c test_level_progression.c -o test_level_progression.o
+
+# Comprehensive level analysis test
+test-comprehensive-level: test_comprehensive_level_analysis.o src/world.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-comprehensive-level test_comprehensive_level_analysis.o src/world.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+
+test-melody-system: test_melody_system.o src/sequencer/melody_loader.o
+	$(CC) $(CFLAGS) -o test-melody-system test_melody_system.o src/sequencer/melody_loader.o $(LDFLAGS)
+
+test-save-system: test_save_system.o src/character.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-save-system test_save_system.o src/character.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+
+test-fullscreen-scale: test_fullscreen_scale.o
+	$(CC) $(CFLAGS) -o test-fullscreen-scale test_fullscreen_scale.o $(LDFLAGS) -lSDL2 -lSDL2_ttf
+
+test-character-save-immediate: test_character_save_immediate.o src/character.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-character-save-immediate test_character_save_immediate.o src/character.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+
+test-arrow-selection: test_arrow_selection.o
+	$(CC) $(CFLAGS) -o test-arrow-selection test_arrow_selection.o $(LDFLAGS)
+
+test-isomorphic-renderer: test_isomorphic_renderer.o
+	$(CC) $(CFLAGS) -o test-isomorphic-renderer test_isomorphic_renderer.o -lm
+
+test-tutorial-system: test_tutorial_system.o
+	$(CC) $(CFLAGS) -o test-tutorial-system test_tutorial_system.o
+
+test-character-input: test_character_input.o
+	$(CC) $(CFLAGS) -o test-character-input test_character_input.o
+
+test-actor-system: test_actor_system.o src/actor.o src/character.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-actor-system test_actor_system.o src/actor.o src/character.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+
+test-world-transition: test_world_transition.o src/world.o src/actor.o src/character.o src/world_transition.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-world-transition test_world_transition.o src/world.o src/actor.o src/character.o src/world_transition.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+
+test-exit-prompt: test_exit_prompt.o src/window.o src/character.o src/world.o src/actor.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-exit-prompt test_exit_prompt.o src/window.o src/character.o src/world.o src/actor.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+
+test-spawn-system: test_spawn_system.o src/world.o src/world_spawn.o src/noise-c/src/crypto/sha2/sha256.o
+	$(CC) $(CFLAGS) -o test-spawn-system test_spawn_system.o src/world.o src/world_spawn.o src/noise-c/src/crypto/sha2/sha256.o $(LDFLAGS)
+	./test-comprehensive-level
+
+test-midi-reader: test_midi_reader.o src/midi_reader.o src/songwriter/songwriter.o src/synthesizer/synthesizer.o
+	$(CC) $(CFLAGS) -o test-midi-reader test_midi_reader.o src/midi_reader.o src/songwriter/songwriter.o src/synthesizer/synthesizer.o $(LDFLAGS)
+
+test_comprehensive_level_analysis.o: test_comprehensive_level_analysis.c
+	$(CC) $(CFLAGS) -c test_comprehensive_level_analysis.c -o test_comprehensive_level_analysis.o
+
+test_melody_system.o: test_melody_system.c
+	$(CC) $(CFLAGS) -c test_melody_system.c -o test_melody_system.o
+
+src/sequencer/melody_loader.o: src/sequencer/melody_loader.c
+	$(CC) $(CFLAGS) -c src/sequencer/melody_loader.c -o src/sequencer/melody_loader.o
+
+test_save_system.o: test_save_system.c
+	$(CC) $(CFLAGS) -c test_save_system.c -o test_save_system.o
+
+test_fullscreen_scale.o: test_fullscreen_scale.c
+	$(CC) $(CFLAGS) -c test_fullscreen_scale.c -o test_fullscreen_scale.o
+
+test_character_save_immediate.o: test_character_save_immediate.c
+	$(CC) $(CFLAGS) -c test_character_save_immediate.c -o test_character_save_immediate.o
+
+test_arrow_selection.o: test_arrow_selection.c
+	$(CC) $(CFLAGS) -c test_arrow_selection.c -o test_arrow_selection.o
+
+test_isomorphic_renderer.o: test_isomorphic_renderer.c
+	$(CC) $(CFLAGS) -c test_isomorphic_renderer.c -o test_isomorphic_renderer.o
+
+test_tutorial_system.o: test_tutorial_system.c
+	$(CC) $(CFLAGS) -c test_tutorial_system.c -o test_tutorial_system.o
+
+test_character_input.o: test_character_input.c
+	$(CC) $(CFLAGS) -c test_character_input.c -o test_character_input.o
+
+test_actor_system.o: test_actor_system.c
+	$(CC) $(CFLAGS) -c test_actor_system.c -o test_actor_system.o
+
+test_world_transition.o: test_world_transition.c
+	$(CC) $(CFLAGS) -c test_world_transition.c -o test_world_transition.o
+
+test_exit_prompt.o: test_exit_prompt.c
+	$(CC) $(CFLAGS) -c test_exit_prompt.c -o test_exit_prompt.o
+
+test_spawn_system.o: test_spawn_system.c
+	$(CC) $(CFLAGS) -c test_spawn_system.c -o test_spawn_system.o
+
+test_midi_reader.o: test_midi_reader.c
+	$(CC) $(CFLAGS) -c test_midi_reader.c -o test_midi_reader.o
+
+src/midi_reader.o: src/midi_reader.c
+	$(CC) $(CFLAGS) -c src/midi_reader.c -o src/midi_reader.o
+
+src/songwriter/songwriter.o: src/songwriter/songwriter.c
+	$(CC) $(CFLAGS) -c src/songwriter/songwriter.c -o src/songwriter/songwriter.o
+
+src/synthesizer/synthesizer.o: src/synthesizer/synthesizer.c
+	$(CC) $(CFLAGS) -c src/synthesizer/synthesizer.c -o src/synthesizer/synthesizer.o
+
+src/world_spawn.o: src/world_spawn.c
+	$(CC) $(CFLAGS) -c src/world_spawn.c -o src/world_spawn.o
+
+src/input_manager.o: src/input_manager.c
+	$(CC) $(CFLAGS) -c src/input_manager.c -o src/input_manager.o
+
+# Run all tests
+test: test-tutorial-system test-character-input test-isomorphic-renderer test-level-system test-level-progression test-comprehensive-level test-melody-system test-actor-system test-world-transition test-exit-prompt test-spawn-system test-midi-reader
+
+.PHONY: clean all proxy ui clean-ui compile-ui bundle-ui ui-test ui-standalone window-test window-demo window-interactive synthesizer-test synthesizer-demo synthesizer-audio-demo synthesizer-integration test-world-storage test-world-log test-save-system test-state-transition test-dynamic-music test-world-generation-types test-level-system test-level-progression test-comprehensive-level test-melody-system test-save-system test-fullscreen-scale test-character-save-immediate test-arrow-selection test-actor-system test-world-transition test-exit-prompt test-spawn-system test-tutorial-system test-character-input test-isomorphic-renderer test-midi-reader test
+
+# Enhanced songwriter test
+test-songwriter-enhanced: test_songwriter_enhanced.c src/songwriter/songwriter.o src/synthesizer/synthesizer.o
+	$(CC) $(CFLAGS) -o test-songwriter-enhanced test_songwriter_enhanced.c src/songwriter/songwriter.o src/synthesizer/synthesizer.o $(LDFLAGS) $(SDL_LIBS)

@@ -1,0 +1,73 @@
+# Makefile for testing the toolbar migration
+# This builds the new UI system and tests the toolbar functionality
+
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -O2 -g -I. -I/opt/homebrew/include -I/opt/homebrew/include/SDL2
+LDFLAGS = -L/opt/homebrew/lib -lm -lSDL2 -lSDL2_ttf
+
+# Source files for the new UI system
+UI_SOURCES = ui_system.c world_editor_ui.c
+UI_OBJECTS = $(UI_SOURCES:.c=.o)
+
+# Test programs
+TOOLBAR_TEST_SOURCES = toolbar_test.c ui_system.c world_editor_ui.c
+TOOLBAR_TEST_OBJECTS = $(TOOLBAR_TEST_SOURCES:.c=.o)
+
+FILE_MENU_TEST_SOURCES = file_menu_test.c ui_system.c world_editor_ui.c
+FILE_MENU_TEST_OBJECTS = $(FILE_MENU_TEST_SOURCES:.c=.o)
+
+COMPREHENSIVE_TEST_SOURCES = comprehensive_ui_test.c ui_system.c world_editor_ui.c
+COMPREHENSIVE_TEST_OBJECTS = $(COMPREHENSIVE_TEST_SOURCES:.c=.o)
+
+# Default target
+all: toolbar-test file-menu-test comprehensive-test
+
+# Toolbar test
+toolbar-test: $(TOOLBAR_TEST_OBJECTS)
+	gcc $(TOOLBAR_TEST_OBJECTS) -o toolbar-test $(LDFLAGS)
+
+# File menu test
+file-menu-test: $(FILE_MENU_TEST_OBJECTS)
+	gcc $(FILE_MENU_TEST_OBJECTS) -o file-menu-test $(LDFLAGS)
+
+# Comprehensive UI test
+comprehensive-test: $(COMPREHENSIVE_TEST_OBJECTS)
+	gcc $(COMPREHENSIVE_TEST_OBJECTS) -o comprehensive-test $(LDFLAGS)
+
+# Build object files
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean build artifacts
+clean:
+	rm -f *.o toolbar-test file-menu-test comprehensive-test
+
+# Run targets
+run-toolbar: toolbar-test
+	./toolbar-test
+
+run-filemenu: file-menu-test
+	./file-menu-test
+
+run-comprehensive: comprehensive-test
+	./comprehensive-test
+
+# Debug build
+debug: CFLAGS += -DDEBUG -O0
+debug: toolbar-test
+
+# Show help
+help:
+	@echo "Available targets:"
+	@echo "  all              - Build all test programs"
+	@echo "  toolbar-test     - Build toolbar test"
+	@echo "  file-menu-test   - Build file menu test"
+	@echo "  comprehensive-test - Build comprehensive UI test"
+	@echo "  run-toolbar      - Build and run toolbar test"
+	@echo "  run-filemenu     - Build and run file menu test"
+	@echo "  run-comprehensive - Build and run comprehensive UI test"
+	@echo "  clean            - Remove build artifacts"
+	@echo "  debug            - Build with debug flags"
+	@echo "  help             - Show this help message"
+
+.PHONY: all clean run debug help

@@ -2,6 +2,7 @@
 
 const BN = require('bn.js');
 
+const Canvas = require('../types/canvas');
 const Chunk = require('../types/chunk');
 const Sheet = require('../types/sheet');
 const Voxel = require('../types/voxel');

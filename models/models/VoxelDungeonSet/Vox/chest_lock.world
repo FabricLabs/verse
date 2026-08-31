@@ -1,0 +1,22 @@
+0000000000060000000100000004000000000DDDD0DDBBCCDCCCCCD0CC0C
+META1
+gen=6
+grav=20
+rar=0
+vclk=0
+rng=0
+udep=0
+hist=0
+players=0
+base=0
+score=0
+level=0
+seed=
+
+VOX2
+t 13
+1:0 4:13 1:0 2:13 2:91 2:140 1:13 5:140 1:13 1:0 2:140 1:0 1:140 
+c 0
+
+d 0
+

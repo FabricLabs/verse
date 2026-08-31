@@ -1,0 +1,7 @@
+// Top-level Gradle build file. Repositories are defined in settings.gradle.
+
+tasks.register("clean", Delete) {
+    delete rootProject.layout.buildDirectory
+}
+
+

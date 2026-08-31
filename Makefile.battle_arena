@@ -1,0 +1,83 @@
+# Makefile for VERSE Battle Arena Demo
+# Compiles the improved voxel renderer with mouse controls
+
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -g -O2
+LIBS = -lSDL2 -lm
+INCLUDES = -Isrc -Isrc/noise-c/src
+
+# Source files for the battle arena demo
+SOURCES = \
+	src/battle_arena_demo.c \
+	src/world.c \
+	src/isometric_renderer.c \
+	src/input_manager.c \
+	src/actor.c \
+	src/character.c \
+	src/noise-c/src/crypto/sha2/sha256.c
+
+# Object files
+OBJECTS = $(SOURCES:.c=.o)
+
+# Target executable
+TARGET = battle_arena_demo
+
+.PHONY: all clean demo run
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $(TARGET) $(LIBS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+demo: $(TARGET)
+	@echo "Battle Arena Demo built successfully!"
+	@echo "Run with: ./$(TARGET)"
+
+run: $(TARGET)
+	./$(TARGET)
+
+clean:
+	rm -f $(OBJECTS) $(TARGET)
+	@echo "Cleaned build files"
+
+# Install dependencies (Ubuntu/Debian)
+install-deps:
+	sudo apt-get update
+	sudo apt-get install libsdl2-dev
+
+# Install dependencies (macOS with Homebrew)
+install-deps-mac:
+	brew install sdl2
+
+# Debug build
+debug: CFLAGS += -DDEBUG -g3
+debug: $(TARGET)
+
+# Help
+help:
+	@echo "VERSE Battle Arena Demo Build System"
+	@echo "===================================="
+	@echo ""
+	@echo "Targets:"
+	@echo "  all           - Build the demo"
+	@echo "  demo          - Build and show instructions"
+	@echo "  run           - Build and run the demo"
+	@echo "  clean         - Remove build files"
+	@echo "  debug         - Build debug version"
+	@echo "  install-deps  - Install dependencies (Ubuntu/Debian)"
+	@echo "  install-deps-mac - Install dependencies (macOS)"
+	@echo "  help          - Show this help"
+	@echo ""
+	@echo "Features implemented:"
+	@echo "  ✓ Voxel-based floating island world"
+	@echo "  ✓ Isometric software renderer"
+	@echo "  ✓ Improved face culling for proper cubes"
+	@echo "  ✓ Right-click to move player"
+	@echo "  ✓ Left-click to select player/voxels"
+	@echo "  ✓ Strategic obstacle placement (trees/pillars)"
+	@echo "  ✓ Clear combat area in center"
+	@echo "  ✓ Movement validation and pathfinding"
+	@echo "  ✓ Visual movement preview"

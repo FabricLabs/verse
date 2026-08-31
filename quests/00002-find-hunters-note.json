@@ -1,0 +1,12 @@
+{
+  "name": "Find the Hunter's Note",
+  "description": "Search the hunter's shack for a note that explains what happened here.",
+  "world": "SPECIAL:WILDERNESS_HOME_DROP",
+  "objectives": [
+    {
+      "type": "locate",
+      "target": "hunters_note",
+      "count": 1
+    }
+  ]
+}

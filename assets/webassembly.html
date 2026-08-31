@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VERSE WebAssembly Viewer</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #141623; color: #fff; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+      #root { display: flex; flex-direction: column; height: 100%; }
+      header { padding: 10px 12px; background: #0e1020; border-bottom: 1px solid #22263f; display: flex; align-items: center; gap: 8px; }
+      header code { opacity: 0.8; }
+      main { flex: 1; display: grid; place-items: center; }
+      canvas { outline: none; width: 896px; height: 896px; max-width: 100vw; max-height: calc(100vh - 56px); background: #141623; image-rendering: pixelated; }
+      .controls { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+      input, button { background: #1a1d33; color: #fff; border: 1px solid #2a3060; padding: 6px 8px; border-radius: 4px; }
+      button { cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <header>
+        <strong>VERSE</strong>
+        <code>WebAssembly Viewer</code>
+        <div class="controls">
+          <label>z:</label>
+          <input id="zInput" type="number" value="0" min="0" step="1" />
+          <button id="incZ">+</button>
+          <button id="decZ">-</button>
+        </div>
+      </header>
+      <main>
+        <canvas id="canvas" tabindex="0"></canvas>
+      </main>
+    </div>
+
+    <script>
+      // Emscripten Module configuration is read by world_viewer.js on load
+      window.Module = {
+        canvas: (function() { return document.getElementById('canvas'); })(),
+        print: (function() { return function(txt) { console.log(txt); }; })(),
+        printErr: (function() { return function(txt) { console.error(txt); }; })()
+      };
+
+      // Basic UI to adjust Z layer via stdin emulation is not wired here; rely on default viewer controls
+      window.addEventListener('keydown', function(e) {
+        // Forward PageUp/PageDown and bracket keys to the canvas element for viewer controls
+        const keys = ['PageUp','PageDown','[',']','-','+','v','a','d','w','s','Escape','e','p',' '];
+        if (keys.includes(e.key)) {
+          document.getElementById('canvas').focus();
+        }
+      });
+    </script>
+    <script src="./world_viewer.js"></script>
+  </body>
+  </html>
+
+

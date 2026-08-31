@@ -1,0 +1,8 @@
+{
+  "name": "Teleport",
+  "description": "Teleport to a random location",
+  "cast_time": 1,
+  "cooldown": 10,
+  "range": 100,
+  "target": "self"
+}
