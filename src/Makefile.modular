@@ -1,0 +1,134 @@
+# Makefile for modular verse client and world systems
+# This builds the modular versions without affecting the original
+
+CC = gcc
+CFLAGS = -Wall -Wextra -g -I. -Isongwriter -Inoise-c/include
+SDL_CFLAGS = $(shell sdl2-config --cflags) -DSDL_MAIN_HANDLED
+SDL_LIBS = $(shell sdl2-config --libs)
+# Fix SDL2 include path issue
+CFLAGS += -I/opt/homebrew/include
+LIBS = -lm -framework OpenGL $(SDL_LIBS)
+
+# Modular client sources
+CLIENT_MODULES = \
+    client_init.c \
+    client_state.c \
+    client_audio.c \
+    client_input_simple.c \
+    client_render.c \
+    client_game_loop_simple.c \
+    verse_client_modular.c
+
+# Modular world sources
+WORLD_MODULES = \
+    world_core.c \
+    world_voxel.c \
+    world_noise.c \
+    world_serialize.c \
+    world_physics.c \
+    world_physics_stubs.c \
+    world_generation_dispatch.c \
+    world_generation_simple.c \
+    world_generation_wilderness_simple.c \
+    world_generation_scoured.c \
+    world_generation_labyrinth.c \
+    world_generation_wfc_town.c
+
+# Required dependencies (using existing files)
+DEPS = \
+    window.c \
+    game_state.c \
+    world.c \
+    isometric_renderer.c \
+    background_music.c \
+    ui_sounds.c \
+    title_hum.c \
+    actor.c \
+    character.c \
+    constants.c \
+    entropy_field.c \
+    fluid_navier_stokes.c \
+    fp_renderer.c \
+    gpu_physics.c \
+    gpu_voxel_buffer.c \
+    greedy_mesh.c \
+    input_manager.c \
+    octree.c \
+    player.c \
+    settings.c \
+    unified_renderer.c \
+    universe.c \
+    universe_coords.c \
+    voxel_mesh.c \
+    world_bulk_ops.c \
+    world_editor_input.c \
+    world_editor_ui.c \
+    world_entropy_generator.c \
+    world_spawn.c \
+    world_transition.c \
+    wfc.c
+
+# Songwriter modules
+SONGWRITER = \
+    songwriter/songwriter.c
+
+# Noise-C sources
+NOISE_C = \
+    noise-c/src/crypto/sha2/sha256.c
+
+# All sources
+ALL_SOURCES = $(CLIENT_MODULES) $(WORLD_MODULES) $(DEPS) $(SONGWRITER) $(NOISE_C)
+
+# Object files
+CLIENT_OBJS = $(CLIENT_MODULES:.c=.mod.o)
+WORLD_OBJS = $(WORLD_MODULES:.c=.mod.o)
+DEPS_OBJS = $(DEPS:.c=.mod.o)
+SONGWRITER_OBJS = $(SONGWRITER:.c=.mod.o)
+NOISE_OBJS = $(NOISE_C:.c=.mod.o)
+
+ALL_OBJS = $(CLIENT_OBJS) $(WORLD_OBJS) $(DEPS_OBJS) $(SONGWRITER_OBJS) $(NOISE_OBJS)
+
+# Targets
+.PHONY: all clean client world test
+
+all: verse_client_modular
+
+# Build modular client
+verse_client_modular: $(ALL_OBJS)
+	$(CC) -o $@ $^ $(LIBS)
+	@echo "✅ Built modular client: verse_client_modular"
+
+# Pattern rule for .mod.o files to avoid conflicts with regular .o files
+%.mod.o: %.c
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -c $< -o $@
+
+# Test modular world systems
+test_world_modular: test_world_modular.c $(WORLD_OBJS) world_core.mod.o world_voxel.mod.o $(NOISE_OBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+	@echo "✅ Built world module test: test_world_modular"
+
+# Test random pool
+test_random_pool: test_random_pool.c random_pool.c world_random_pool.c
+	$(CC) $(CFLAGS) -o $@ $^ -lpthread $(LIBS)
+	@echo "✅ Built random pool test: test_random_pool"
+
+# Clean modular builds only
+clean:
+	rm -f $(ALL_OBJS)
+	rm -f verse_client_modular
+	rm -f test_world_modular
+	rm -f test_random_pool
+	@echo "🧹 Cleaned modular build files"
+
+# Help
+help:
+	@echo "Modular Build System"
+	@echo "==================="
+	@echo "make                - Build modular client"
+	@echo "make test_world_modular - Build world module test"
+	@echo "make test_random_pool   - Build random pool test"
+	@echo "make clean          - Clean modular builds only"
+	@echo ""
+	@echo "This creates separate executables:"
+	@echo "  verse_client_modular - New modular client"
+	@echo "  verse_client         - Original client (untouched)"

@@ -57,6 +57,7 @@ class Place extends Actor {
 
   async _loadFromRPGByID (id) {
     const place = await this.remote._GET(`/places/${id}`);
+    console.log('place:', place);
     this._state.content._id = place._id;
     this._state.content.name = place.name;
     this._state.content.synopsis = place.synopsis;

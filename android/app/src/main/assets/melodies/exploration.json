@@ -1,0 +1,20 @@
+{
+  "name": "Exploration",
+  "description": "Adventurous exploration music",
+  "melodies": [
+    {
+      "name": "Journey",
+      "description": "Epic exploration theme",
+      "notes": [
+        "D4", "A4", "B4", "F#4", "G4", "D4", "E4", "A4"
+      ]
+    },
+    {
+      "name": "Discovery",
+      "description": "Mysterious discovery theme",
+      "notes": [
+        "Em4", "B4", "C4", "G4", "Am4", "D4", "Em4", "B4"
+      ]
+    }
+  ]
+}

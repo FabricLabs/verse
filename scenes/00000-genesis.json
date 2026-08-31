@@ -1,0 +1,35 @@
+{
+  "name": "Genesis",
+  "description": "Awakening on the home island.",
+  "world": "SPECIAL:USER_HOME",
+  "sequence": [
+    {
+      "type": "text",
+      "content": "...what are YOU doing here?"
+    },
+    {
+      "type": "text",
+      "content": "..."
+    },
+    {
+      "type": "text",
+      "content": "You were supposed to be gone for good."
+    },
+    {
+      "type": "text",
+      "content": "..."
+    },
+    {
+      "type": "text",
+      "content": "This island is yours — a shard of stone suspended above an endless world below. From here, the overworld stretches outward: story-woven realms and, sometimes, islands claimed by other travelers."
+    },
+    {
+      "type": "text",
+      "content": "Stand on solid ground. Feel the wind. When you are ready, we will speak of what comes next."
+    },
+    {
+      "type": "quest",
+      "$ref": "00000-humble-beginnings"
+    }
+  ]
+}

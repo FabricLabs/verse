@@ -6,6 +6,7 @@
   },
   "networking": false,
   "peers": [
+    "localhost:9999",
     "localhost:7778"
   ],
   "resources": {

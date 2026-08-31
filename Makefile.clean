@@ -1,0 +1,167 @@
+# VERSE ENGINE MAKEFILE - CLEAN VERSION
+# Focused on core game components only
+
+# Compiler selection
+CC ?= gcc
+CLANG = clang
+
+# Common flags
+COMMON_CFLAGS = -Wall -Wextra -I/opt/homebrew/include -I/usr/local/include \
+                -I$(CURDIR)/src/noise-c/include -I$(CURDIR)/src \
+                -I/opt/homebrew/include/libwebsockets -I/opt/homebrew/include/jansson \
+                -I/opt/homebrew/include/microhttpd -I/opt/homebrew/include/SDL2
+
+# GCC-specific flags
+GCC_CFLAGS = $(COMMON_CFLAGS)
+
+# Clang-specific flags
+CLANG_CFLAGS = $(COMMON_CFLAGS) -Weverything -Wno-disabled-macro-expansion -Wno-padded \
+               -Wno-covered-switch-default -Wno-reserved-id-macro -Wno-documentation \
+               -Wno-documentation-unknown-command -Wno-missing-variable-declarations \
+               -Wno-missing-prototypes -Wno-unused-macros -Wno-c++98-compat \
+               -Wno-c++98-compat-pedantic -Wno-vla -Wno-vla-extension
+
+# Default flags
+CFLAGS = $(GCC_CFLAGS)
+UI_CFLAGS = $(CFLAGS) -DUI_BUILD -DINTERFACE_MODE
+LDFLAGS = -L/opt/homebrew/lib -lm -lwebsockets -ljansson -lmicrohttpd -lSDL2 -lSDL2_ttf
+
+# Noise library
+NOISE_LIB = src/noise-c/src/protocol/libnoiseprotocol.a \
+            src/noise-c/src/protobufs/libnoiseprotobufs.a \
+            src/noise-c/src/keys/libnoisekeys.a
+SHA256_OBJ = src/noise-c/src/crypto/sha2/sha256.o
+
+# Core engine sources (main server/client)
+CORE_SOURCES = src/main.c src/world.c src/server.c src/engine.c src/client.c \
+               src/verse.c src/player.c $(SHA256_OBJ)
+CORE_OBJECTS = $(CORE_SOURCES:.c=.o)
+
+# Game client sources (UI-based game)
+CLIENT_SOURCES = src/verse_client.o src/game_state.o src/window.o src/world.o \
+                src/character.o src/actor.o src/world_transition.o src/world_spawn.o \
+                src/input_manager.o src/engine.o $(SHA256_OBJ) \
+                src/sequencer/melody_loader.o src/background_music.o \
+                src/synthesizer/synthesizer.o src/songwriter/songwriter.o \
+                src/isometric_renderer.o
+
+# Proxy sources
+PROXY_SOURCES = src/proxy.c src/world.c src/engine.c $(SHA256_OBJ)
+PROXY_OBJECTS = $(PROXY_SOURCES:.c=.o)
+
+# Build targets
+all: verse-client
+
+# Main game client (the primary target)
+verse-client: $(CLIENT_SOURCES)
+	$(CC) $(UI_CFLAGS) -o verse-client $(CLIENT_SOURCES) $(LDFLAGS) -ljansson
+
+# Core engine/server (traditional version)
+verse: $(CORE_OBJECTS) $(NOISE_LIB)
+	$(CC) $(CFLAGS) -o verse $(CORE_OBJECTS) $(NOISE_LIB) $(LDFLAGS)
+
+# Proxy server
+proxy: $(PROXY_OBJECTS) $(NOISE_LIB)
+	$(CC) $(CFLAGS) -o proxy $(PROXY_OBJECTS) $(NOISE_LIB) $(LDFLAGS)
+
+# Clang builds
+clang: CFLAGS = $(CLANG_CFLAGS)
+clang: CC = $(CLANG)
+clang: verse-client
+
+clang-verse: CFLAGS = $(CLANG_CFLAGS)
+clang-verse: CC = $(CLANG)
+clang-verse: verse
+
+# Object file rules
+src/verse_client.o: src/verse_client.c
+	$(CC) $(UI_CFLAGS) -c src/verse_client.c -o src/verse_client.o
+
+src/game_state.o: src/game_state.c
+	$(CC) $(UI_CFLAGS) -c src/game_state.c -o src/game_state.o
+
+src/window.o: src/window.c
+	$(CC) $(UI_CFLAGS) -c src/window.c -o src/window.o
+
+src/world.o: src/world.c
+	$(CC) $(UI_CFLAGS) -c src/world.c -o src/world.o
+
+src/character.o: src/character.c
+	$(CC) $(UI_CFLAGS) -c src/character.c -o src/character.o
+
+src/actor.o: src/actor.c
+	$(CC) $(UI_CFLAGS) -c src/actor.c -o src/actor.o
+
+src/world_transition.o: src/world_transition.c
+	$(CC) $(UI_CFLAGS) -c src/world_transition.c -o src/world_transition.o
+
+src/world_spawn.o: src/world_spawn.c
+	$(CC) $(UI_CFLAGS) -c src/world_spawn.c -o src/world_spawn.o
+
+src/input_manager.o: src/input_manager.c
+	$(CC) $(UI_CFLAGS) -c src/input_manager.c -o src/input_manager.o
+
+src/engine.o: src/engine.c
+	$(CC) $(UI_CFLAGS) -c src/engine.c -o src/engine.o
+
+src/isometric_renderer.o: src/isometric_renderer.c
+	$(CC) $(UI_CFLAGS) -c src/isometric_renderer.c -o src/isometric_renderer.o
+
+src/sequencer/melody_loader.o: src/sequencer/melody_loader.c
+	$(CC) $(CFLAGS) -c src/sequencer/melody_loader.c -o src/sequencer/melody_loader.o
+
+src/background_music.o: src/background_music.c
+	$(CC) $(CFLAGS) -c src/background_music.c -o src/background_music.o
+
+src/synthesizer/synthesizer.o: src/synthesizer/synthesizer.c
+	$(CC) $(CFLAGS) -c src/synthesizer/synthesizer.c -o src/synthesizer/synthesizer.o
+
+src/songwriter/songwriter.o: src/songwriter/songwriter.c
+	$(CC) $(CFLAGS) -c src/songwriter/songwriter.c -o src/songwriter/songwriter.o
+
+$(SHA256_OBJ): src/noise-c/src/crypto/sha2/sha256.c
+	$(CC) $(CFLAGS) -c src/noise-c/src/crypto/sha2/sha256.c -o $(SHA256_OBJ)
+
+# Core engine objects (for traditional verse build)
+src/main.o: src/main.c
+	$(CC) $(CFLAGS) -c src/main.c -o src/main.o
+
+src/server.o: src/server.c
+	$(CC) $(CFLAGS) -DMAIN_SERVER -c src/server.c -o src/server.o
+
+src/client.o: src/client.c
+	$(CC) $(CFLAGS) -c src/client.c -o src/client.o
+
+src/verse.o: src/verse.c
+	$(CC) $(CFLAGS) -c src/verse.c -o src/verse.o
+
+src/player.o: src/player.c
+	$(CC) $(CFLAGS) -c src/player.c -o src/player.o
+
+src/proxy.o: src/proxy.c
+	$(CC) $(CFLAGS) -c src/proxy.c -o src/proxy.o
+
+# Noise protocol library
+$(NOISE_LIB):
+	cd src/noise-c && make
+
+# Utility targets
+clean:
+	rm -f src/*.o src/*/*.o verse verse-client proxy
+	rm -f test-*
+	cd src/noise-c && make clean
+
+clean-noise:
+	cd src/noise-c && make clean
+
+help:
+	@echo "Available targets:"
+	@echo "  verse-client  - Main game with UI (default)"
+	@echo "  verse         - Core engine/server"
+	@echo "  proxy         - Proxy server"
+	@echo "  clang         - Build verse-client with clang"
+	@echo "  clang-verse   - Build verse with clang"
+	@echo "  clean         - Clean all build artifacts"
+	@echo "  help          - Show this help"
+
+.PHONY: all clean clean-noise help clang clang-verse

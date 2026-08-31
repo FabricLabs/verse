@@ -1,0 +1,20 @@
+{
+  "name": "Home",
+  "description": "Comforting home base music",
+  "melodies": [
+    {
+      "name": "Hearth",
+      "description": "Warm and comforting home theme",
+      "notes": [
+        "C4", "G4", "Am4", "F4", "C4", "G4", "Am4", "F4"
+      ]
+    },
+    {
+      "name": "Sanctuary",
+      "description": "Peaceful sanctuary theme",
+      "notes": [
+        "D4", "A4", "Bm4", "G4", "D4", "A4", "Bm4", "G4"
+      ]
+    }
+  ]
+}

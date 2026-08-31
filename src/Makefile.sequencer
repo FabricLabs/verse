@@ -1,0 +1,82 @@
+# Makefile for sequencer UI system
+# Builds the sequencer UI on top of the songwriter system
+
+CC = gcc
+CFLAGS = -Wall -Wextra -g -I. -Isongwriter -Inoise-c/include $(shell pkg-config --cflags jansson)
+SDL_CFLAGS = $(shell sdl2-config --cflags)
+SDL_LIBS = $(shell sdl2-config --libs)
+TTF_LIBS = -lSDL2_ttf
+JANSSON_LIBS = $(shell pkg-config --libs jansson)
+LIBS = -lm -framework OpenGL $(SDL_LIBS) $(TTF_LIBS) $(JANSSON_LIBS)
+
+# Sequencer UI sources
+SEQUENCER_UI_SOURCES = \
+    sequencer_ui_demo.c \
+    sequencer_ui_core.c
+
+# Songwriter system (simple demo version for testing)
+SONGWRITER_SOURCES = \
+    songwriter_demo_simple.c
+
+# Dependencies (minimal set for sequencer)
+DEPS_SOURCES = \
+    constants.c
+
+# All sources
+ALL_SOURCES = $(SEQUENCER_UI_SOURCES) $(SONGWRITER_SOURCES) $(DEPS_SOURCES)
+
+# Object files
+SEQUENCER_UI_OBJS = $(SEQUENCER_UI_SOURCES:.c=.seq.o)
+SONGWRITER_OBJS = $(SONGWRITER_SOURCES:.c=.seq.o)
+DEPS_OBJS = $(DEPS_SOURCES:.c=.seq.o)
+
+ALL_OBJS = $(SEQUENCER_UI_OBJS) $(SONGWRITER_OBJS) $(DEPS_OBJS)
+
+# Targets
+.PHONY: all clean sequencer demo integration
+
+all: sequencer_ui_demo
+
+# Build sequencer UI demo
+sequencer_ui_demo: $(ALL_OBJS)
+	$(CC) -o $@ $^ $(LIBS)
+	@echo "✅ Built sequencer UI demo: sequencer_ui_demo"
+
+# Pattern rule for .seq.o files to avoid conflicts
+%.seq.o: %.c
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -c $< -o $@
+
+# Demo targets
+demo: sequencer_ui_demo
+	@echo "🎵 Running sequencer UI demo..."
+	./sequencer_ui_demo
+
+integration: sequencer_ui_demo
+	@echo "🔗 Running integration demo..."
+	./sequencer_ui_demo --integration
+
+# Clean sequencer builds only
+clean:
+	rm -f $(ALL_OBJS)
+	rm -f sequencer_ui_demo
+	@echo "🧹 Cleaned sequencer build files"
+
+# Help
+help:
+	@echo "Sequencer UI Build System"
+	@echo "========================"
+	@echo "make                - Build sequencer UI demo"
+	@echo "make demo           - Build and run sequencer UI demo"
+	@echo "make integration    - Build and run integration demo"
+	@echo "make clean          - Clean sequencer builds only"
+	@echo ""
+	@echo "This creates:"
+	@echo "  sequencer_ui_demo - Interactive sequencer UI demo"
+	@echo ""
+	@echo "The sequencer UI is built on top of the songwriter system"
+	@echo "and provides a professional sequencer interface with:"
+	@echo "  - Piano roll editor"
+	@echo "  - Track management"
+	@echo "  - Mixer panel"
+	@echo "  - Transport controls"
+	@echo "  - MIDI integration"

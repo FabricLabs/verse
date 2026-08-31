@@ -1,0 +1,39 @@
+# Makefile additions for world module decomposition
+# Add these lines to the main Makefile
+
+# After the existing test targets (around line 280), add:
+
+# World module decomposition test
+test-decomposition: src/test_decomposition.o src/world_noise.o $(SHA256_OBJ)
+	$(CC) $(CFLAGS) -o test-decomposition src/test_decomposition.o src/world_noise.o $(SHA256_OBJ) $(LDFLAGS)
+
+# World module object files
+src/world_noise.o: src/world_noise.c src/world_noise.h
+	$(CC) $(CFLAGS) -c src/world_noise.c -o src/world_noise.o
+
+src/world_core.o: src/world_core.c src/world_core.h src/world_internal.h
+	$(CC) $(CFLAGS) -c src/world_core.c -o src/world_core.o
+
+src/world_voxel.o: src/world_voxel.c src/world_voxel.h src/world_internal.h
+	$(CC) $(CFLAGS) -c src/world_voxel.c -o src/world_voxel.o
+
+src/world_generation.o: src/world_generation.c src/world_generation.h src/world_internal.h
+	$(CC) $(CFLAGS) -c src/world_generation.c -o src/world_generation.o
+
+src/world_physics.o: src/world_physics.c src/world_physics.h src/world_internal.h
+	$(CC) $(CFLAGS) -c src/world_physics.c -o src/world_physics.o
+
+src/world_serialize.o: src/world_serialize.c src/world_serialize.h src/world_internal.h
+	$(CC) $(CFLAGS) -c src/world_serialize.c -o src/world_serialize.o
+
+# Update the clean target to include new files:
+# In the clean: target, add:
+#   rm -f test-decomposition src/world_noise.o src/world_core.o src/world_voxel.o \
+#         src/world_generation.o src/world_physics.o src/world_serialize.o
+
+# Example of how to update existing targets to use decomposed modules:
+# Replace instances of src/world.o with:
+# WORLD_MODULES = src/world.o src/world_noise.o src/world_core.o src/world_voxel.o \
+#                 src/world_generation.o src/world_physics.o src/world_serialize.o
+
+# Then use $(WORLD_MODULES) instead of src/world.o in target dependencies

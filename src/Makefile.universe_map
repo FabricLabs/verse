@@ -1,0 +1,49 @@
+# Makefile for Universe Map Generator
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -O2 -g
+INCLUDES = -I. $(shell pkg-config --cflags sdl2)
+LIBS = $(shell pkg-config --libs sdl2) -lm
+
+# Source files
+SOURCES = universe_map_generator.c world.c constants.c universe.c entropy_field.c world_entropy_generator.c universe_coords.c
+OBJECTS = $(SOURCES:.c=.o)
+TARGET = universe_map_generator
+
+# Default target
+all: $(TARGET)
+
+# Build the main executable
+$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $(TARGET) $(LIBS)
+
+# Compile source files
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Clean build artifacts
+clean:
+	rm -f $(OBJECTS) $(TARGET)
+
+# Create assets directory
+assets:
+	mkdir -p assets
+
+# Run the generator (creates assets directory first)
+run: assets $(TARGET)
+	./$(TARGET)
+
+# Install dependencies (macOS with Homebrew)
+install-deps:
+	brew install sdl2
+
+# Help target
+help:
+	@echo "Available targets:"
+	@echo "  all          - Build the universe map generator"
+	@echo "  clean        - Remove build artifacts"
+	@echo "  assets       - Create assets directory"
+	@echo "  run          - Build and run the generator"
+	@echo "  install-deps - Install SDL2 dependency (macOS)"
+	@echo "  help         - Show this help message"
+
+.PHONY: all clean assets run install-deps help

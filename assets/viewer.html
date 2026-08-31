@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VERSE</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+    }
+    #container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 5px;
+      max-width: 250px;
+    }
+    button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .custom-file-upload {
+      background-color: #2196F3;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .custom-file-upload:hover {
+      background-color: #0b7dda;
+    }
+    #info {
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    .loader {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 2s linear infinite;
+      margin: 10px auto;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #tooltip {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 100;
+      display: none;
+    }
+    .control-group {
+      margin-top: 15px;
+      border-top: 1px solid #444;
+      padding-top: 10px;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .checkbox-label input {
+      margin-right: 5px;
+    }
+    #sample-link {
+      display: block;
+      margin-top: 10px;
+      color: #2196F3;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="controls">
+    <h2>VERSE</h2>
+    <label class="custom-file-upload">
+      <input type="file" id="fileInput" accept=".txt,.hex,.world"/>
+      Load World File
+    </label>
+    <button id="resetCamera">Reset Camera</button>
+    <a id="sample-link">Load Sample World</a>
+    
+    <div class="control-group">
+      <h3>Display Options</h3>
+      <label class="checkbox-label">
+        <input type="checkbox" id="showGrid" checked>
+        Show Grid
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="showAxes" checked>
+        Show Axes
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="enableInspection" checked>
+        Enable Voxel Inspection
+      </label>
+    </div>
+    
+    <div class="control-group">
+      <h3>Actions</h3>
+      <button id="saveWorld">Save World</button>
+    </div>
+    
+    <div id="info">
+      <p>World details will appear here...</p>
+    </div>
+    <div class="loader" id="loader"></div>
+  </div>
+
+  <div id="tooltip"></div>
+
+  <script src="/scripts/three.min.js"></script>
+  <script src="/scripts/OrbitControls.js"></script>
+  
+  <script>
+    // Constants for voxel types mapped to colors
+    const VOXEL_TYPES = {
+      0: { name: 'AIR', color: 0x000000, opacity: 0.0 },
+      1: { name: 'DIRT', color: 0x8B4513, opacity: 1.0 },
+      2: { name: 'GRASS', color: 0x7CFC00, opacity: 1.0 },
+      3: { name: 'STONE', color: 0x808080, opacity: 1.0 },
+      4: { name: 'WATER', color: 0x1E90FF, opacity: 0.8 },
+      5: { name: 'WOOD', color: 0x8B4513, opacity: 1.0 },
+      6: { name: 'LEAVES', color: 0x228B22, opacity: 0.9 },
+      7: { name: 'SAND', color: 0xF4A460, opacity: 1.0 }
+    };
+
+    // Initialize Three.js scene
+    let scene, camera, renderer, controls;
+    let worldWidth, worldHeight, worldDepth;
+    let worldMesh;
+    let raycaster, mouse;
+    let gridHelper, axesHelper;
+    let voxelData = []; // Store voxel data for raycasting
+    let tooltip = document.getElementById('tooltip');
+    let mouseMoveTimeout;
+    
+    // Track mouse position
+    mouse = new THREE.Vector2();
+    
+    function init() {
+      // Create scene
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x87CEEB); // Sky blue background
+
+      // Create camera
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(50, 50, 50);
+      camera.lookAt(0, 0, 0);
+
+      // Create renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.getElementById('container').appendChild(renderer.domElement);
+
+      // Add orbit controls
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.25;
+      controls.screenSpacePanning = false;
+      controls.maxPolarAngle = Math.PI / 1.5;
+      controls.minDistance = 5;
+      controls.maxDistance = 500;
+
+      // Add ambient light
+      const ambientLight = new THREE.AmbientLight(0x606060);
+      scene.add(ambientLight);
+
+      // Add directional light
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(1, 1, 1).normalize();
+      scene.add(directionalLight);
+
+      // Add grid helper for reference
+      gridHelper = new THREE.GridHelper(100, 100);
+      scene.add(gridHelper);
+      
+      // Add axes helper
+      axesHelper = new THREE.AxesHelper(50);
+      scene.add(axesHelper);
+      
+      // Setup raycaster for voxel inspection
+      raycaster = new THREE.Raycaster();
+      
+      // Handle window resize
+      window.addEventListener('resize', onWindowResize, false);
+      
+      // Handle mouse move for voxel inspection
+      document.addEventListener('mousemove', onMouseMove, false);
+
+      // Start animation loop
+      animate();
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+    
+    function onMouseMove(event) {
+      // Calculate mouse position in normalized device coordinates
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+      
+      // Update tooltip position
+      tooltip.style.left = (event.clientX + 10) + 'px';
+      tooltip.style.top = (event.clientY + 10) + 'px';
+      
+      // Clear previous timeout to prevent multiple inspections
+      if (mouseMoveTimeout) clearTimeout(mouseMoveTimeout);
+      
+      // Set a small delay to avoid too many raycasts
+      mouseMoveTimeout = setTimeout(inspectVoxel, 50);
+    }
+    
+    function inspectVoxel() {
+      // Don't inspect if disabled
+      if (!document.getElementById('enableInspection').checked || !worldMesh) {
+        tooltip.style.display = 'none';
+        return;
+      }
+      
+      // Update the picking ray
+      raycaster.setFromCamera(mouse, camera);
+      
+      // Calculate objects intersecting the picking ray
+      const intersects = raycaster.intersectObject(worldMesh);
+      
+      if (intersects.length > 0) {
+        // Get the first intersected object (closest to camera)
+        const intersect = intersects[0];
+        
+        // Get the instance index
+        const instanceId = intersect.instanceId;
+        
+        if (instanceId !== undefined && instanceId < voxelData.length) {
+          const voxel = voxelData[instanceId];
+          const voxelInfo = VOXEL_TYPES[voxel.type] || VOXEL_TYPES[0];
+          
+          // Set tooltip content
+          tooltip.innerHTML = `
+            <div>Type: ${voxelInfo.name}</div>
+            <div>Position: ${voxel.x}, ${voxel.y}, ${voxel.z}</div>
+          `;
+          
+          // Show tooltip
+          tooltip.style.display = 'block';
+          return;
+        }
+      }
+      
+      // Hide tooltip if no intersection
+      tooltip.style.display = 'none';
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // Reset camera to default position
+    document.getElementById('resetCamera').addEventListener('click', function() {
+      resetCamera();
+    });
+    
+    // Toggle grid
+    document.getElementById('showGrid').addEventListener('change', function(e) {
+      gridHelper.visible = e.target.checked;
+    });
+    
+    // Toggle axes
+    document.getElementById('showAxes').addEventListener('change', function(e) {
+      axesHelper.visible = e.target.checked;
+    });
+
+    // Setup file input handler
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const worldData = e.target.result;
+          loadWorld(worldData);
+        };
+        reader.readAsText(file);
+        
+        // Show loading indicator
+        document.getElementById('loader').style.display = 'block';
+      }
+    });
+    
+    // Load sample world
+    document.getElementById('sample-link').addEventListener('click', function() {
+      // Show loading indicator
+      document.getElementById('loader').style.display = 'block';
+      
+      // Fetch the sample world file
+      fetch('sample_world.txt')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.text();
+        })
+        .then(data => {
+          loadWorld(data);
+        })
+        .catch(error => {
+          console.error('Error loading sample world:', error);
+          document.getElementById('info').innerHTML = `
+            <p style="color: red;">Error loading sample world: ${error.message}</p>
+            <p>Make sure you've created a sample world using the export_world utility.</p>
+          `;
+          document.getElementById('loader').style.display = 'none';
+        });
+    });
+
+    // Save world data
+    document.getElementById('saveWorld').addEventListener('click', function() {
+      if (!currentWorldData) {
+        alert('No world is currently loaded.');
+        return;
+      }
+      
+      // Create a blob from the world data
+      const blob = new Blob([currentWorldData], { type: 'text/plain' });
+      
+      // Create a download link
+      const a = document.createElement('a');
+      a.download = 'world_export.txt';
+      a.href = URL.createObjectURL(blob);
+      
+      // Append to body to trigger the download
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    });
+
+    // Function to load and parse world data
+    let currentWorldData = null; // Store current world data for saving
+    
+    function loadWorld(data) {
+      // Store the world data for future export
+      currentWorldData = data;
+      
+      // Clear existing world mesh if any
+      if (worldMesh) {
+        scene.remove(worldMesh);
+        worldMesh.geometry.dispose();
+        worldMesh = null;
+        voxelData = [];
+      }
+
+      try {
+        // Parse world data format
+        // Format: [version:4][width:8][height:8][depth:8][voxels...]
+        const version = parseInt(data.substring(0, 4), 16);
+        const width = parseInt(data.substring(4, 12), 16);
+        const height = parseInt(data.substring(12, 20), 16);
+        const depth = parseInt(data.substring(20, 28), 16);
+        const voxelsData = data.substring(28);
+
+        // Update info panel
+        document.getElementById('info').innerHTML = `
+          <p>Version: ${version}</p>
+          <p>Dimensions: ${width} x ${height} x ${depth}</p>
+          <p>Total Voxels: ${width * height * depth}</p>
+        `;
+
+        // Store world dimensions
+        worldWidth = width;
+        worldHeight = height;
+        worldDepth = depth;
+
+        // Render the world
+        renderWorld(voxelsData, width, height, depth);
+      } catch (e) {
+        console.error("Failed to parse world data:", e);
+        document.getElementById('info').innerHTML = `
+          <p style="color: red;">Error loading world: ${e.message}</p>
+        `;
+      } finally {
+        // Hide loading indicator
+        document.getElementById('loader').style.display = 'none';
+      }
+    }
+
+    // Function to render the world using instanced mesh for better performance
+    function renderWorld(voxelsData, width, height, depth) {
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const centerZ = depth / 2;
+
+      // Create geometry, material, and mesh for instanced rendering
+      const boxGeometry = new THREE.BoxBufferGeometry(1, 1, 1);
+      const instancedMesh = new THREE.InstancedMesh(boxGeometry, new THREE.MeshLambertMaterial(), width * height * depth);
+      instancedMesh.count = 0; // We'll increment this as we add instances
+      
+      const matrix = new THREE.Matrix4();
+      const color = new THREE.Color();
+      
+      // Process each voxel
+      let instanceCount = 0;
+      for (let z = 0; z < depth; z++) {
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const index = z * (width * height) + y * width + x;
+            if (index >= voxelsData.length) continue;
+            
+            // Convert hex character to voxel type
+            const typeChar = voxelsData[index];
+            let voxelType = 0; // Default to AIR
+            
+            if (/[0-9]/.test(typeChar)) {
+              voxelType = parseInt(typeChar, 10);
+            } else if (/[A-F]/.test(typeChar)) {
+              voxelType = 10 + typeChar.charCodeAt(0) - 'A'.charCodeAt(0);
+            } else if (/[a-f]/.test(typeChar)) {
+              voxelType = 10 + typeChar.charCodeAt(0) - 'a'.charCodeAt(0);
+            }
+            
+            // Skip AIR voxels (type 0)
+            if (voxelType === 0) continue;
+            
+            // Get voxel properties
+            const voxelProps = VOXEL_TYPES[voxelType] || VOXEL_TYPES[0];
+            
+            // Set position
+            matrix.setPosition(
+              x - centerX,
+              y - centerY,
+              z - centerZ
+            );
+            
+            // Set color
+            color.setHex(voxelProps.color);
+            
+            // Add instance
+            instancedMesh.setMatrixAt(instanceCount, matrix);
+            instancedMesh.setColorAt(instanceCount, color);
+            
+            // Store voxel data for inspection
+            voxelData.push({
+              x: x,
+              y: y, 
+              z: z,
+              type: voxelType
+            });
+            
+            instanceCount++;
+          }
+        }
+      }
+      
+      // Update instance count
+      instancedMesh.count = instanceCount;
+      
+      // Update instance matrices
+      instancedMesh.instanceMatrix.needsUpdate = true;
+      if (instancedMesh.instanceColor) {
+        instancedMesh.instanceColor.needsUpdate = true;
+      }
+      
+      // Add to scene
+      scene.add(instancedMesh);
+      worldMesh = instancedMesh;
+      
+      // Center camera on world
+      resetCamera();
+      
+      // Update grid scale
+      updateGridScale();
+      
+      console.log(`Rendered ${instanceCount} voxels`);
+    }
+
+    function resetCamera() {
+      if (worldWidth && worldHeight && worldDepth) {
+        const maxDimension = Math.max(worldWidth, worldHeight, worldDepth);
+        camera.position.set(maxDimension, maxDimension, maxDimension);
+        camera.lookAt(0, 0, 0);
+        controls.update();
+      } else {
+        camera.position.set(50, 50, 50);
+        camera.lookAt(0, 0, 0);
+        controls.update();
+      }
+    }
+    
+    function updateGridScale() {
+      // If we have a world loaded, adjust grid size
+      if (worldWidth && worldHeight && worldDepth) {
+        // Remove old grid
+        scene.remove(gridHelper);
+        
+        // Add new grid of appropriate size
+        const maxDimension = Math.max(worldWidth, worldHeight, worldDepth);
+        gridHelper = new THREE.GridHelper(maxDimension * 2, maxDimension * 2);
+        gridHelper.visible = document.getElementById('showGrid').checked;
+        scene.add(gridHelper);
+      }
+    }
+
+    // Initialize the application
+    init();
+  </script>
+</body>
+</html> 

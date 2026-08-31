@@ -1,0 +1,4087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>VERSE</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+    }
+    .title {
+      font-family: monospace;
+      letter-spacing: 0.25em;
+    }
+    #container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 5px;
+      max-width: 250px;
+      display: none; /* Hide by default */
+    }
+    button {
+      background-color: #2196F3;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #0b7dda;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .custom-file-upload {
+      background-color: #2196F3;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .custom-file-upload:hover {
+      background-color: #0b7dda;
+    }
+    #info {
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    .loader {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 2s linear infinite;
+      margin: 10px auto;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #tooltip {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 100;
+      display: none;
+    }
+    .control-group {
+      margin-top: 15px;
+      border-top: 1px solid #444;
+      padding-top: 10px;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .checkbox-label input {
+      margin-right: 5px;
+    }
+    #sample-link {
+      display: block;
+      margin-top: 10px;
+      color: #2196F3;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    #pip-topdown, #pip-iso, #pip-fp {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      z-index: 200;
+      pointer-events: none;
+      background: rgba(30,30,30,0.85);
+      display: none; /* Hide by default */
+    }
+    #pip-topdown, #pip-iso {
+      border: 2px solid #2196F3;
+    }
+    #pip-fp {
+      border: 2px solid #FF4500;
+      bottom: 260px;
+      right: 20px;
+    }
+    #pip-topdown {
+      top: 20px;
+      right: 20px;
+    }
+    #pip-iso {
+      bottom: 20px;
+      right: 20px;
+    }
+    .pip-container {
+      cursor: pointer;
+      pointer-events: auto !important;
+    }
+    #stats {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+    }
+
+    /* Splash Screen Styles */
+    #splash-screen {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #splash-logo {
+      font-size: 72px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+      margin-bottom: 30px;
+      letter-spacing: 10px;
+    }
+
+    #splash-progress {
+      width: 300px;
+      height: 5px;
+      background-color: #333;
+      margin-top: 20px;
+      position: relative;
+    }
+
+    #splash-progress-bar {
+      position: absolute;
+      height: 100%;
+      background-color: #ffffff;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Main Menu Styles */
+    #main-menu {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      /* background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('/assets/images/bg.jpg') no-repeat center center; */
+      background-size: cover;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 900;
+      background-color: rgba(0,0,0,0.9); /* Added semi-transparent background */
+      backdrop-filter: blur(3px); /* Optional: adds a slight blur effect */
+      transition: background-color 0.3s ease; /* Smooth transition for fade effect */
+    }
+
+    #menu-title {
+      font-size: 64px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 50px;
+      text-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+    }
+
+    .menu-button {
+      background-color: rgba(0,0,0,0.6);
+      color: white;
+      border: 2px solid #ffffff;
+      padding: 15px 0;
+      width: 250px;
+      margin: 10px 0;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: block;
+    }
+
+    .menu-button:hover {
+      background-color: rgba(76,80,175,0.3);
+      transform: scale(1.05);
+    }
+
+    /* Loading Screen Styles */
+    #loading-screen {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 950;
+    }
+
+    #loading-text {
+      font-size: 24px;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    #loading-spinner {
+      border: 6px solid rgba(255,255,255,0.1);
+      border-top: 6px solid #ffffff;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    /* Settings Panel */
+    #settings-panel {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 900;
+    }
+
+    /* Export Dialog */
+    #export-dialog {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.8);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 950;
+    }
+
+    .export-container {
+      background-color: #1e1e1e;
+      padding: 30px;
+      border-radius: 10px;
+      width: 400px;
+      max-width: 90%;
+    }
+
+    .export-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .export-option {
+      margin-bottom: 15px;
+    }
+
+    .export-option label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .export-option input[type="text"],
+    .export-option input[type="password"] {
+      width: 100%;
+      padding: 8px;
+      background-color: #333;
+      border: 1px solid #444;
+      color: white;
+      border-radius: 4px;
+    }
+
+    .export-option input[type="checkbox"] {
+      margin-right: 8px;
+    }
+
+    .export-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .export-buttons button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .export-buttons .cancel-btn {
+      background-color: #666;
+    }
+
+    .export-buttons .export-btn {
+      background-color: #2196F3;
+    }
+
+    .settings-container {
+      background-color: #1e1e1e;
+      padding: 30px;
+      border-radius: 10px;
+      width: 60%;
+      max-width: 600px;
+      max-height: 80%;
+      overflow-y: auto;
+    }
+
+    .settings-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .settings-group {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #333;
+    }
+
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .settings-label {
+      flex: 1;
+    }
+
+    .settings-control {
+      flex: 1;
+      text-align: right;
+    }
+
+    .settings-control input[type="color"] {
+      width: 40px;
+      height: 30px;
+      border: none;
+      border-radius: 4px;
+      background: none;
+      cursor: pointer;
+    }
+
+    .settings-control .color-with-text {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .settings-control .color-text {
+      margin-left: 10px;
+      font-family: monospace;
+    }
+
+    .settings-close {
+      background-color: #f44336;
+      margin-top: 20px;
+    }
+
+    .settings-close:hover {
+      background-color: #d32f2f;
+    }
+
+    /* Direction buttons around the PIP */
+    .direction-button {
+      background-color: rgba(33, 150, 243, 0.8);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      z-index: 201;
+    }
+    .direction-button:hover {
+      background-color: rgba(33, 150, 243, 1);
+      transform: scale(1.05);
+    }
+    .direction-button:active {
+      transform: scale(0.95);
+    }
+
+    /* Compass navigation wheel */
+    #compass-container {
+      position: fixed;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 360px;
+      height: 360px;
+      display: none; /* Hide by default */
+      z-index: 201;
+      perspective: 1000px;
+    }
+    
+    #compass-wheel {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transform: rotateX(10deg); /* Tilt away from viewer by 70 degrees */
+    }
+    
+    #compass-center {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(30, 30, 30, 0.5);
+      border-radius: 50%;
+      border: 2px solid rgba(33, 150, 243, 0.8);
+      z-index: 1;
+    }
+
+    /* Inner ring - cardinal directions */
+    .inner-ring {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px dashed rgba(33, 150, 243, 0.3);
+    }
+    
+    /* Outer ring - additional controls */
+    .outer-ring {
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px dashed rgba(33, 150, 243, 0.3);
+    }
+    
+    /* Button positions on the compass */
+    /* Inner Ring - Cardinal directions */
+    #compass-btn-forward {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    #compass-btn-backward {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    #compass-btn-left {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+    }
+    
+    #compass-btn-right {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+    }
+    
+    /* Outer Ring - Additional controls */
+    #compass-btn-up {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: -50px; /* Move further out from center */
+    }
+    
+    #compass-btn-down {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-bottom: -50px; /* Move further out from center */
+    }
+    
+    #compass-btn-turn-left {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      margin-left: -50px; /* Move further out from center */
+    }
+    
+    #compass-btn-turn-right {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      margin-right: -50px; /* Move further out from center */
+    }
+    
+    /* Direction indicators */
+    .compass-direction {
+      position: absolute;
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 18px;
+      pointer-events: none;
+    }
+
+    #compass-n {
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    #compass-s {
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    #compass-e {
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+    }
+
+    #compass-w {
+      top: 50%;
+      left: 8px;
+      transform: translateY(-50%);
+    }
+
+    /* Compass animation */
+    @keyframes compass-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(33, 150, 243, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
+    }
+
+    #compass-center {
+      animation: compass-pulse 2s infinite;
+    }
+
+    #direction-controls {
+      display: none; /* Hide by default */
+    }
+
+    /* Additional diagonal buttons for outer ring */
+    #compass-btn-turn-up-left {
+      position: absolute;
+      top: 70px;
+      left: 70px;
+    }
+
+    #compass-btn-turn-up-right {
+      position: absolute;
+      top: 70px;
+      right: 70px;
+    }
+    
+    #compass-btn-turn-down-left {
+      position: absolute;
+      bottom: 70px;
+      left: 70px;
+    }
+    
+    #compass-btn-turn-down-right {
+      position: absolute;
+      bottom: 70px;
+      right: 70px;
+    }
+
+    /* Player coordinate display */
+    #player-coordinates {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 220px;
+      padding: 8px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      font-family: monospace;
+      font-size: 14px;
+      border-radius: 4px;
+      text-align: center;
+      margin-top: 225px; /* Position below the PIP */
+      z-index: 201;
+      display: none; /* Hide by default */
+    }
+
+    .coordinate-value {
+      font-weight: bold;
+      color: #2196F3;
+    }
+
+    /* Autosave Notification */
+    #autosave-notification {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: rgba(33, 150, 243, 0.8);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    /* Highlight settings in settings panel */
+    .settings-row .settings-slider {
+      width: 100%;
+      margin-top: 5px;
+    }
+
+    #character-creation {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #character-creation h2 {
+      color: #fff;
+      margin-bottom: 30px;
+      font-size: 24px;
+    }
+
+    #character-creation .input-group {
+      margin-bottom: 20px;
+      width: 300px;
+    }
+
+    #character-creation input {
+      width: 100%;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid #2196F3;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    #character-creation input:focus {
+      outline: none;
+      border-color: #0b7dda;
+    }
+
+    #character-creation button {
+      margin-top: 20px;
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Splash Screen -->
+  <div id="splash-screen">
+    <div id="splash-logo" class="title">VERSE</div>
+    <div id="splash-progress">
+      <div id="splash-progress-bar"></div>
+    </div>
+  </div>
+
+  <!-- Main Menu -->
+  <div id="main-menu">
+    <div id="menu-title" class="title">VERSE</div>
+    <button class="menu-button" id="load-autosave" style="display:none;">Continue</button>
+    <button class="menu-button" id="start-new">Start New</button>
+    <button class="menu-button" id="load-file">Load From File</button>
+    <button class="menu-button" id="settings-button">Settings</button>
+    <button class="menu-button" id="resume-game" style="display:none;">Resume</button>
+  </div>
+
+  <div id="character-creation">
+    <h2>Create Your Character</h2>
+    <div class="input-group">
+      <input type="text" id="character-name" placeholder="Enter character name..." maxlength="32">
+    </div>
+    <button class="menu-button" id="create-character">Create Character</button>
+    <button class="menu-button" id="cancel-character-creation">Cancel</button>
+  </div>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div id="loading-text">Generating World...</div>
+    <div id="loading-spinner"></div>
+  </div>
+
+  <!-- Settings Panel -->
+  <div id="settings-panel">
+    <div class="settings-container">
+      <div class="settings-title">Settings</div>
+      <div class="settings-group">
+        <div class="settings-row">
+          <div class="settings-label">Show Grid</div>
+          <div class="settings-control">
+            <input type="checkbox" id="settings-show-grid">
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Show Axes</div>
+          <div class="settings-control">
+            <input type="checkbox" id="settings-show-axes">
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Enable Voxel Inspection</div>
+          <div class="settings-control">
+            <input type="checkbox" id="settings-enable-inspection" checked>
+          </div>
+        </div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-title">Appearance</div>
+        <div class="settings-row">
+          <div class="settings-label">Accent Color</div>
+          <div class="settings-control">
+            <div class="color-with-text">
+              <input type="color" id="settings-accent-color" value="#4c50af">
+              <span class="color-text" id="color-text-value">#4c50af</span>
+            </div>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Voxel Highlight Distance</div>
+          <div class="settings-control">
+            <input type="range" id="settings-highlight-distance" min="1" max="20" value="10" class="settings-slider">
+            <span id="highlight-distance-value">10</span> units
+          </div>
+        </div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-title">Authority</div>
+        <div class="settings-row">
+          <div class="settings-label">Host</div>
+          <div class="settings-control">
+            <input type="text" id="settings-authority-host" placeholder="localhost">
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Port</div>
+          <div class="settings-control">
+            <input type="number" id="settings-authority-port" placeholder="3039" min="1" max="65535">
+          </div>
+        </div>
+      </div>
+      <button class="menu-button settings-close" id="settings-close">Close</button>
+    </div>
+  </div>
+
+  <!-- Export Dialog -->
+  <div id="export-dialog">
+    <div class="export-container">
+      <div class="export-title">Export World & Player Data</div>
+
+      <div class="export-option">
+        <label for="export-filename">Filename:</label>
+        <input type="text" id="export-filename" value="verse_save.world">
+      </div>
+
+      <div class="export-option">
+        <label>
+          <input type="checkbox" id="export-include-player">
+          Include player position and state
+        </label>
+      </div>
+
+      <div class="export-option">
+        <label>
+          <input type="checkbox" id="export-encrypt">
+          Encrypt save file with password
+        </label>
+      </div>
+
+      <div class="export-option" id="password-container" style="display: none;">
+        <label for="export-password">Password:</label>
+        <input type="password" id="export-password">
+      </div>
+
+      <div class="export-buttons">
+        <button class="cancel-btn" id="export-cancel">Cancel</button>
+        <button class="export-btn" id="export-confirm">Export</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="container"></div>
+  <div id="controls">
+    <h2 class="title">VERSE</h2>
+    <label class="custom-file-upload">
+      <input type="file" id="fileInput" accept=".txt,.hex,.world"/>
+      Load World File
+    </label>
+    <button id="resetCamera">Reset Camera</button>
+    <a id="sample-link">Load Sample World</a>
+
+    <div class="control-group">
+      <h3>Display Options</h3>
+      <label class="checkbox-label">
+        <input type="checkbox" id="showGrid">
+        Show Grid
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="showAxes">
+        Show Axes
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="enableInspection" checked>
+        Enable Voxel Inspection
+      </label>
+    </div>
+
+    <div class="control-group">
+      <h3>Actions</h3>
+      <button id="saveNow">Save Now</button>
+      <button id="saveWorld">Save to File</button>
+      <button id="returnToMenu">Menu</button>
+    </div>
+
+    <div id="info">
+      <p>World details will appear here...</p>
+    </div>
+    <div class="loader" id="loader"></div>
+  </div>
+
+  <div id="tooltip"></div>
+  <!-- Modal for voxel details -->
+  <div id="voxel-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#222; color:#fff; padding:24px 32px; border-radius:8px; min-width:320px; max-width:90vw; max-height:90vh; overflow:auto; box-shadow:0 8px 32px #000; position:relative;">
+      <button id="close-voxel-modal" style="position:absolute; top:8px; right:12px; background:#444; color:#fff; border:none; border-radius:4px; padding:4px 10px; font-size:16px; cursor:pointer;">&times;</button>
+      <h2>Voxel Details</h2>
+      <div id="voxel-modal-content">Loading...</div>
+    </div>
+  </div>
+  <!-- PIP overlays -->
+  <div id="pip-topdown" class="pip-container"></div>
+  <div id="pip-iso" class="pip-container"></div>
+  <div id="pip-fp" class="pip-container"></div>
+  
+  <!-- Player coordinates display -->
+  <div id="player-coordinates">
+    Position: X:<span id="coord-x" class="coordinate-value">0</span> 
+    Y:<span id="coord-y" class="coordinate-value">0</span> 
+    Z:<span id="coord-z" class="coordinate-value">0</span>
+  </div>
+
+  <!-- Direction buttons -->
+  <div id="direction-controls" style="display:none;">
+    <!-- Old controls removed - using compass controls now -->
+  </div>
+
+  <!-- Autosave notification -->
+  <div id="autosave-notification">Game saved</div>
+
+  <!-- Compass Navigation Wheel -->
+  <div id="compass-container">
+    <div id="compass-wheel">
+      <div class="inner-ring"></div>
+      <div class="outer-ring"></div>
+      <div id="compass-center"></div>
+      <div class="compass-direction" id="compass-n">N</div>
+      <div class="compass-direction" id="compass-s">S</div>
+      <div class="compass-direction" id="compass-e">E</div>
+      <div class="compass-direction" id="compass-w">W</div>
+      
+      <!-- Inner ring - Cardinal directions -->
+      <button id="compass-btn-forward" class="direction-button">Forward</button>
+      <button id="compass-btn-backward" class="direction-button">Backward</button>
+      <button id="compass-btn-left" class="direction-button">Strafe Left</button>
+      <button id="compass-btn-right" class="direction-button">Strafe Right</button>
+      
+      <!-- Outer ring - Additional controls -->
+      <button id="compass-btn-up" class="direction-button">Up</button>
+      <button id="compass-btn-down" class="direction-button">Down</button>
+      <button id="compass-btn-turn-left" class="direction-button">⟲ Left</button>
+      <button id="compass-btn-turn-right" class="direction-button">⟳ Right</button>
+      
+      <!-- For visual balance, not functional -->
+      <div id="compass-btn-turn-up-left" class="direction-button" style="visibility:hidden">.</div>
+      <div id="compass-btn-turn-up-right" class="direction-button" style="visibility:hidden">.</div>
+      <div id="compass-btn-turn-down-left" class="direction-button" style="visibility:hidden">.</div>
+      <div id="compass-btn-turn-down-right" class="direction-button" style="visibility:hidden">.</div>
+    </div>
+  </div>
+
+  <script src="/scripts/three.min.js"></script>
+  <script src="/scripts/OrbitControls.js"></script>
+  <script src="/scripts/stats.min.js"></script>
+  <!-- Add crypto-js for encryption -->
+  <script src="/scripts/crypto-js.min.js"></script>
+
+  <script>
+    // UI state variables
+    let gameState = {
+      uiMode: 'splash', // 'splash', 'menu', 'loading', 'game', 'settings'
+      settingsVisible: false,
+      gamePaused: false // Track if game is paused
+    };
+
+    // Add voxel highlighting variables
+    let highlightDistance = 10; // Default distance for voxel highlighting
+    let highlightedEdges = null; // Store the current highlight mesh
+
+    // Splash screen handling
+    document.addEventListener('DOMContentLoaded', function() {
+      // Show splash screen on load
+      let splashScreen = document.getElementById('splash-screen');
+      let mainMenu = document.getElementById('main-menu');
+      let gameUI = document.getElementById('controls');
+      let container = document.getElementById('container');
+
+      // Hide game UI initially
+      gameUI.style.display = 'none';
+
+      // Force hide resume button initially since no world is loaded
+      const resumeBtn = document.getElementById('resume-game');
+      resumeBtn.style.display = 'none';
+
+      // Check if we have an autosave and update button visibility
+      const autosaveBtn = document.getElementById('load-autosave');
+      if (localStorage.getItem('verse-autosave')) {
+        autosaveBtn.style.display = 'block';
+      } else {
+        autosaveBtn.style.display = 'none';
+      }
+
+      // Also set the initial worldMesh to null to ensure proper checks
+      worldMesh = null;
+
+      // Ensure rendering is disabled during splash screen
+      shouldRender = false;
+
+      // Simulate loading with progress bar
+      let progressBar = document.getElementById('splash-progress-bar');
+      let progress = 0;
+
+      let progressInterval = setInterval(function() {
+        progress += 5;
+        progressBar.style.width = progress + '%';
+
+        if (progress >= 100) {
+          clearInterval(progressInterval);
+
+          // After 2 seconds total, transition to main menu
+          setTimeout(function() {
+            splashScreen.style.display = 'none';
+            mainMenu.style.display = 'flex';
+            gameState.uiMode = 'menu';
+            showMainMenu();
+          }, 2000 - (progress / 100 * 2000)); // Adjust timeout to make total time 2s
+        }
+      }, 100);
+    });
+
+    // Main menu button handlers
+    document.getElementById('start-new').addEventListener('click', function() {
+      showConfirmDialog('Warning: Starting a new game will permanently delete ALL saved data. This can only be restored if you have local backup files.<br><br>Are you sure you want to proceed?', function() {
+        // Clear all saved state from localStorage
+        localStorage.removeItem('verse-autosave');
+        console.log('Cleared autosave data from localStorage');
+        
+        // Hide main menu and show loading screen
+        document.getElementById('main-menu').style.display = 'none';
+        showLoadingScreen('Preparing character creation...');
+        
+        // Wait 2 seconds before showing character creation screen
+        setTimeout(function() {
+          hideLoadingScreen();
+          document.getElementById('character-creation').style.display = 'flex';
+        }, 2000);
+      });
+    });
+
+    document.getElementById('create-character').addEventListener('click', async function() {
+      const characterName = document.getElementById('character-name').value.trim();
+      
+      if (!characterName) {
+        alert('Please enter a character name');
+        return;
+      }
+
+      // Show loading screen while connecting
+      showLoadingScreen('Connecting to server...');
+
+      try {
+        // Connect to WebSocket if not already connected
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+          await new Promise((resolve, reject) => {
+            connectWebSocket(resolve, reject);
+          });
+        }
+
+        // Create a promise for the CHARACTER_CREATED response
+        const characterCreatedPromise = new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(() => {
+            reject(new Error('Character creation timed out'));
+          }, 10000); // 10 second timeout
+
+          const messageHandler = (event) => {
+            try {
+              const data = JSON.parse(event.data);
+              if (data.type === 'CHARACTER_CREATED') {
+                ws.removeEventListener('message', messageHandler);
+                clearTimeout(timeoutId);
+                resolve(data);
+              }
+            } catch (err) {
+              console.warn('Error parsing message:', err);
+            }
+          };
+
+          ws.addEventListener('message', messageHandler);
+        });
+
+        // Send the CREATE_CHARACTER message
+        const msg = {
+          type: 'CREATE_CHARACTER',
+          content: {
+            name: characterName
+          }
+        };
+        ws.send(JSON.stringify(msg));
+        console.log('Sent CREATE_CHARACTER message');
+
+        // Update loading message
+        showLoadingScreen('Creating character...');
+
+        // Wait for the response
+        await characterCreatedPromise;
+
+        // Hide character creation and fade to black
+        document.getElementById('character-creation').style.display = 'none';
+        fadeToBlack(function() {
+          showLoadingScreen('Generating New World...');
+          
+          // Wait 5 seconds before restoring visibility
+          setTimeout(function() {
+            fadeFromBlack();
+          }, 5000);
+        });
+
+      } catch (err) {
+        console.error('Error during character creation:', err);
+        alert('Failed to create character. Please try again.');
+        hideLoadingScreen();
+        document.getElementById('character-creation').style.display = 'flex';
+      }
+    });
+
+    document.getElementById('cancel-character-creation').addEventListener('click', function() {
+      document.getElementById('character-creation').style.display = 'none';
+      document.getElementById('main-menu').style.display = 'flex';
+    });
+
+    document.getElementById('load-file').addEventListener('click', function() {
+      // Trigger file input click
+      document.getElementById('fileInput').click();
+    });
+
+    document.getElementById('load-autosave').addEventListener('click', function() {
+      showLoadingScreen('Loading Saved Game...');
+
+      // Load the autosaved game
+      setTimeout(function() {
+        const success = loadFromLocalStorage();
+        if (success) {
+          hideLoadingScreen();
+          showGameUI();
+          // Start autosave when game starts
+          // startAutosave();
+        } else {
+          alert('Failed to load autosaved game');
+          hideLoadingScreen();
+          showMainMenu();
+        }
+      }, 1000);
+    });
+
+    document.getElementById('settings-button').addEventListener('click', function() {
+      showSettingsPanel();
+    });
+
+    // Resume button to close the menu and unpause the game
+    document.getElementById('resume-game').addEventListener('click', function() {
+      resumeGame();
+      // Restart autosave when resuming
+      // startAutosave();
+    });
+
+    // Settings panel handlers
+    document.getElementById('settings-close').addEventListener('click', function() {
+      hideSettingsPanel();
+    });
+
+    // Sync the settings checkboxes with the main controls
+    document.getElementById('settings-show-grid').addEventListener('change', function(e) {
+      document.getElementById('showGrid').checked = e.target.checked;
+      gridHelper.visible = e.target.checked;
+    });
+
+    document.getElementById('settings-show-axes').addEventListener('change', function(e) {
+      document.getElementById('showAxes').checked = e.target.checked;
+      axesHelper.visible = e.target.checked;
+    });
+
+    document.getElementById('settings-enable-inspection').addEventListener('change', function(e) {
+      document.getElementById('enableInspection').checked = e.target.checked;
+    });
+
+    // Handle highlight distance slider
+    document.getElementById('settings-highlight-distance').addEventListener('input', function(e) {
+      highlightDistance = parseInt(e.target.value);
+      document.getElementById('highlight-distance-value').textContent = highlightDistance;
+      // Save the preference to localStorage for persistence
+      localStorage.setItem('verse-highlight-distance', highlightDistance);
+    });
+
+    // Handle accent color changes
+    document.getElementById('settings-accent-color').addEventListener('input', function(e) {
+      const colorValue = e.target.value;
+      document.getElementById('color-text-value').textContent = colorValue;
+
+      // Update CSS variable or direct style for menu button hover
+      updateAccentColor(colorValue);
+    });
+
+    // Function to update accent color throughout the UI
+    function updateAccentColor(color) {
+      // Create a style element if it doesn't exist
+      let styleEl = document.getElementById('dynamic-styles');
+      if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'dynamic-styles';
+        document.head.appendChild(styleEl);
+      }
+
+      // Update the style with the new color
+      styleEl.textContent = `
+        .menu-button:hover {
+          background-color: ${color}80; /* Adding 50% transparency */
+        }
+      `;
+
+      // Save the preference to localStorage for persistence
+      localStorage.setItem('verse-accent-color', color);
+    }
+
+    // Return to menu button
+    document.getElementById('returnToMenu').addEventListener('click', function() {
+      pauseGame();
+      showMainMenu();
+      // Stop autosave when returning to menu
+      stopAutosave();
+    });
+
+    // Helper functions for UI state management
+    function showMainMenu () {
+      gameState.uiMode = 'menu';
+      document.getElementById('main-menu').style.display = 'flex';
+      document.getElementById('controls').style.display = 'none';
+      document.getElementById('loading-screen').style.display = 'none';
+      document.getElementById('settings-panel').style.display = 'none';
+
+      // Disable rendering while in the menu
+      shouldRender = false;
+
+      // Stop autosave when in menu
+      stopAutosave();
+
+      // Check if we have an autosave and update button visibility
+      const autosaveBtn = document.getElementById('load-autosave');
+      if (localStorage.getItem('verse-autosave')) {
+        autosaveBtn.style.display = 'block';
+      } else {
+        autosaveBtn.style.display = 'none';
+      }
+
+      // Debug log
+      console.log('worldMesh status:', worldMesh ? 'exists' : 'null/undefined');
+      if (worldMesh) {
+        console.log('worldMesh properties:', {
+          count: worldMesh.count,
+          hasInstanceMatrix: Boolean(worldMesh.instanceMatrix)
+        });
+      }
+
+      // Show or hide resume button based on whether there's a game to resume
+      // Only show if the world is fully initialized with geometry
+      if (worldMesh && 
+          typeof worldMesh.count === 'number' && 
+          worldMesh.count > 0 && 
+          worldMesh.instanceMatrix) {
+        document.getElementById('resume-game').style.display = 'block';
+        console.log('Showing resume button - world is loaded');
+      } else {
+        document.getElementById('resume-game').style.display = 'none';
+        console.log('Hiding resume button - no world loaded');
+      }
+    }
+
+    function showGameUI () {
+      gameState.uiMode = 'game';
+      document.getElementById('main-menu').style.display = 'none';
+      document.getElementById('controls').style.display = 'block';
+      document.getElementById('loading-screen').style.display = 'none';
+      document.getElementById('settings-panel').style.display = 'none';
+
+      // Enable rendering when showing the game UI
+      shouldRender = true;
+
+      // Do a manual save immediately when starting the game
+      // Wait a brief moment to ensure the world is fully loaded
+      setTimeout(() => {
+        if (currentWorldData) {
+          saveToLocalStorage();
+        }
+      }, 2000);
+    }
+
+    function showLoadingScreen (message) {
+      gameState.uiMode = 'loading';
+      document.getElementById('loading-text').textContent = message || 'Loading...';
+      document.getElementById('main-menu').style.display = 'none';
+      document.getElementById('controls').style.display = 'none';
+      document.getElementById('loading-screen').style.display = 'flex';
+      document.getElementById('settings-panel').style.display = 'none';
+
+      // Disable rendering while in the loading screen
+      shouldRender = false;
+    }
+
+    function hideLoadingScreen () {
+      document.getElementById('loading-screen').style.display = 'none';
+    }
+
+    function showSettingsPanel () {
+      gameState.settingsVisible = true;
+      document.getElementById('settings-panel').style.display = 'flex';
+
+      // Disable rendering while in the settings panel if we're not in game mode
+      if (gameState.uiMode !== 'game') {
+        shouldRender = false;
+      }
+
+      // Sync settings with current state
+      document.getElementById('settings-show-grid').checked = document.getElementById('showGrid').checked;
+      document.getElementById('settings-show-axes').checked = document.getElementById('showAxes').checked;
+      document.getElementById('settings-enable-inspection').checked = document.getElementById('enableInspection').checked;
+
+      // Set the color picker to the current accent color
+      const savedColor = localStorage.getItem('verse-accent-color') || '#4c50af';
+      document.getElementById('settings-accent-color').value = savedColor;
+      document.getElementById('color-text-value').textContent = savedColor;
+    }
+
+    function hideSettingsPanel () {
+      gameState.settingsVisible = false;
+      document.getElementById('settings-panel').style.display = 'none';
+
+      // Re-enable rendering if we're back in game mode
+      if (gameState.uiMode === 'game') {
+        shouldRender = true;
+      }
+    }
+
+    // Constants for voxel types mapped to colors
+    // Add a flag to control when rendering should start
+    let shouldRender = false;
+
+    const VOXEL_TYPES = {
+      0: { name: 'AIR', color: 0x000000, opacity: 0.0 },
+      1: { name: 'DIRT', color: 0x8B4513, opacity: 1.0 },
+      2: { name: 'GRASS', color: 0x7CFC00, opacity: 1.0 },
+      3: { name: 'STONE', color: 0x808080, opacity: 1.0 },
+      4: { name: 'WATER', color: 0x1E90FF, opacity: 0.8 },
+      5: { name: 'WOOD', color: 0x8B4513, opacity: 1.0 },
+      6: { name: 'LEAVES', color: 0x228B22, opacity: 0.9 },
+      7: { name: 'SAND', color: 0xF4A460, opacity: 1.0 }
+    };
+
+    // Initialize Three.js scene
+    let scene, camera, renderer, controls;
+    let worldWidth, worldHeight, worldDepth;
+    let worldMesh;
+    let raycaster, mouse;
+    let gridHelper, axesHelper;
+    let voxelData = []; // Store voxel data for raycasting
+    let tooltip = document.getElementById('tooltip');
+    let mouseMoveTimeout;
+    // PIP overlay cameras
+    let topDownCamera, isoCamera, fpCamera;
+    const pipWidth = 220, pipHeight = 220;
+    let lastInspectedVoxel = null;
+    // Camera mode tracking
+    let activeCameraMode = 'main'; // 'main', 'topdown', 'iso', 'fp'
+    // Stats performance monitor
+    let stats;
+    // Player position tracking
+    let playerPosition = { x: 0, y: 1, z: 0 }; // Default position at eye level
+    // Player orientation in radians, 0 = facing positive X, PI/2 = facing positive Z, etc.
+    let playerRotation = 0;
+    // Player marker for top-down view
+    let playerMarker;
+    // Player character model
+    let playerModel;
+    // Character model settings
+    const characterSettings = {
+      sphereRadius: 0.4,
+      color: 0x2196F3,
+      headColor: 0xFFD700,
+      headRadius: 0.25,
+      headOffset: 0.5
+    };
+
+    // Track mouse position
+    mouse = new THREE.Vector2();
+
+    // Array to store all actors in the world
+    let gameActors = [];
+
+    function init () {
+      // Create scene
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+
+      // Create camera
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(50, 50, 50);
+      camera.lookAt(0, 0, 0);
+
+      // Create renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.getElementById('container').appendChild(renderer.domElement);
+
+      // Add orbit controls
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.25;
+      controls.screenSpacePanning = false;
+      controls.maxPolarAngle = Math.PI / 1.5;
+      controls.minDistance = 5;
+      controls.maxDistance = 500;
+
+      // Add ambient light
+      const ambientLight = new THREE.AmbientLight(0x606060);
+      scene.add(ambientLight);
+
+      // Add directional light
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(1, 1, 1).normalize();
+      scene.add(directionalLight);
+
+      // Add grid helper for reference
+      gridHelper = new THREE.GridHelper(100, 100);
+      gridHelper.visible = false;  // Hide grid by default
+      scene.add(gridHelper);
+
+      // Add axes helper
+      axesHelper = new THREE.AxesHelper(50);
+      axesHelper.visible = false;  // Hide axes by default
+      scene.add(axesHelper);
+
+      // Create player avatar
+      createPlayerMarker();
+
+      // Setup raycaster for voxel inspection
+      raycaster = new THREE.Raycaster();
+
+      // Handle window resize
+      window.addEventListener('resize', onWindowResize, false);
+
+      // Handle mouse move for voxel inspection
+      document.addEventListener('mousemove', onMouseMove, false);
+
+      // Handle click for voxel modal
+      renderer.domElement.addEventListener('contextmenu', onVoxelRightClick, false);
+
+      // Top-down orthographic camera with zoom for 8x8 grid (64 voxels)
+      const topDownZoom = 8;
+      topDownCamera = new THREE.OrthographicCamera(
+        -topDownZoom/2, topDownZoom/2, topDownZoom/2, -topDownZoom/2, 0.1, 1000
+      );
+      topDownCamera.position.set(0, 100, 0);
+      topDownCamera.lookAt(0, 0, 0);
+      topDownCamera.up.set(0, 0, -1); // So +Z is up in the view
+
+      // Isometric camera (perspective, fixed angle)
+      isoCamera = new THREE.PerspectiveCamera(75, pipWidth/pipHeight, 0.1, 1000);
+      // 45° azimuth, ~35.26° elevation for isometric
+      const isoDist = topDownZoom * 1.5; // Use the same zoom scale as top-down camera
+      const isoAngle = Math.PI / 4;
+      const isoElev = Math.atan(Math.sqrt(2));
+      isoCamera.position.set(
+        isoDist * Math.cos(isoAngle),
+        isoDist * Math.sin(isoElev),
+        isoDist * Math.sin(isoAngle)
+      );
+      isoCamera.lookAt(0, 0, 0);
+
+      // First-person camera (player view)
+      fpCamera = new THREE.PerspectiveCamera(90, pipWidth/pipHeight, 0.1, 1000);
+      fpCamera.position.set(0, 1, 0); // Eye level
+      fpCamera.lookAt(10, 1, 0); // Looking forward along X axis
+
+      // Set up PIP click handlers with explicit z-index control
+      const pipTopdown = document.getElementById('pip-topdown');
+      const pipIso = document.getElementById('pip-iso');
+      const pipFp = document.getElementById('pip-fp');
+
+      // Disabled for future full map view
+      /* pipTopdown.addEventListener('click', function() {
+        swapCameraView('topdown');
+      }); */
+
+      // Disabled isometric view for haste of release
+      /* pipIso.addEventListener('click', function() {
+        swapCameraView('iso');
+      }); */
+
+      // Disable until first-person view is implemented
+      /* pipFp.addEventListener('click', function() {
+        swapCameraView('fp');
+      }); */
+
+      // Add Stats.js FPS counter
+      stats = new Stats();
+      stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3: custom
+      document.getElementById('container').appendChild(stats.dom);
+      stats.dom.style.cssText = 'position:absolute;bottom:0;left:0;';
+
+      // Start animation loop
+      animate();
+    }
+
+    // Create a red X marker for the player in top-down view
+    function createPlayerMarker () {
+      // Remove existing marker if any
+      if (playerMarker) {
+        scene.remove(playerMarker);
+      }
+
+      // Create a simple X shape with lines
+      const markerMaterial = new THREE.LineBasicMaterial({ color: 0xFF0000, linewidth: 3 });
+      const markerGeometry = new THREE.BufferGeometry();
+
+      // X shape points (sized appropriately for the map scale)
+      const size = 0.4; // Size of the X
+      const markerHeight = playerPosition.y + 1; // TODO: add shader to always render on top
+      const markerPoints = [
+        // First diagonal line of X
+        new THREE.Vector3(-size, markerHeight, -size),
+        new THREE.Vector3(size, markerHeight, size),
+        // Move to start of second diagonal line
+        new THREE.Vector3(-size, markerHeight, size),
+        new THREE.Vector3(size, markerHeight, -size)
+      ];
+
+      markerGeometry.setFromPoints(markerPoints);
+
+      // Create the marker line segments
+      playerMarker = new THREE.LineSegments(markerGeometry, markerMaterial);
+
+      // Position at player's location (will be updated in movePlayer)
+      playerMarker.position.set(playerPosition.x, playerPosition.y, playerPosition.z);
+
+      // Add marker to scene
+      scene.add(playerMarker);
+
+      // Create 3D character model
+      createCharacterModel();
+    }
+
+    // Create a sphere character model for the player
+    function createCharacterModel () {
+      // Remove existing model if any
+      if (playerModel) {
+        scene.remove(playerModel);
+      }
+
+      // Create a group to hold all character parts
+      playerModel = new THREE.Group();
+      
+      // Set userData for actor identification
+      playerModel.userData = { 
+        actorId: actor.id,
+        actorType: 'player',
+        isCurrentPlayer: true
+      };
+
+      // Create the body (sphere)
+      const bodyGeometry = new THREE.SphereGeometry(characterSettings.sphereRadius, 32, 32);
+      const bodyMaterial = new THREE.MeshLambertMaterial({ 
+        color: characterSettings.color,
+        emissive: 0x111111,
+        emissiveIntensity: 0.2
+      });
+      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+
+      // Create the head (smaller sphere on top)
+      const headGeometry = new THREE.SphereGeometry(characterSettings.headRadius, 24, 24);
+      const headMaterial = new THREE.MeshLambertMaterial({
+        color: characterSettings.headColor,
+        emissive: 0x111111,
+        emissiveIntensity: 0.2
+      });
+      const head = new THREE.Mesh(headGeometry, headMaterial);
+      head.position.y = characterSettings.headOffset;
+
+      // Add body and head to the model group
+      playerModel.add(body);
+      playerModel.add(head);
+
+      // Position at player's location
+      playerModel.position.set(playerPosition.x, playerPosition.y, playerPosition.z);
+
+      // Add a direction indicator (small cone pointing forward)
+      const directionGeometry = new THREE.ConeGeometry(0.1, 0.3, 8);
+      const directionMaterial = new THREE.MeshLambertMaterial({ color: 0xFF0000 });
+      const directionIndicator = new THREE.Mesh(directionGeometry, directionMaterial);
+
+      // Position the direction indicator at eye level
+      const eyeHeight = characterSettings.headOffset + (characterSettings.headRadius * 0.5);
+      directionIndicator.position.set(
+        characterSettings.sphereRadius + 0.2, // Position it in front of the head
+        eyeHeight,                            // At eye level
+        0
+      );
+      directionIndicator.rotation.z = -Math.PI / 2; // Rotate to point forward (X-axis)
+
+      playerModel.add(directionIndicator);
+
+      // Add model to scene
+      scene.add(playerModel);
+    }
+
+    // Update player marker position
+    function updatePlayerMarker () {
+      if (playerMarker) {
+        // Set marker position to player position (for top-down view)
+        // Only update X and Z coordinates to maintain the high Y position
+        playerMarker.position.set(playerPosition.x, playerMarker.position.y, playerPosition.z);
+      }
+
+      if (playerModel) {
+        // Update 3D character model position and rotation
+        playerModel.position.set(playerPosition.x, playerPosition.y, playerPosition.z);
+        playerModel.rotation.y = playerRotation; // Rotate around Y axis to match player direction
+      }
+    }
+
+    // Render all actors in the scene
+    function renderActors () {
+      // Clear any existing actor models except the player model
+      scene.children.forEach(child => {
+        if (child.userData && child.userData.actorId && child.userData.actorId !== actor.id) {
+          scene.remove(child);
+        }
+      });
+
+      // Don't render actors if there are none or if we're not in game mode
+      if (!gameActors || gameActors.length === 0 || gameState.uiMode !== 'game') {
+        return;
+      }
+
+      // Render each actor except the player (which is already rendered)
+      gameActors.forEach(actorData => {
+        // Skip the current player actor
+        if (actorData.id === actor.id) {
+          return;
+        }
+
+        // Create a simple model for other actors
+        const actorGroup = new THREE.Group();
+        actorGroup.userData = { actorId: actorData.id, actorType: actorData.type };
+
+        // Different appearance based on actor type
+        let bodyColor = 0x999999; // Default color
+        let headColor = 0xCCCCCC;
+        
+        // Customize appearance based on actor type
+        if (actorData.type === 'npc') {
+          bodyColor = 0x22AA22; // Green for NPCs
+          headColor = 0x88FF88;
+        } else if (actorData.type === 'mob') {
+          bodyColor = 0xAA2222; // Red for mobs
+          headColor = 0xFF8888;
+        } else if (actorData.type === 'player') {
+          // Other players
+          bodyColor = 0x2222AA; // Blue for other players
+          headColor = 0x8888FF;
+        }
+
+        // Create body and head (similar to player model)
+        const bodyGeometry = new THREE.SphereGeometry(characterSettings.sphereRadius, 32, 32);
+        const bodyMaterial = new THREE.MeshLambertMaterial({ 
+          color: bodyColor,
+          emissive: 0x111111,
+          emissiveIntensity: 0.2
+        });
+        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+
+        const headGeometry = new THREE.SphereGeometry(characterSettings.headRadius, 24, 24);
+        const headMaterial = new THREE.MeshLambertMaterial({
+          color: headColor,
+          emissive: 0x111111,
+          emissiveIntensity: 0.2
+        });
+        const head = new THREE.Mesh(headGeometry, headMaterial);
+        head.position.y = characterSettings.headOffset;
+
+        // Add body and head to the actor group
+        actorGroup.add(body);
+        actorGroup.add(head);
+
+        // Position the actor based on its data
+        if (actorData.position) {
+          actorGroup.position.set(
+            actorData.position.x,
+            actorData.position.y,
+            actorData.position.z
+          );
+        }
+
+        // Apply rotation if available
+        if (actorData.rotation !== undefined) {
+          actorGroup.rotation.y = actorData.rotation;
+        }
+
+        // Add a name label above the actor if name is provided
+        if (actorData.name) {
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.width = 256;
+          canvas.height = 64;
+
+          context.fillStyle = '#000000';
+          context.fillRect(0, 0, canvas.width, canvas.height);
+          context.font = '24px Arial';
+          context.textAlign = 'center';
+          context.fillStyle = '#FFFFFF';
+          context.fillText(actorData.name, canvas.width / 2, 40);
+
+          const texture = new THREE.CanvasTexture(canvas);
+          const labelMaterial = new THREE.SpriteMaterial({ map: texture });
+          const label = new THREE.Sprite(labelMaterial);
+
+          label.position.y = 1.5; // Position above the actor's head
+          label.scale.set(2, 0.5, 1);
+
+          actorGroup.add(label);
+        }
+
+        // Add to scene
+        scene.add(actorGroup);
+      });
+    }
+
+    function onWindowResize () {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function onMouseMove (event) {
+      // Calculate mouse position in normalized device coordinates
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+      // Update tooltip position
+      tooltip.style.left = (event.clientX + 10) + 'px';
+      tooltip.style.top = (event.clientY + 10) + 'px';
+
+      // Clear previous timeout to prevent multiple inspections
+      if (mouseMoveTimeout) clearTimeout(mouseMoveTimeout);
+
+      // Set a small delay to avoid too many raycasts
+      mouseMoveTimeout = setTimeout(inspectVoxel, 50);
+    }
+
+    function inspectVoxel () {
+      // Don't inspect if disabled
+      if (!document.getElementById('enableInspection').checked || !worldMesh) {
+        tooltip.style.display = 'none';
+        lastInspectedVoxel = null;
+        return;
+      }
+
+      // Update the picking ray
+      raycaster.setFromCamera(mouse, camera);
+
+      // Calculate objects intersecting the picking ray
+      const intersects = raycaster.intersectObject(worldMesh);
+
+      if (intersects.length > 0) {
+        // Get the first intersected object (closest to camera)
+        const intersect = intersects[0];
+
+        // Get the instance index
+        const instanceId = intersect.instanceId;
+
+        if (instanceId !== undefined && instanceId < voxelData.length) {
+          const voxel = voxelData[instanceId];
+          const voxelInfo = VOXEL_TYPES[voxel.type] || VOXEL_TYPES[0];
+
+          // Set tooltip content
+          tooltip.innerHTML = `
+            <div>Type: ${voxelInfo.name}</div>
+            <div>Position: ${voxel.x}, ${voxel.y}, ${voxel.z}</div>
+          `;
+
+          // Show tooltip
+          tooltip.style.display = 'block';
+          lastInspectedVoxel = { ...voxel, typeName: voxelInfo.name };
+          return;
+        }
+      }
+
+      // Hide tooltip if no intersection
+      tooltip.style.display = 'none';
+      lastInspectedVoxel = null;
+    }
+
+    function animate () {
+      requestAnimationFrame(animate);
+
+      // Skip rendering if shouldRender is false
+      if (!shouldRender) return;
+
+      // Begin Stats measurement
+      stats.begin();
+
+      // Only update controls if game is not paused
+      if (!gameState.gamePaused) {
+        controls.update();
+
+        // Update voxel highlights in front of player
+        if (worldMesh) {
+          updateVoxelHighlights();
+        }
+      }
+
+      // Update player marker position for top-down view
+      updatePlayerMarker();
+
+      // Render other actors in the scene
+      renderActors();
+
+      // Main view
+      renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+      renderer.setScissorTest(false);
+      renderer.render(scene, camera);
+
+      // Check if PIP views should be visible in the current game state
+      // Only render PIP views if we're in game mode and we have a world loaded
+      const shouldShowPIPs = (
+        gameState.uiMode === 'game' && 
+        !gameState.gamePaused && 
+        worldMesh !== null && 
+        worldMesh !== undefined
+      );
+
+      if (shouldShowPIPs) {
+        // Render PIPs only if they're not the active view and they should be visible
+        const pipTop = 20, pipRight = 20;
+
+        // Show direction controls when in game mode
+        document.getElementById('compass-container').style.display = 'block';
+        
+        // Show player coordinates
+        document.getElementById('player-coordinates').style.display = 'block';
+        updateCoordinateDisplay();
+
+        // --- Top-down PIP ---
+        if (activeCameraMode !== 'topdown') {
+          const pipTopdownElement = document.getElementById('pip-topdown');
+          pipTopdownElement.style.display = 'block';
+          
+          renderer.setViewport(
+            window.innerWidth - pipWidth - pipRight,
+            window.innerHeight - pipHeight - pipTop,
+            pipWidth, pipHeight
+          );
+          renderer.setScissor(
+            window.innerWidth - pipWidth - pipRight,
+            window.innerHeight - pipHeight - pipTop,
+            pipWidth, pipHeight
+          );
+          renderer.setScissorTest(true);
+          renderer.render(scene, topDownCamera);
+        }
+
+        // --- Isometric PIP ---
+        if (activeCameraMode !== 'iso') {
+          const pipIsoElement = document.getElementById('pip-iso');
+          pipIsoElement.style.display = 'block';
+          
+          const pipBottom = 20;
+          renderer.setViewport(
+            window.innerWidth - pipWidth - pipRight,
+            pipBottom,
+            pipWidth, pipHeight
+          );
+          renderer.setScissor(
+            window.innerWidth - pipWidth - pipRight,
+            pipBottom,
+            pipWidth, pipHeight
+          );
+          renderer.setScissorTest(true);
+          renderer.render(scene, isoCamera);
+        }
+        
+        // --- First Person PIP ---
+        if (activeCameraMode !== 'fp') {
+          const pipFpElement = document.getElementById('pip-fp');
+          pipFpElement.style.display = 'block';
+          
+          const fpPipBottom = 260;
+          renderer.setViewport(
+            window.innerWidth - pipWidth - pipRight,
+            fpPipBottom,
+            pipWidth, pipHeight
+          );
+          renderer.setScissor(
+            window.innerWidth - pipWidth - pipRight,
+            fpPipBottom,
+            pipWidth, pipHeight
+          );
+          renderer.setScissorTest(true);
+          renderer.render(scene, fpCamera);
+        }
+      } else {
+        // Hide all PIP elements if they shouldn't be shown
+        document.getElementById('pip-topdown').style.display = 'none';
+        document.getElementById('pip-iso').style.display = 'none';
+        document.getElementById('pip-fp').style.display = 'none';
+        // Also hide direction controls and coordinates
+        document.getElementById('compass-container').style.display = 'none';
+        document.getElementById('player-coordinates').style.display = 'none';
+      }
+
+      renderer.setScissorTest(false); // Reset
+
+      // End Stats measurement
+      stats.end();
+    }
+
+    // Load sample world
+    document.getElementById('sample-link').addEventListener('click', function() {
+      showLoadingScreen('Loading Sample World...');
+
+      // Fetch the sample world file
+      fetch('sample_world.txt')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.text();
+        })
+        .then(worldData => {
+          loadWorld(worldData);
+          hideLoadingScreen();
+          showGameUI();
+
+          // Update first-person camera position based on world
+          updateFpCameraPosition();
+        })
+        .catch(error => {
+          console.error('Error loading sample world:', error);
+          document.getElementById('info').innerHTML = `
+            <p style="color: red;">Error loading sample world: ${error.message}</p>
+            <p>Make sure you've created a sample world using the export_world utility.</p>
+          `;
+          hideLoadingScreen();
+        });
+    });
+
+    // Save world data
+    document.getElementById('saveWorld').addEventListener('click', function () {
+      if (!currentWorldData) {
+        alert('No world is currently loaded.');
+        return;
+      }
+
+      // Show export dialog
+      showExportDialog();
+    });
+
+    // Export dialog handlers
+    document.getElementById('export-encrypt').addEventListener('change', function () {
+      document.getElementById('password-container').style.display = this.checked ? 'block' : 'none';
+    });
+
+    document.getElementById('export-cancel').addEventListener('click', function () {
+      hideExportDialog();
+    });
+
+    document.getElementById('export-confirm').addEventListener('click', function () {
+      exportWorldWithPlayerData();
+    });
+
+    function showExportDialog () {
+      document.getElementById('export-dialog').style.display = 'flex';
+      document.getElementById('export-include-player').checked = true;
+      document.getElementById('export-encrypt').checked = false;
+      document.getElementById('password-container').style.display = 'none';
+      document.getElementById('export-filename').value = 'verse_save.world';
+      document.getElementById('export-password').value = '';
+    }
+
+    function hideExportDialog() {
+      document.getElementById('export-dialog').style.display = 'none';
+    }
+
+    function exportWorldWithPlayerData () {
+      // Get export options
+      const filename = document.getElementById('export-filename').value || 'verse_save.world';
+      const includePlayer = document.getElementById('export-include-player').checked;
+      const encrypt = document.getElementById('export-encrypt').checked;
+      const password = document.getElementById('export-password').value;
+
+      // Validate password if encryption is enabled
+      if (encrypt && !password) {
+        alert('Please enter a password for encryption.');
+        return;
+      }
+
+      // Prepare the export data
+      let exportData = {
+        world: currentWorldData,
+        version: 1
+      };
+
+      // Add player data if requested
+      if (includePlayer) {
+        exportData.player = {
+          position: {
+            x: playerPosition.x,
+            y: playerPosition.y,
+            z: playerPosition.z
+          },
+          rotation: playerRotation
+        };
+
+        // Add actors data including the player
+        exportData.actors = [
+          // Include the current player as an actor
+          {
+            id: actor.id,
+            type: 'player',
+            position: {
+              x: playerPosition.x,
+              y: playerPosition.y,
+              z: playerPosition.z
+            },
+            rotation: playerRotation,
+            state: actor.state || {}
+          }
+          // We would add other actors from the gameActors array here
+        ];
+
+        // Add any additional actors from the gameActors array
+        if (gameActors && gameActors.length > 0) {
+          // Filter out the current player to avoid duplication
+          const otherActors = gameActors.filter(a => a.id !== actor.id);
+          exportData.actors = exportData.actors.concat(otherActors);
+        }
+      }
+
+      // Convert to JSON
+      let dataString = JSON.stringify(exportData);
+
+      // Encrypt if requested
+      if (encrypt) {
+        try {
+          dataString = CryptoJS.AES.encrypt(dataString, password).toString();
+          // Add encrypted flag
+          dataString = "ENCRYPTED:" + dataString;
+        } catch (error) {
+          console.error("Encryption failed:", error);
+          alert('Encryption failed: ' + error.message);
+          return;
+        }
+      }
+
+      // Create a blob from the data
+      const blob = new Blob([dataString], { type: 'application/octet-stream' });
+
+      // Create a download link
+      const a = document.createElement('a');
+      a.download = filename;
+      a.href = URL.createObjectURL(blob);
+
+      // Append to body to trigger the download
+      document.body.appendChild(a);
+      a.click();
+
+      // Clean up
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+
+      // Hide dialog
+      hideExportDialog();
+
+      // Notify user
+      console.log('Exported world' + (includePlayer ? ' with player and actor data' : '') + 
+                  (encrypt ? ' (encrypted)' : ''));
+    }
+
+    // Function to load and parse world data
+    let currentWorldData = null; // Store current world data for saving
+
+    function loadWorld (data) {
+      try {
+        // Store original player position for reference (to detect if we should use the default)
+        const originalPosition = {...playerPosition};
+
+        // Check if the data is in JSON format (new export format with player data)
+        if (data.startsWith('{')) {
+          const parsedData = JSON.parse(data);
+
+          // Set current world data to the world part only
+          currentWorldData = parsedData.world;
+
+          // If player data exists, load it
+          if (parsedData.player) {
+            playerPosition.x = parsedData.player.position.x;
+            playerPosition.y = parsedData.player.position.y;
+            playerPosition.z = parsedData.player.position.z;
+            playerRotation = parsedData.player.rotation;
+            console.log('Loaded player position from save:', playerPosition);
+          }
+
+          // If actors data exists, load it
+          if (parsedData.actors && Array.isArray(parsedData.actors)) {
+            gameActors = parsedData.actors;
+
+            // Find the player actor to update our actor object
+            const playerActor = gameActors.find(a => a.type === 'player');
+            if (playerActor) {
+              actor.id = playerActor.id;
+              actor.state = playerActor.state || {};
+
+              // Make sure to update player position from actor data if player data isn't present
+              if (!parsedData.player && playerActor.position) {
+                playerPosition.x = playerActor.position.x;
+                playerPosition.y = playerActor.position.y;
+                playerPosition.z = playerActor.position.z;
+                playerRotation = playerActor.rotation || 0;
+                console.log('Restored player position from actor data:', playerPosition);
+              }
+            }
+
+            console.log(`Loaded ${gameActors.length} actors from save file`);
+          } else {
+            // Reset actors array if no actors in the save
+            gameActors = [];
+          }
+        } 
+        // Check if it's an encrypted file
+        else if (data.startsWith('ENCRYPTED:')) {
+          const password = prompt('This save file is encrypted. Please enter the password:');
+          if (!password) {
+            throw new Error('Password required for encrypted save');
+          }
+
+          // Remove the ENCRYPTED: prefix
+          const encryptedData = data.substring(10);
+
+          // Decrypt the data
+          try {
+            const decryptedData = CryptoJS.AES.decrypt(encryptedData, password).toString(CryptoJS.enc.Utf8);
+            if (!decryptedData) {
+              throw new Error('Incorrect password or corrupted data');
+            }
+
+            // Parse the decrypted JSON
+            const parsedData = JSON.parse(decryptedData);
+
+            // Set current world data to the world part only
+            currentWorldData = parsedData.world;
+
+            // If player data exists, load it
+            if (parsedData.player) {
+              playerPosition.x = parsedData.player.position.x;
+              playerPosition.y = parsedData.player.position.y;
+              playerPosition.z = parsedData.player.position.z;
+              playerRotation = parsedData.player.rotation;
+              console.log('Loaded player position from encrypted save:', playerPosition);
+            }
+
+            // If actors data exists, load it
+            if (parsedData.actors && Array.isArray(parsedData.actors)) {
+              gameActors = parsedData.actors;
+
+              // Find the player actor to update our actor object
+              const playerActor = gameActors.find(a => a.type === 'player');
+              if (playerActor) {
+                actor.id = playerActor.id;
+                actor.state = playerActor.state || {};
+
+                // Make sure to update player position from actor data if player data isn't present
+                if (!parsedData.player && playerActor.position) {
+                  playerPosition.x = playerActor.position.x;
+                  playerPosition.y = playerActor.position.y;
+                  playerPosition.z = playerActor.position.z;
+                  playerRotation = playerActor.rotation || 0;
+                  console.log('Restored player position from encrypted actor data:', playerPosition);
+                }
+              }
+
+              console.log(`Loaded ${gameActors.length} actors from encrypted save file`);
+            } else {
+              // Reset actors array if no actors in the save
+              gameActors = [];
+            }
+          } catch (decryptError) {
+            console.error('Decryption failed:', decryptError);
+            throw new Error('Failed to decrypt save file. Incorrect password?');
+          }
+        } else {
+          // Legacy format - just world data
+          currentWorldData = data;
+          // Reset actors for legacy format
+          gameActors = [];
+        }
+
+        // Log whether we're using a loaded position or will default
+        const positionChanged = (
+          playerPosition.x !== originalPosition.x ||
+          playerPosition.y !== originalPosition.y ||
+          playerPosition.z !== originalPosition.z
+        );
+
+        if (positionChanged) {
+          console.log('Using saved player position:', playerPosition);
+        } else {
+          console.log('No player position in save file, may use default');
+        }
+
+        // Proceed with world loading using currentWorldData
+        return loadWorldData(currentWorldData);
+      } catch (e) {
+        console.error("Failed to parse world data:", e);
+        document.getElementById('info').innerHTML = `
+          <p style="color: red;">Error loading world: ${e.message}</p>
+        `;
+        return false;
+      }
+    }
+
+    // Actual world data loading/parsing function
+    function loadWorldData (data) {
+      // Clear existing world mesh if any
+      if (worldMesh) {
+        scene.remove(worldMesh);
+        worldMesh.geometry.dispose();
+        worldMesh = null;
+        voxelData = [];
+      }
+
+      try {
+        // Parse world data format
+        // Format: [version:4][width:8][height:8][depth:8][voxels...]
+        const version = parseInt(data.substring(0, 4), 16);
+        const width = parseInt(data.substring(4, 12), 16);
+        const height = parseInt(data.substring(12, 20), 16);
+        const depth = parseInt(data.substring(20, 28), 16);
+        const voxelsData = data.substring(28);
+
+        // Update info panel
+        document.getElementById('info').innerHTML = `
+          <p>Version: ${version}</p>
+          <p>Dimensions: ${width} x ${height} x ${depth}</p>
+          <p>Total Voxels: ${width * height * depth}</p>
+        `;
+
+        // Store world dimensions
+        worldWidth = width;
+        worldHeight = height;
+        worldDepth = depth;
+
+        // Render the world
+        renderWorld(voxelsData, width, height, depth);
+
+        // Create or update player marker and model
+        createPlayerMarker();
+
+        // Update all camera positions to match player position
+        const eyeHeight = characterSettings.headOffset + (characterSettings.headRadius * 0.5);
+
+        // Update first-person camera
+        fpCamera.position.set(
+          playerPosition.x,
+          playerPosition.y + eyeHeight,
+          playerPosition.z
+        );
+
+        // Calculate target position based on loaded rotation
+        const targetX = playerPosition.x + 10 * Math.cos(playerRotation);
+        const targetZ = playerPosition.z + 10 * Math.sin(playerRotation);
+
+        // Update fp camera target
+        fpCamera.lookAt(targetX, playerPosition.y + eyeHeight, targetZ);
+        fpCamera.updateProjectionMatrix();
+
+        // Update top-down camera to follow player
+        topDownCamera.position.set(playerPosition.x, topDownCamera.position.y, playerPosition.z);
+        topDownCamera.lookAt(playerPosition.x, 0, playerPosition.z);
+        topDownCamera.updateProjectionMatrix();
+        
+        // Update isometric camera to center on player
+        const isoDist = Math.max(worldWidth, worldHeight, worldDepth);
+        const isoAngle = Math.PI / 4;
+        const isoElev = Math.atan(Math.sqrt(2));
+        isoCamera.position.set(
+          playerPosition.x + isoDist * Math.cos(isoAngle),
+          playerPosition.y + isoDist * Math.sin(isoElev),
+          playerPosition.z + isoDist * Math.sin(isoAngle)
+        );
+        isoCamera.lookAt(playerPosition.x, playerPosition.y, playerPosition.z);
+        isoCamera.updateProjectionMatrix();
+
+        // If in fp mode, update main camera too
+        if (activeCameraMode === 'fp') {
+          camera.position.copy(fpCamera.position);
+          camera.lookAt(targetX, playerPosition.y + eyeHeight, targetZ);
+          controls.target.set(targetX, playerPosition.y + eyeHeight, targetZ);
+          controls.update();
+        }
+
+        // Update player marker and model
+        updatePlayerMarker();
+
+        // Render other actors in the scene
+        renderActors();
+
+        // Update top-down camera to follow player
+        topDownCamera.position.set(playerPosition.x, topDownCamera.position.y, playerPosition.z);
+        topDownCamera.lookAt(playerPosition.x, 0, playerPosition.z);
+        topDownCamera.updateProjectionMatrix();
+
+        // Enable rendering after world is loaded
+        shouldRender = true;
+
+        return true;
+      } catch (e) {
+        console.error("Failed to parse world data:", e);
+        document.getElementById('info').innerHTML = `
+          <p style="color: red;">Error loading world: ${e.message}</p>
+        `;
+        return false;
+      }
+    }
+
+    // Function to render the world using instanced mesh for better performance
+    function renderWorld (voxelsData, width, height, depth) {
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const centerZ = depth / 2;
+
+      // Create geometry, material, and mesh for instanced rendering
+      const boxGeometry = new THREE.BoxBufferGeometry(1, 1, 1);
+      const instancedMesh = new THREE.InstancedMesh(boxGeometry, new THREE.MeshLambertMaterial(), width * height * depth);
+      instancedMesh.count = 0; // We'll increment this as we add instances
+
+      const matrix = new THREE.Matrix4();
+      const color = new THREE.Color();
+
+      // Process each voxel
+      let instanceCount = 0;
+      for (let z = 0; z < depth; z++) {
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const index = z * (width * height) + y * width + x;
+            if (index >= voxelsData.length) continue;
+
+            // Convert hex character to voxel type
+            const typeChar = voxelsData[index];
+            let voxelType = 0; // Default to AIR
+
+            if (/[0-9]/.test(typeChar)) {
+              voxelType = parseInt(typeChar, 10);
+            } else if (/[A-F]/.test(typeChar)) {
+              voxelType = 10 + typeChar.charCodeAt(0) - 'A'.charCodeAt(0);
+            } else if (/[a-f]/.test(typeChar)) {
+              voxelType = 10 + typeChar.charCodeAt(0) - 'a'.charCodeAt(0);
+            }
+
+            // Skip AIR voxels (type 0)
+            if (voxelType === 0) continue;
+
+            // Get voxel properties
+            const voxelProps = VOXEL_TYPES[voxelType] || VOXEL_TYPES[0];
+
+            // Set position
+            matrix.setPosition(
+              x - centerX,
+              y - centerY,
+              z - centerZ
+            );
+
+            // Set color
+            color.setHex(voxelProps.color);
+
+            // Add instance
+            instancedMesh.setMatrixAt(instanceCount, matrix);
+            instancedMesh.setColorAt(instanceCount, color);
+
+            // Store voxel data for inspection
+            voxelData.push({
+              x: x,
+              y: y, 
+              z: z,
+              type: voxelType
+            });
+
+            instanceCount++;
+          }
+        }
+      }
+
+      // Update instance count
+      instancedMesh.count = instanceCount;
+
+      // Update instance matrices
+      instancedMesh.instanceMatrix.needsUpdate = true;
+      if (instancedMesh.instanceColor) {
+        instancedMesh.instanceColor.needsUpdate = true;
+      }
+
+      // Add to scene
+      scene.add(instancedMesh);
+      worldMesh = instancedMesh;
+
+      // Center camera on world
+      resetCamera();
+
+      // Update grid scale
+      updateGridScale();
+
+      console.log(`Rendered ${instanceCount} voxels`);
+    }
+
+    function resetCamera () {
+      if (worldWidth && worldHeight && worldDepth) {
+        const maxDimension = Math.max(worldWidth, worldHeight, worldDepth);
+        camera.position.set(maxDimension, maxDimension, maxDimension);
+        camera.lookAt(0, 0, 0);
+        controls.update();
+        // Update overlay cameras
+        // Top-down
+        topDownCamera.left = -maxDimension;
+        topDownCamera.right = maxDimension;
+        topDownCamera.top = maxDimension;
+        topDownCamera.bottom = -maxDimension;
+        topDownCamera.position.set(0, maxDimension * 2, 0);
+        topDownCamera.lookAt(0, 0, 0);
+        topDownCamera.updateProjectionMatrix();
+        // Isometric
+        const isoDist = maxDimension;
+        const isoAngle = Math.PI / 4;
+        const isoElev = Math.atan(Math.sqrt(2));
+        isoCamera.position.set(
+          isoDist * Math.cos(isoAngle),
+          isoDist * Math.sin(isoElev),
+          isoDist * Math.sin(isoAngle)
+        );
+        isoCamera.lookAt(0, 0, 0);
+        isoCamera.updateProjectionMatrix();
+        // First person
+        fpCamera.position.set(0, 1, 0);
+        fpCamera.lookAt(10, 1, 0);
+        fpCamera.updateProjectionMatrix();
+
+        // Reset to main view
+        activeCameraMode = 'main';
+      } else {
+        camera.position.set(50, 50, 50);
+        camera.lookAt(0, 0, 0);
+        controls.update();
+        // Reset overlays to default
+        topDownCamera.position.set(0, 100, 0);
+        topDownCamera.lookAt(0, 0, 0);
+        topDownCamera.left = -50;
+        topDownCamera.right = 50;
+        topDownCamera.top = 50;
+        topDownCamera.bottom = -50;
+        topDownCamera.updateProjectionMatrix();
+        const isoDist = 50; // Match the top-down zoom level
+        const isoAngle = Math.PI / 4;
+        const isoElev = Math.atan(Math.sqrt(2));
+        isoCamera.position.set(
+          isoDist * Math.cos(isoAngle),
+          isoDist * Math.sin(isoElev),
+          isoDist * Math.sin(isoAngle)
+        );
+        isoCamera.lookAt(0, 0, 0);
+        isoCamera.updateProjectionMatrix();
+        // First person default
+        fpCamera.position.set(0, 1, 0);
+        fpCamera.lookAt(10, 1, 0);
+        fpCamera.updateProjectionMatrix();
+
+        // Reset to main view
+        activeCameraMode = 'main';
+      }
+    }
+
+    function updateGridScale () {
+      // If we have a world loaded, adjust grid size
+      if (worldWidth && worldHeight && worldDepth) {
+        // Remove old grid
+        scene.remove(gridHelper);
+
+        // Add new grid of appropriate size
+        const maxDimension = Math.max(worldWidth, worldHeight, worldDepth);
+        gridHelper = new THREE.GridHelper(maxDimension * 2, maxDimension * 2);
+        gridHelper.visible = document.getElementById('showGrid').checked;
+        scene.add(gridHelper);
+      }
+    }
+
+    // Modal logic
+    function showVoxelModal (voxel) {
+      const modal = document.getElementById('voxel-modal');
+      const content = document.getElementById('voxel-modal-content');
+
+      // Find any actors at this voxel location
+      let actorsHtml = '<em style="color:#aaa">No actors at this location.</em>';
+
+      if (gameActors && gameActors.length > 0) {
+        const actorsAtLocation = gameActors.filter(a => {
+          // Check if actor position matches the voxel position (with some tolerance)
+          return a.position && 
+                 Math.abs(a.position.x - voxel.x) < 0.5 && 
+                 Math.abs(a.position.y - voxel.y) < 0.5 && 
+                 Math.abs(a.position.z - voxel.z) < 0.5;
+        });
+
+        if (actorsAtLocation.length > 0) {
+          actorsHtml = '<ul style="margin-top:5px; padding-left:20px;">';
+          actorsAtLocation.forEach(a => {
+            actorsHtml += `<li>${a.name || 'Unnamed'} (${a.type || 'unknown'}) - ID: ${a.id}</li>`;
+          });
+          actorsHtml += '</ul>';
+        }
+      }
+
+      // Create a spell selection dropdown if the player has spells
+      let spellsHtml = '';
+      if (actor.spells && actor.spells.length > 0) {
+        spellsHtml = `
+          <div class="spell-casting-section">
+            <h3>Cast Spell</h3>
+            <div class="spell-selector">
+              <select id="spell-select" class="spell-dropdown">
+                ${actor.spells.map(spell => `<option value="${spell}">${spell}</option>`).join('')}
+              </select>
+              <button id="cast-spell-btn" class="spell-cast-btn">Cast!</button>
+            </div>
+          </div>
+        `;
+      }
+
+      content.innerHTML = `
+        <strong>Type:</strong> ${voxel.typeName}<br>
+        <strong>Coordinates:</strong> (${voxel.x}, ${voxel.y}, ${voxel.z})<br>
+        ${spellsHtml}
+        <div style="margin-top:15px">
+          <strong>Actors at this location:</strong><br>
+          ${actorsHtml}
+        </div>
+      `;
+
+      // Add the event listener for the cast spell button
+      setTimeout(() => {
+        const castSpellBtn = document.getElementById('cast-spell-btn');
+        if (castSpellBtn) {
+          castSpellBtn.addEventListener('click', function() {
+            const spellSelect = document.getElementById('spell-select');
+            const selectedSpell = spellSelect.value;
+            castSpell(selectedSpell, voxel);
+            modal.style.display = 'none'; // Close the modal after casting
+          });
+        }
+      }, 0);
+
+      // Add some CSS for the spell selection interface
+      const styleEl = document.createElement('style');
+      styleEl.textContent = `
+        .spell-casting-section {
+          margin-top: 15px;
+          padding: 10px;
+          background-color: rgba(50, 50, 80, 0.3);
+          border-radius: 6px;
+          border: 1px solid #4c50af;
+        }
+        
+        .spell-casting-section h3 {
+          margin-top: 0;
+          margin-bottom: 10px;
+          color: #88aaff;
+        }
+        
+        .spell-selector {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .spell-dropdown {
+          flex-grow: 1;
+          padding: 8px;
+          background-color: #2a2a3a;
+          color: white;
+          border: 1px solid #4c50af;
+          border-radius: 4px;
+        }
+        
+        .spell-cast-btn {
+          background: linear-gradient(to bottom, #4c50af, #2a2d7a);
+          color: white;
+          padding: 8px 16px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: bold;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+          transition: all 0.2s ease;
+        }
+        
+        .spell-cast-btn:hover {
+          background: linear-gradient(to bottom, #5d62d0, #3a3d9a);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        .spell-cast-btn:active {
+          transform: translateY(0);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+      `;
+
+      document.head.appendChild(styleEl);
+      modal.style.display = 'flex';
+    }
+
+    document.getElementById('close-voxel-modal').onclick = function () {
+      document.getElementById('voxel-modal').style.display = 'none';
+    };
+
+    document.getElementById('voxel-modal').onclick = function (e) {
+      if (e.target === this) this.style.display = 'none';
+    };
+
+    function onVoxelRightClick (event) {
+      // Prevent the default context menu from appearing
+      event.preventDefault();
+
+      // Only trigger if tooltip is visible and lastInspectedVoxel is set
+      if (tooltip.style.display === 'block' && lastInspectedVoxel) {
+        showVoxelModal(lastInspectedVoxel);
+      }
+    }
+
+    // Empty function for left-click (maintained for compatibility)
+    function onVoxelClick (event) {
+      // Left click no longer opens the modal
+    }
+
+    function swapCameraView (newMode) {
+      // Don't do anything if selecting the already active mode
+      if (newMode === activeCameraMode) return;
+
+      // Store the previous mode
+      const previousMode = activeCameraMode;
+
+      // Update active mode
+      activeCameraMode = newMode;
+
+      // If we're in main mode, switching to a PIP mode
+      if (previousMode === 'main') {
+        // Save main camera parameters before swap
+        camera.userData.savedPosition = camera.position.clone();
+        camera.userData.savedQuaternion = camera.quaternion.clone();
+        camera.userData.savedTarget = controls.target.clone();
+
+        // Update main camera with selected view
+        if (newMode === 'topdown') {
+          camera.position.copy(topDownCamera.position);
+          camera.quaternion.copy(topDownCamera.quaternion);
+          camera.up.copy(topDownCamera.up);
+          controls.target.set(0, 0, 0);
+        } else if (newMode === 'iso') {
+          camera.position.copy(isoCamera.position);
+          camera.quaternion.copy(isoCamera.quaternion);
+          camera.up.set(0, 1, 0);
+          controls.target.set(0, 0, 0);
+        } else if (newMode === 'fp') {
+          camera.position.copy(fpCamera.position);
+          camera.quaternion.copy(fpCamera.quaternion);
+          camera.up.set(0, 1, 0);
+          controls.target.copy(new THREE.Vector3(10, 1, 0));
+        }
+
+        // Update controls
+        controls.update();
+      } 
+      // If we're going back to main from a PIP mode
+      else if (newMode === 'main') {
+        // Restore saved main camera parameters
+        camera.position.copy(camera.userData.savedPosition);
+        camera.quaternion.copy(camera.userData.savedQuaternion);
+        camera.up.set(0, 1, 0);
+        controls.target.copy(camera.userData.savedTarget);
+        controls.update();
+      }
+      // If we're switching between PIP modes
+      else {
+        // Update main camera with selected view
+        if (newMode === 'topdown') {
+          camera.position.copy(topDownCamera.position);
+          camera.quaternion.copy(topDownCamera.quaternion);
+          camera.up.copy(topDownCamera.up);
+          controls.target.set(0, 0, 0);
+        } else if (newMode === 'iso') {
+          camera.position.copy(isoCamera.position);
+          camera.quaternion.copy(isoCamera.quaternion);
+          camera.up.set(0, 1, 0);
+          controls.target.set(0, 0, 0);
+        } else if (newMode === 'fp') {
+          camera.position.copy(fpCamera.position);
+          camera.quaternion.copy(fpCamera.quaternion);
+          camera.up.set(0, 1, 0);
+          controls.target.copy(new THREE.Vector3(10, 1, 0));
+        }
+
+        // Update controls
+        controls.update();
+      }
+    }
+
+    // Function to handle player movement
+    function movePlayer (direction) {
+      // Calculate new position based on direction and current rotation
+      const stepSize = 1; // Each step moves one voxel unit
+
+      // Calculate direction vectors based on current rotation
+      const forwardX = Math.cos(playerRotation);
+      const forwardZ = Math.sin(playerRotation);
+      const rightX = Math.cos(playerRotation + Math.PI/2);
+      const rightZ = Math.sin(playerRotation + Math.PI/2);
+
+      // Store old position to check if it changed
+      const oldPosition = {...playerPosition};
+      const oldRotation = playerRotation;
+
+      switch(direction) {
+        case 'forward':
+          playerPosition.x += stepSize * forwardX;
+          playerPosition.z += stepSize * forwardZ;
+          break;
+        case 'backward':
+          playerPosition.x -= stepSize * forwardX;
+          playerPosition.z -= stepSize * forwardZ;
+          break;
+        case 'right':
+          playerPosition.x += stepSize * rightX;
+          playerPosition.z += stepSize * rightZ;
+          break;
+        case 'left':
+          playerPosition.x -= stepSize * rightX;
+          playerPosition.z -= stepSize * rightZ;
+          break;
+        case 'up':
+          playerPosition.y += stepSize;
+          break;
+        case 'down':
+          playerPosition.y -= stepSize;
+          // Prevent going below ground level (y=0)
+          if (playerPosition.y < 0.5) playerPosition.y = 0.5;
+          break;
+        case 'turn-left':
+          playerRotation -= Math.PI/2; // Turn 90 degrees left
+          if (playerRotation < 0) playerRotation += Math.PI*2; // Keep between 0 and 2*PI
+          break;
+        case 'turn-right':
+          playerRotation += Math.PI/2; // Turn 90 degrees right
+          if (playerRotation >= Math.PI*2) playerRotation -= Math.PI*2; // Keep between 0 and 2*PI
+          break;
+      }
+
+      // Calculate the position for the first-person camera
+      // Set it slightly above the player model's center to simulate eye level
+      const eyeHeight = characterSettings.headOffset + (characterSettings.headRadius * 0.5);
+      fpCamera.position.set(
+        playerPosition.x, 
+        playerPosition.y + eyeHeight, 
+        playerPosition.z
+      );
+
+      // Calculate target position based on current rotation
+      const targetX = playerPosition.x + 10 * Math.cos(playerRotation);
+      const targetZ = playerPosition.z + 10 * Math.sin(playerRotation);
+      
+      // Update the look-at position based on the current direction
+      fpCamera.lookAt(targetX, playerPosition.y + eyeHeight, targetZ);
+
+      // If we're in first-person view mode, update main camera too
+      if (activeCameraMode === 'fp') {
+        camera.position.copy(fpCamera.position);
+        camera.lookAt(targetX, playerPosition.y + eyeHeight, targetZ);
+        controls.target.set(targetX, playerPosition.y + eyeHeight, targetZ);
+        controls.update();
+      }
+
+      // Update topdown camera position to follow player if position changed
+      if (oldPosition.x !== playerPosition.x || oldPosition.z !== playerPosition.z) {
+        // Center topdown camera on player's position, maintaining height
+        topDownCamera.position.set(playerPosition.x, topDownCamera.position.y, playerPosition.z);
+        topDownCamera.lookAt(playerPosition.x, 0, playerPosition.z);
+        topDownCamera.updateProjectionMatrix();
+
+        // Update isometric camera to follow player
+        const topDownZoom = Math.abs(topDownCamera.right - topDownCamera.left) / 2;
+        const isoDist = topDownZoom * 1.5;
+        const isoAngle = Math.PI / 4;
+        const isoElev = Math.atan(Math.sqrt(2));
+        isoCamera.position.set(
+          playerPosition.x + isoDist * Math.cos(isoAngle),
+          playerPosition.y + isoDist * Math.sin(isoElev),
+          playerPosition.z + isoDist * Math.sin(isoAngle)
+        );
+        isoCamera.lookAt(playerPosition.x, playerPosition.y, playerPosition.z);
+        isoCamera.updateProjectionMatrix();
+      }
+
+      // Update player marker and model
+      updatePlayerMarker();
+
+      // Update coordinate display
+      updateCoordinateDisplay();
+
+      // Log the movement
+      const directionNames = {
+        'forward': 'forward',
+        'backward': 'backward',
+        'left': 'left',
+        'right': 'right',
+        'up': 'up',
+        'down': 'down',
+        'turn-left': '90° left',
+        'turn-right': '90° right'
+      };
+
+      console.log(`Player moved ${directionNames[direction]}. New position:`, playerPosition, `Rotation: ${(playerRotation * 180 / Math.PI).toFixed(0)}°`);
+    }
+
+    // Function to update the coordinate display
+    function updateCoordinateDisplay() {
+      document.getElementById('coord-x').textContent = Math.round(playerPosition.x);
+      document.getElementById('coord-y').textContent = Math.round(playerPosition.y);
+      document.getElementById('coord-z').textContent = Math.round(playerPosition.z);
+    }
+
+    // Add event listeners for direction buttons
+    document.getElementById('compass-btn-forward').addEventListener('click', function() {
+      movePlayer('forward');
+    });
+
+    document.getElementById('compass-btn-backward').addEventListener('click', function() {
+      movePlayer('backward');
+    });
+    
+    document.getElementById('compass-btn-right').addEventListener('click', function() {
+      movePlayer('right');
+    });
+    
+    document.getElementById('compass-btn-left').addEventListener('click', function() {
+      movePlayer('left');
+    });
+    
+    document.getElementById('compass-btn-up').addEventListener('click', function() {
+      movePlayer('up');
+    });
+    
+    document.getElementById('compass-btn-down').addEventListener('click', function() {
+      movePlayer('down');
+    });
+    
+    document.getElementById('compass-btn-turn-left').addEventListener('click', function() {
+      movePlayer('turn-left');
+    });
+    
+    document.getElementById('compass-btn-turn-right').addEventListener('click', function() {
+      movePlayer('turn-right');
+    });
+
+    // Update first-person camera position based on world
+    function updateFpCameraPosition () {
+      // Only set default position if we don't already have a valid player position
+      const hasValidPosition = (
+        playerPosition.x !== undefined && 
+        playerPosition.y !== undefined && 
+        playerPosition.z !== undefined &&
+        // Check if position isn't at origin (which might be the default)
+        !(playerPosition.x === 0 && playerPosition.y === 1 && playerPosition.z === 0)
+      );
+
+      // In a real implementation, this would use the actor's actual position
+      if (worldWidth && worldHeight && worldDepth && !hasValidPosition) {
+        // Set player at the edge of the world facing inward ONLY IF no position is already set
+        playerPosition = {
+          x: -worldWidth/2,
+          y: 1, // Eye level
+          z: 0
+        };
+        
+        // Reset rotation to 0 (facing positive X direction)
+        playerRotation = 0;
+        
+        console.log('Setting default player position:', playerPosition);
+      }
+
+      // Update player model and marker
+      updatePlayerMarker();
+
+      // Set first-person camera position at eye level
+      const eyeHeight = characterSettings.headOffset + (characterSettings.headRadius * 0.5);
+      fpCamera.position.set(
+        playerPosition.x, 
+        playerPosition.y + eyeHeight,
+        playerPosition.z
+      );
+
+      // Calculate target position based on current rotation
+      const targetX = playerPosition.x + 10 * Math.cos(playerRotation);
+      const targetZ = playerPosition.z + 10 * Math.sin(playerRotation);
+
+      fpCamera.lookAt(targetX, playerPosition.y + eyeHeight, targetZ);
+      fpCamera.updateProjectionMatrix();
+
+      // Position top-down camera above player
+      const topDownZoom = 8;
+      topDownCamera.position.set(playerPosition.x, topDownCamera.position.y, playerPosition.z);
+      topDownCamera.lookAt(playerPosition.x, 0, playerPosition.z);
+      topDownCamera.left = -topDownZoom / 2;
+      topDownCamera.right = topDownZoom / 2;
+      topDownCamera.top = topDownZoom / 2;
+      topDownCamera.bottom = -topDownZoom / 2;
+      topDownCamera.updateProjectionMatrix();
+
+      // Position isometric camera relative to player using the same zoom level
+      const isoDist = topDownZoom * 1.5;
+      const isoAngle = Math.PI / 4;
+      const isoElev = Math.atan(Math.sqrt(2));
+      isoCamera.position.set(
+        playerPosition.x + isoDist * Math.cos(isoAngle),
+        playerPosition.y + isoDist * Math.sin(isoElev),
+        playerPosition.z + isoDist * Math.sin(isoAngle)
+      );
+      isoCamera.lookAt(playerPosition.x, playerPosition.y, playerPosition.z);
+      isoCamera.updateProjectionMatrix();
+    }
+
+    // Function to create and update voxel edge highlights in front of player
+    function updateVoxelHighlights () {
+      // Remove previous highlights if they exist
+      if (highlightedEdges) {
+        scene.remove(highlightedEdges);
+        highlightedEdges.geometry.dispose();
+        highlightedEdges = null;
+      }
+
+      // Calculate the direction vector based on player rotation
+      const dirX = Math.cos(playerRotation);
+      const dirZ = Math.sin(playerRotation);
+
+      // Create a collection of edges to highlight
+      const edgePoints = [];
+
+      // Check all voxels for ones in front of the player within the highlight distance
+      if (voxelData && voxelData.length > 0) {
+        // Get the player eye position
+        const eyeHeight = characterSettings.headOffset + (characterSettings.headRadius * 0.5);
+        const eyeX = playerPosition.x;
+        const eyeY = playerPosition.y + eyeHeight;
+        const eyeZ = playerPosition.z;
+        
+        // Center point offsets for the world
+        const centerX = worldWidth / 2;
+        const centerY = worldHeight / 2;
+        const centerZ = worldDepth / 2;
+        
+        // Check each voxel
+        for (let i = 0; i < voxelData.length; i++) {
+          const voxel = voxelData[i];
+          
+          // Skip air voxels (type 0)
+          if (voxel.type === 0) continue;
+          
+          // Adjust voxel position relative to world center
+          const voxX = voxel.x - centerX;
+          const voxY = voxel.y - centerY;
+          const voxZ = voxel.z - centerZ;
+          
+          // Calculate vector from eye to voxel
+          const dx = voxX - eyeX;
+          const dy = voxY - eyeY;
+          const dz = voxZ - eyeZ;
+          
+          // Calculate distance to voxel
+          const distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+          
+          // Skip if voxel is too far away
+          if (distance > highlightDistance) continue;
+          
+          // Calculate dot product to check if voxel is in front of player
+          // (within ~60 degree cone of vision)
+          const dotProduct = (dx*dirX + dz*dirZ) / distance;
+          
+          // If voxel is in front of player (dot product > 0.5 means within ~60 degree cone)
+          if (dotProduct > 0.5) {
+            // Add edges for this voxel (12 edges of a cube)
+            // Bottom face
+            edgePoints.push(voxX - 0.5, voxY - 0.5, voxZ - 0.5, voxX + 0.5, voxY - 0.5, voxZ - 0.5);
+            edgePoints.push(voxX + 0.5, voxY - 0.5, voxZ - 0.5, voxX + 0.5, voxY - 0.5, voxZ + 0.5);
+            edgePoints.push(voxX + 0.5, voxY - 0.5, voxZ + 0.5, voxX - 0.5, voxY - 0.5, voxZ + 0.5);
+            edgePoints.push(voxX - 0.5, voxY - 0.5, voxZ + 0.5, voxX - 0.5, voxY - 0.5, voxZ - 0.5);
+
+            // Top face
+            edgePoints.push(voxX - 0.5, voxY + 0.5, voxZ - 0.5, voxX + 0.5, voxY + 0.5, voxZ - 0.5);
+            edgePoints.push(voxX + 0.5, voxY + 0.5, voxZ - 0.5, voxX + 0.5, voxY + 0.5, voxZ + 0.5);
+            edgePoints.push(voxX + 0.5, voxY + 0.5, voxZ + 0.5, voxX - 0.5, voxY + 0.5, voxZ + 0.5);
+            edgePoints.push(voxX - 0.5, voxY + 0.5, voxZ + 0.5, voxX - 0.5, voxY + 0.5, voxZ - 0.5);
+
+            // Vertical edges
+            edgePoints.push(voxX - 0.5, voxY - 0.5, voxZ - 0.5, voxX - 0.5, voxY + 0.5, voxZ - 0.5);
+            edgePoints.push(voxX + 0.5, voxY - 0.5, voxZ - 0.5, voxX + 0.5, voxY + 0.5, voxZ - 0.5);
+            edgePoints.push(voxX + 0.5, voxY - 0.5, voxZ + 0.5, voxX + 0.5, voxY + 0.5, voxZ + 0.5);
+            edgePoints.push(voxX - 0.5, voxY - 0.5, voxZ + 0.5, voxX - 0.5, voxY + 0.5, voxZ + 0.5);
+          }
+        }
+      }
+
+      // Create the highlight mesh if there are edges to show
+      if (edgePoints.length > 0) {
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(edgePoints, 3));
+
+        const material = new THREE.LineBasicMaterial({ 
+          color: 0xFF0000,  // Red color for highlights
+          linewidth: 2      // Line width (note: may not work on all platforms)
+        });
+        
+        highlightedEdges = new THREE.LineSegments(geometry, material);
+        scene.add(highlightedEdges);
+      }
+    }
+
+    // Handle WebSocket settings changes
+    document.getElementById('settings-authority-host').addEventListener('change', function(e) {
+      const newHost = e.target.value.trim();
+      if (newHost) {
+        localStorage.setItem('verse-authority-host', newHost);
+        // Don't reconnect immediately - wait for the user to close settings
+      }
+    });
+
+    document.getElementById('settings-authority-port').addEventListener('change', function(e) {
+      const newPort = e.target.value.trim();
+      if (newPort && !isNaN(parseInt(newPort))) {
+        localStorage.setItem('verse-authority-port', newPort);
+        // Don't reconnect immediately - wait for the user to close settings
+      }
+    });
+
+    // Update WebSocket connection when settings are closed
+    document.getElementById('settings-close').addEventListener('click', function() {
+      hideSettingsPanel();
+
+      // Check if WebSocket settings have changed
+      const currentHost = wsHost;
+      const currentPort = wsPort;
+      const newHost = localStorage.getItem('verse-authority-host') || window.location.hostname;
+      const newPort = localStorage.getItem('verse-authority-port') || '3039';
+
+      if (currentHost !== newHost || currentPort !== newPort) {
+        console.log('WebSocket settings changed, reconnecting...');
+        connectWebSocket();
+      }
+    });
+
+    // Function to pause the game
+    function pauseGame() {
+      gameState.gamePaused = true;
+      controls.enabled = false; // Disable camera controls
+
+      // Disable rendering when game is paused
+      shouldRender = false;
+    }
+
+    // Function to resume the game
+    function resumeGame () {
+      gameState.gamePaused = false;
+      gameState.uiMode = 'game';
+      controls.enabled = true; // Re-enable camera controls
+      hideMainMenu();
+
+      // Enable rendering when resuming the game
+      shouldRender = true;
+
+      // Ensure camera positions are updated to match player position
+      // (in case player position was changed during pause)
+      if (worldMesh) {
+        // Calculate eye height
+        const eyeHeight = characterSettings.headOffset + (characterSettings.headRadius * 0.5);
+
+        // Update first-person camera position
+        fpCamera.position.set(
+          playerPosition.x,
+          playerPosition.y + eyeHeight,
+          playerPosition.z
+        );
+
+        // Calculate target based on player rotation
+        const targetX = playerPosition.x + 10 * Math.cos(playerRotation);
+        const targetZ = playerPosition.z + 10 * Math.sin(playerRotation);
+
+        // Update camera target
+        fpCamera.lookAt(targetX, playerPosition.y + eyeHeight, targetZ);
+        fpCamera.updateProjectionMatrix();
+
+        // If in first-person mode, update main camera too
+        if (activeCameraMode === 'fp') {
+          camera.position.copy(fpCamera.position);
+          camera.lookAt(targetX, playerPosition.y + eyeHeight, targetZ);
+          controls.target.set(targetX, playerPosition.y + eyeHeight, targetZ);
+          controls.update();
+        }
+      }
+    }
+
+    // Function to hide main menu without changing other UI states
+    function hideMainMenu () {
+      document.getElementById('main-menu').style.display = 'none';
+      document.getElementById('controls').style.display = 'block';
+    }
+
+    // --- WebSocket Client for Actor Session ---
+    // Generate a random actor ID (could be improved for real use)
+    function generateActorId () {
+      return 'actor-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Autosave functionality
+    let autosaveInterval;
+
+    function startAutosave () {
+      // Clear any existing interval
+      if (autosaveInterval) {
+        clearInterval(autosaveInterval);
+      }
+
+      // Set up new interval (60 seconds)
+      autosaveInterval = setInterval(function() {
+        if (currentWorldData && gameState.uiMode === 'game') {
+          saveToLocalStorage();
+        }
+      }, 60000);
+
+      console.log('Autosave started - saving every 60 seconds');
+    }
+
+    function stopAutosave () {
+      if (autosaveInterval) {
+        clearInterval(autosaveInterval);
+        autosaveInterval = null;
+        console.log('Autosave stopped');
+      }
+    }
+
+    function saveToLocalStorage() {
+      try {
+        // Only save if we have current world data
+        if (!currentWorldData) return;
+
+        // Prepare the save data
+        const saveData = {
+          world: currentWorldData,
+          player: {
+            position: {
+              x: playerPosition.x,
+              y: playerPosition.y,
+              z: playerPosition.z
+            },
+            rotation: playerRotation
+          },
+          actors: [
+            // Include the current player as an actor
+            {
+              id: actor.id,
+              type: 'player',
+              position: {
+                x: playerPosition.x,
+                y: playerPosition.y,
+                z: playerPosition.z
+              },
+              rotation: playerRotation,
+              state: actor.state || {}
+            }
+            // Additional actors would be added here from the actors array
+          ],
+          timestamp: Date.now(),
+          version: 1
+        };
+
+        // Save to localStorage
+        localStorage.setItem('verse-autosave', JSON.stringify(saveData));
+        console.log('Autosaved world, player and actor data to localStorage');
+
+        // Show the autosave notification
+        showAutosaveNotification();
+      } catch (error) {
+        console.error('Failed to autosave:', error);
+      }
+    }
+
+    // Function to show the autosave notification
+    function showAutosaveNotification() {
+      const notification = document.getElementById('autosave-notification');
+      notification.style.opacity = '1';
+
+      // Hide after 2 seconds
+      setTimeout(() => {
+        notification.style.opacity = '0';
+      }, 2000);
+    }
+
+    // Function to load from localStorage
+    function loadFromLocalStorage() {
+      try {
+        const savedData = localStorage.getItem('verse-autosave');
+        if (!savedData) {
+          console.log('No autosave data found');
+          return false;
+        }
+
+        const parsedData = JSON.parse(savedData);
+
+        // Verify the data structure
+        if (!parsedData.world) {
+          console.warn('Incomplete autosave data - missing world data');
+          return false;
+        }
+
+        // Set current world data
+        currentWorldData = parsedData.world;
+
+        // Set player position and rotation if available directly
+        if (parsedData.player) {
+          playerPosition.x = parsedData.player.position.x;
+          playerPosition.y = parsedData.player.position.y;
+          playerPosition.z = parsedData.player.position.z;
+          playerRotation = parsedData.player.rotation;
+          console.log('Restored player position from player data');
+        }
+
+        // Restore actors if available
+        if (parsedData.actors && Array.isArray(parsedData.actors)) {
+          // Find the player actor and update our actor object
+          const playerActor = parsedData.actors.find(a => a.type === 'player');
+          if (playerActor) {
+            actor.id = playerActor.id;
+            actor.state = playerActor.state || {};
+            console.log('Restored player actor:', actor);
+
+            // If we don't have direct player data, use the actor position
+            if (!parsedData.player && playerActor.position) {
+              playerPosition.x = playerActor.position.x;
+              playerPosition.y = playerActor.position.y;
+              playerPosition.z = playerActor.position.z;
+              playerRotation = playerActor.rotation || 0;
+              console.log('Restored player position from actor data:', playerPosition);
+            }
+          }
+
+          // Store all actors (we will later add functionality to render them)
+          gameActors = parsedData.actors;
+          console.log(`Restored ${gameActors.length} actors`);
+        }
+
+        // Load the world
+        const result = loadWorldData(currentWorldData);
+
+        // Update first-person camera position
+        updateFpCameraPosition();
+
+        console.log('Loaded autosave data from ' + new Date(parsedData.timestamp).toLocaleString());
+
+        return result;
+      } catch (error) {
+        console.error('Failed to load autosave:', error);
+        return false;
+      }
+    }
+
+    // Local actor object
+    const actor = {
+      id: generateActorId(),
+      state: {},
+      spells: ['FIREBLAST', 'HEAL', 'TELEPORT'] // Default spells for the player
+    };
+
+    // Connect to WebSocket server
+    let wsHost = localStorage.getItem('verse-authority-host') || window.location.hostname;
+    let wsPort = localStorage.getItem('verse-authority-port') || '3039';
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    let wsUrl = `${wsProtocol}://${wsHost}:${wsPort}/services/proxy`;
+    let ws = null;
+    let wsRetryCount = 0;
+    const maxRetries = 3;
+
+    // Function to load the sample world when WebSocket is not available
+    function loadSampleWorld () {
+      // Use the existing sample world loading code
+      fetch('sample_world.txt')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.text();
+        })
+        .then(worldData => {
+          loadWorld(worldData);
+          hideLoadingScreen();
+          showGameUI();
+
+          // Update first-person camera position based on world
+          updateFpCameraPosition();
+        })
+        .catch(error => {
+          console.error('Error loading sample world:', error);
+          document.getElementById('info').innerHTML = `
+            <p style="color: red;">Error loading sample world: ${error.message}</p>
+            <p>Make sure you've created a sample world using the export_world utility.</p>
+          `;
+          hideLoadingScreen();
+        });
+    }
+
+    function connectWebSocket(resolve, reject) {
+      try {
+        // Close any existing connection
+        if (ws) {
+          ws.onclose = null; // Disable the onclose handler to prevent recursion
+          ws.close();
+        }
+
+        // Get latest host and port values from localStorage
+        wsHost = localStorage.getItem('verse-authority-host') || window.location.hostname;
+        wsPort = localStorage.getItem('verse-authority-port') || '3039';
+        wsUrl = `${wsProtocol}://${wsHost}:${wsPort}/services/proxy`;
+
+        console.log(`Connecting to WebSocket at ${wsUrl}`);
+
+        // Create new WebSocket connection
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = function () {
+          console.log('WebSocket connected');
+          wsRetryCount = 0; // Reset retry counter on successful connection
+          if (resolve) resolve();
+        };
+
+        ws.onmessage = function (event) {
+          // Handle incoming messages
+          try {
+            console.log('Raw message received:', event.data);
+
+            // First try to parse as JSON
+            let data;
+            try {
+              data = JSON.parse(event.data);
+              console.log('WebSocket message parsed as JSON:', data);
+            } catch (parseError) {
+              console.warn('Message is not valid JSON:', parseError);
+              // Handle as text message
+              console.log('Treating message as text:', event.data);
+              return;
+            }
+
+            // Check message type and handle accordingly
+            if (data.type === 'SESSION_START') {
+              console.log('Server acknowledged SESSION_START');
+            } else if (data.type === 'WORLD_STATE') {
+              console.log('Received WORLD_STATE message with world data');
+
+              // Update actor with server-provided ID if available
+              if (data.actor_id) {
+                actor.id = data.actor_id;
+                console.log('Actor ID set to:', actor.id);
+              }
+
+              // Load the world if world_data is provided
+              if (data.world_data) {
+                loadWorld(data.world_data);
+                hideLoadingScreen();
+                showGameUI();
+
+                // Update first-person camera position based on world
+                updateFpCameraPosition();
+
+                // Start autosave
+                // startAutosave();
+              }
+            } else if (data.type === 'GENERATE_WORLD_RESPONSE') {
+              console.log('Received generated world data:', data);
+
+              if (data.world_data) {
+                loadWorld(data.world_data);
+                hideLoadingScreen();
+                showGameUI();
+
+                // Update first-person camera position based on world
+                updateFpCameraPosition();
+
+                // Start autosave
+                // startAutosave();
+              } else {
+                console.warn('No world data in GENERATE_WORLD_RESPONSE');
+                // Fallback to sample world
+                // loadSampleWorld();
+              }
+            } else if (data.type === 'CHARACTER_CREATED') {
+              console.log('Character created successfully:', data);
+              
+              // Store the actor ID from the response
+              if (data.actor_id) {
+                actor.id = data.actor_id;
+                console.log('Actor ID set to:', actor.id);
+                
+                // Now send the world generation request
+                const msg = {
+                  type: 'GENERATE_WORLD_REQUEST',
+                  content: {
+                    actor: actor.id
+                  }
+                };
+                ws.send(JSON.stringify(msg));
+                console.log('Sent GENERATE_WORLD_REQUEST message');
+              }
+            } else if (data.type === 'WORLD_GENERATED') {
+              console.log('Received WORLD_GENERATED notification');
+
+              // The server sends a separate WORLD_STATE message with the actual world data
+              // This is just a notification that the world was generated successfully
+              // hideLoadingScreen();
+              // showGameUI();
+
+              // Update info panel with generation parameters
+              if (data.seed && data.width && data.height && data.depth) {
+                document.getElementById('info').innerHTML += `
+                  <p>Generated world with seed: ${data.seed}</p>
+                  <p>Dimensions: ${data.width} x ${data.height} x ${data.depth}</p>
+                `;
+              }
+            }
+          } catch (err) {
+            console.warn('Error processing WebSocket message:', err);
+          }
+        };
+
+        ws.onerror = function (err) {
+          console.warn('WebSocket error. The server may not be running.', err);
+          if (reject) reject(err);
+        };
+
+        ws.onclose = function (event) {
+          console.log('WebSocket connection closed', event.code, event.reason);
+          
+          if (event.code !== 1000 && wsRetryCount < maxRetries && !reject) {
+            // Only auto-reconnect if we're not in the connection setup phase
+            const retryDelay = Math.min(1000 * Math.pow(2, wsRetryCount), 10000);
+            wsRetryCount++;
+            
+            console.log(`Attempting to reconnect (${wsRetryCount}/${maxRetries}) in ${retryDelay}ms...`);
+            setTimeout(() => connectWebSocket(), retryDelay);
+          } else {
+            console.log('WebSocket connection closed permanently');
+            if (reject) reject(new Error('Connection closed: ' + event.reason));
+          }
+        };
+      } catch (err) {
+        console.error('Failed to establish WebSocket connection:', err);
+        if (reject) reject(err);
+      }
+    }
+
+    // Start the initialization process
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load saved accent color if available
+      const savedColor = localStorage.getItem('verse-accent-color') || '#4c50af';
+      updateAccentColor(savedColor);
+
+      // Load saved highlight distance if available
+      const savedHighlightDistance = localStorage.getItem('verse-highlight-distance');
+      if (savedHighlightDistance) {
+        highlightDistance = parseInt(savedHighlightDistance);
+        document.getElementById('settings-highlight-distance').value = highlightDistance;
+        document.getElementById('highlight-distance-value').textContent = highlightDistance;
+      }
+
+      // Load saved WebSocket settings if available
+      const savedHost = localStorage.getItem('verse-authority-host');
+      const savedPort = localStorage.getItem('verse-authority-port');
+      if (savedHost) document.getElementById('settings-authority-host').value = savedHost;
+      if (savedPort) document.getElementById('settings-authority-port').value = savedPort;
+
+      // Initialize Three.js scene
+      init();
+    });
+
+    // Reset camera to default position
+    document.getElementById('resetCamera').addEventListener('click', function () {
+      resetCamera();
+    });
+
+    // Toggle grid
+    document.getElementById('showGrid').addEventListener('change', function (e) {
+      gridHelper.visible = e.target.checked;
+    });
+
+    // Toggle axes
+    document.getElementById('showAxes').addEventListener('change', function (e) {
+      axesHelper.visible = e.target.checked;
+    });
+
+    // Setup file input handler
+    document.getElementById('fileInput').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        showLoadingScreen('Loading World...');
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const worldData = e.target.result;
+            const success = loadWorld(worldData);
+            
+            if (success) {
+              document.getElementById('info').innerHTML += `
+                <p>File successfully loaded: ${file.name}</p>
+              `;
+              // Update first-person camera position
+              updateFpCameraPosition();
+            } else {
+              document.getElementById('info').innerHTML += `
+                <p style="color: red;">Warning: File may not have loaded properly.</p>
+              `;
+            }
+
+            setTimeout(function () {
+              showLoadingScreen('Loading Adjacent Worlds...');
+              setTimeout(function () {
+                hideLoadingScreen();
+                showGameUI();
+                // Start autosave when file is loaded
+                // startAutosave();
+              }, 3000);
+            }, 2000);
+          } catch (error) {
+            console.error("Error processing world file:", error);
+            document.getElementById('info').innerHTML = `
+              <p style="color: red;">Error loading world file: ${error.message}</p>
+            `;
+            hideLoadingScreen();
+            showGameUI();
+          }
+        };
+
+        reader.onerror = function() {
+          console.error("FileReader error:", reader.error);
+          document.getElementById('info').innerHTML = `
+            <p style="color: red;">Error reading file: ${reader.error}</p>
+          `;
+          hideLoadingScreen();
+          showGameUI();
+        };
+
+        reader.readAsText(file);
+      } else {
+        // No file was selected (user cancelled the dialog)
+        hideLoadingScreen();
+        showMainMenu();
+      }
+    });
+
+    // Manual save function
+    document.getElementById('saveNow').addEventListener('click', function() {
+      saveToLocalStorage();
+    });
+
+    // Debug function to add test actors
+    function addTestActors () {
+      // Create some sample actors around the player's position
+      const testActors = [
+        {
+          id: 'npc-1',
+          type: 'npc',
+          name: 'Village Guide',
+          position: {
+            x: playerPosition.x + 3,
+            y: playerPosition.y,
+            z: playerPosition.z
+          },
+          rotation: Math.PI * 1.5,
+          state: { role: 'guide', dialog: 'Welcome to the village!' }
+        },
+        {
+          id: 'npc-2',
+          type: 'npc',
+          name: 'Shopkeeper',
+          position: {
+            x: playerPosition.x - 2,
+            y: playerPosition.y,
+            z: playerPosition.z + 2
+          },
+          rotation: Math.PI / 4,
+          state: { role: 'merchant', inventory: ['potion', 'sword'] }
+        },
+        {
+          id: 'mob-1',
+          type: 'mob',
+          name: 'Forest Wolf',
+          position: {
+            x: playerPosition.x,
+            y: playerPosition.y,
+            z: playerPosition.z - 4
+          },
+          rotation: 0,
+          state: { hostile: true, health: 20 }
+        }
+      ];
+
+      // Add test actors to gameActors array (avoiding duplicates)
+      testActors.forEach(testActor => {
+        // Check if this actor already exists
+        const existingIndex = gameActors.findIndex(a => a.id === testActor.id);
+        if (existingIndex >= 0) {
+          // Update existing actor
+          gameActors[existingIndex] = testActor;
+        } else {
+          // Add new actor
+          gameActors.push(testActor);
+        }
+      });
+
+      // Render the actors
+      renderActors();
+
+      console.log(`Added ${testActors.length} test actors to the scene`);
+    }
+
+    // Add keyboard shortcut for test actors (Shift+A)
+    document.addEventListener('keydown', function(event) {
+      // Only handle when in game mode
+      if (gameState.uiMode !== 'game' || gameState.gamePaused) return;
+      
+      // Shift+A to add test actors
+      if (event.key === 'A' && event.shiftKey) {
+        addTestActors();
+      }
+    });
+
+    // Add after the export dialog code
+
+    // Confirmation dialog
+    function showConfirmDialog (message, onConfirm) {
+      // Create dialog if it doesn't exist
+      let confirmDialog = document.getElementById('confirm-dialog');
+      if (!confirmDialog) {
+        confirmDialog = document.createElement('div');
+        confirmDialog.id = 'confirm-dialog';
+        confirmDialog.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.8);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        `;
+
+        const dialogContent = document.createElement('div');
+        dialogContent.style.cssText = `
+          background-color: #1e1e1e;
+          padding: 30px;
+          border-radius: 10px;
+          width: 400px;
+          max-width: 90%;
+        `;
+
+        const messageEl = document.createElement('div');
+        messageEl.id = 'confirm-message';
+        messageEl.style.cssText = `
+          margin-bottom: 20px;
+          text-align: center;
+        `;
+
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.style.cssText = `
+          display: flex;
+          justify-content: space-between;
+        `;
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.style.cssText = `
+          background-color: #666;
+          border: none;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 4px;
+          cursor: pointer;
+        `;
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = 'Confirm';
+        confirmBtn.style.cssText = `
+          background-color: #f44336;
+          border: none;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 4px;
+          cursor: pointer;
+        `;
+
+        cancelBtn.onclick = function() {
+          document.body.removeChild(confirmDialog);
+        };
+
+        confirmBtn.id = 'confirm-btn';
+
+        buttonsContainer.appendChild(cancelBtn);
+        buttonsContainer.appendChild(confirmBtn);
+
+        dialogContent.appendChild(messageEl);
+        dialogContent.appendChild(buttonsContainer);
+        confirmDialog.appendChild(dialogContent);
+
+        document.body.appendChild(confirmDialog);
+      }
+
+      // Update message
+      document.getElementById('confirm-message').innerHTML = message;
+
+      // Update confirm button action
+      const confirmBtn = document.getElementById('confirm-btn');
+      confirmBtn.onclick = function() {
+        document.body.removeChild(confirmDialog);
+        if (typeof onConfirm === 'function') {
+          onConfirm();
+        }
+      };
+
+      // Show dialog
+      confirmDialog.style.display = 'flex';
+    }
+
+    // Fade to black transition
+    function fadeToBlack(callback) {
+      // Create fade overlay if it doesn't exist
+      let fadeOverlay = document.getElementById('fade-overlay');
+      if (!fadeOverlay) {
+        fadeOverlay = document.createElement('div');
+        fadeOverlay.id = 'fade-overlay';
+        fadeOverlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: #000;
+          opacity: 0;
+          transition: opacity 1s ease;
+          z-index: 2000;
+          pointer-events: none;
+        `;
+        document.body.appendChild(fadeOverlay);
+      }
+
+      // Show and fade in
+      fadeOverlay.style.display = 'block';
+
+      // Trigger reflow to ensure transition works
+      void fadeOverlay.offsetWidth;
+
+      // Fade to black
+      fadeOverlay.style.opacity = '1';
+
+      // Execute callback after fade completes
+      setTimeout(function() {
+        if (typeof callback === 'function') {
+          callback();
+        }
+      }, 1000);
+    }
+
+    // Fade from black
+    function fadeFromBlack () {
+      let fadeOverlay = document.getElementById('fade-overlay');
+      if (fadeOverlay) {
+        // Fade out
+        fadeOverlay.style.opacity = '0';
+
+        // Remove overlay after transition
+        setTimeout(function() {
+          fadeOverlay.style.display = 'none';
+        }, 1000);
+      }
+    }
+
+    // Add spell casting functionality
+    function castSpell (spellName, targetVoxel) {
+      console.log(`Casting spell ${spellName} at location (${targetVoxel.x}, ${targetVoxel.y}, ${targetVoxel.z})`);
+
+      // Create a visual effect based on the spell
+      switch(spellName) {
+        case 'FIREBLAST':
+          createFireblastEffect(targetVoxel);
+          break;
+        case 'HEAL':
+          createHealEffect();
+          break;
+        case 'TELEPORT':
+          teleportToLocation(targetVoxel);
+          break;
+        default:
+          console.log(`Unknown spell: ${spellName}`);
+      }
+
+      // If we have a WebSocket connection, notify the server about the spell cast
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        try {
+          const msg = {
+            type: 'SPELL_CAST',
+            content: {
+              actor: actor.id,
+              spell: spellName,
+              target: {
+                x: targetVoxel.x,
+                y: targetVoxel.y,
+                z: targetVoxel.z
+              }
+            }
+          };
+          ws.send(JSON.stringify(msg));
+        } catch (err) {
+          console.warn('Failed to send SPELL_CAST message:', err);
+        }
+      }
+    }
+
+    // Visual effects for spells
+    function createFireblastEffect (targetVoxel) {
+      // Create a particle effect at the target location
+      const particleCount = 50;
+      const particleGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+      const particleMaterial = new THREE.MeshBasicMaterial({
+        color: 0xFF5500,
+        transparent: true,
+        opacity: 0.8
+      });
+
+      const centerX = worldWidth / 2;
+      const centerY = worldHeight / 2;
+      const centerZ = worldDepth / 2;
+
+      const particles = new THREE.Group();
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+        const x = (targetVoxel.x - centerX);
+        const y = (targetVoxel.y - centerY);
+        const z = (targetVoxel.z - centerZ);
+
+        particle.position.set(x, y, z);
+        particle.userData = { 
+          velocity: new THREE.Vector3(
+            (Math.random() - 0.5) * 0.3,
+            (Math.random() - 0.5) * 0.3 + 0.2,
+            (Math.random() - 0.5) * 0.3
+          ),
+          lifetime: 1 + Math.random() * 2
+        };
+
+        particles.add(particle);
+      }
+
+      scene.add(particles);
+
+      // Animate the particles
+      const startTime = Date.now();
+      function animateParticles() {
+        const elapsedTime = (Date.now() - startTime) / 1000;
+
+        // Update each particle
+        let allDead = true;
+        particles.children.forEach((particle, index) => {
+          // Update position based on velocity
+          particle.position.x += particle.userData.velocity.x;
+          particle.position.y += particle.userData.velocity.y;
+          particle.position.z += particle.userData.velocity.z;
+
+          // Apply "gravity"
+          particle.userData.velocity.y -= 0.01;
+
+          // Fade out based on lifetime
+          const remainingLife = particle.userData.lifetime - elapsedTime;
+          if (remainingLife > 0) {
+            particle.material.opacity = remainingLife / particle.userData.lifetime * 0.8;
+            allDead = false;
+          } else {
+            particle.material.opacity = 0;
+          }
+        });
+
+        // Continue animation if particles still exist
+        if (!allDead) {
+          requestAnimationFrame(animateParticles);
+        } else {
+          scene.remove(particles);
+          // Dispose of geometries and materials
+          particles.children.forEach(particle => {
+            particle.geometry.dispose();
+            particle.material.dispose();
+          });
+        }
+      }
+
+      animateParticles();
+    }
+
+    function createHealEffect () {
+      // Create a healing effect around the player
+      const particleCount = 30;
+      const particleGeometry = new THREE.SphereGeometry(0.08, 8, 8);
+      const particleMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00FF88,
+        transparent: true,
+        opacity: 0.8
+      });
+
+      const particles = new THREE.Group();
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 0.5 + Math.random() * 0.5;
+        const height = Math.random() * 1.5;
+
+        particle.position.set(
+          playerPosition.x + Math.cos(angle) * radius,
+          playerPosition.y + height,
+          playerPosition.z + Math.sin(angle) * radius
+        );
+
+        particle.userData = { 
+          startY: playerPosition.y + height,
+          angle: angle,
+          radius: radius,
+          speed: 0.02 + Math.random() * 0.02,
+          lifetime: 1 + Math.random() * 2
+        };
+
+        particles.add(particle);
+      }
+
+      scene.add(particles);
+
+      // Animate the particles
+      const startTime = Date.now();
+      function animateParticles() {
+        const elapsedTime = (Date.now() - startTime) / 1000;
+
+        // Update each particle
+        let allDead = true;
+        particles.children.forEach((particle, index) => {
+          // Spiral upward
+          particle.userData.angle += particle.userData.speed;
+          particle.position.x = playerPosition.x + Math.cos(particle.userData.angle) * particle.userData.radius;
+          particle.position.z = playerPosition.z + Math.sin(particle.userData.angle) * particle.userData.radius;
+          particle.position.y = particle.userData.startY + elapsedTime * 0.5;
+
+          // Shrink radius as they move up
+          particle.userData.radius *= 0.99;
+
+          // Fade out based on lifetime
+          const remainingLife = particle.userData.lifetime - elapsedTime;
+          if (remainingLife > 0) {
+            particle.material.opacity = remainingLife / particle.userData.lifetime * 0.8;
+            allDead = false;
+          } else {
+            particle.material.opacity = 0;
+          }
+        });
+
+        // Continue animation if particles still exist
+        if (!allDead) {
+          requestAnimationFrame(animateParticles);
+        } else {
+          scene.remove(particles);
+          // Dispose of geometries and materials
+          particles.children.forEach(particle => {
+            particle.geometry.dispose();
+            particle.material.dispose();
+          });
+        }
+      }
+
+      animateParticles();
+    }
+
+    function teleportToLocation (targetVoxel) {
+      // Create a fade effect
+      fadeToBlack(() => {
+        // Update player position
+        playerPosition.x = targetVoxel.x;
+        playerPosition.y = targetVoxel.y + 1; // Position slightly above the target voxel
+        playerPosition.z = targetVoxel.z;
+
+        // Update player marker and cameras
+        updatePlayerMarker();
+        updateFpCameraPosition();
+
+        // Create a particle effect at the new location
+        const particleCount = 20;
+        const particleGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+        const particleMaterial = new THREE.MeshBasicMaterial({
+          color: 0x8800FF,
+          transparent: true,
+          opacity: 0.8
+        });
+
+        const particles = new THREE.Group();
+
+        for (let i = 0; i < particleCount; i++) {
+          const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+          const angle = Math.random() * Math.PI * 2;
+          const radius = Math.random() * 0.5;
+          const height = Math.random() * 1.5;
+
+          particle.position.set(
+            playerPosition.x + Math.cos(angle) * radius,
+            playerPosition.y + height,
+            playerPosition.z + Math.sin(angle) * radius
+          );
+
+          particle.userData = { 
+            velocity: new THREE.Vector3(
+              (Math.random() - 0.5) * 0.1,
+              (Math.random() - 0.5) * 0.1,
+              (Math.random() - 0.5) * 0.1
+            ),
+            lifetime: 1 + Math.random()
+          };
+
+          particles.add(particle);
+        }
+
+        scene.add(particles);
+
+        // Animate the particles
+        const startTime = Date.now();
+        function animateParticles() {
+          const elapsedTime = (Date.now() - startTime) / 1000;
+
+          // Update each particle
+          let allDead = true;
+          particles.children.forEach((particle, index) => {
+            // Update position based on velocity
+            particle.position.x += particle.userData.velocity.x;
+            particle.position.y += particle.userData.velocity.y;
+            particle.position.z += particle.userData.velocity.z;
+
+            // Fade out based on lifetime
+            const remainingLife = particle.userData.lifetime - elapsedTime;
+            if (remainingLife > 0) {
+              particle.material.opacity = remainingLife / particle.userData.lifetime * 0.8;
+              allDead = false;
+            } else {
+              particle.material.opacity = 0;
+            }
+          });
+
+          // Continue animation if particles still exist
+          if (!allDead) {
+            requestAnimationFrame(animateParticles);
+          } else {
+            scene.remove(particles);
+            // Dispose of geometries and materials
+            particles.children.forEach(particle => {
+              particle.geometry.dispose();
+              particle.material.dispose();
+            });
+          }
+        }
+
+        // Start animation and fade back in
+        animateParticles();
+        fadeFromBlack();
+      });
+    }
+  </script>
+</body>
+</html> 

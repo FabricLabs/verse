@@ -1,0 +1,74 @@
+{
+  "name": "Advanced Theme",
+  "description": "A sophisticated melody demonstrating syncopation, sustain, and dynamic articulation",
+  "melodies": [
+    {
+      "name": "Syncopated Jazz",
+      "description": "Jazz-inspired melody with syncopated rhythms and sustained notes",
+      "notes": [
+        "C4:0.25:0.9:0:0.8:0.3:1",
+        "E4:0.125:0.7:s:0.6:0.2:0",
+        "G4:0.5:1.0:0:0.9:0.8:2",
+        "A4:0.25:0.8:0:0.7:0.4:0",
+        "F4:0.125:0.6:s:0.5:0.15:0",
+        "D4:0.375:0.9:0:0.8:0.6:1",
+        "C4:0.25:0.7:0:0.6:0.3:0",
+        "G3:0.5:1.0:0:0.9:0.7:2"
+      ],
+      "note_count": 8,
+      "use_advanced_notes": true,
+      "tempo": 140.0,
+      "time_signature_numerator": 4.0,
+      "time_signature_denominator": 4.0,
+      "syncopation_enabled": true,
+      "sustain_enabled": true,
+      "beat_pattern_length": 8,
+      "beat_pattern": [1, 0, 0, 1, 0, 1, 0, 0]
+    },
+    {
+      "name": "Waltz Sustain",
+      "description": "Elegant waltz with sustained notes and legato articulation",
+      "notes": [
+        "C4:0.5:0.8:0:0.9:1.0:0",
+        "E4:0.5:0.9:0:0.8:0.8:1",
+        "G4:1.0:1.0:0:0.95:1.5:2",
+        "A4:0.5:0.7:0:0.6:0.6:0",
+        "F4:0.5:0.8:0:0.7:0.7:1",
+        "D4:1.0:0.9:0:0.85:1.2:2"
+      ],
+      "note_count": 6,
+      "use_advanced_notes": true,
+      "tempo": 90.0,
+      "time_signature_numerator": 3.0,
+      "time_signature_denominator": 4.0,
+      "syncopation_enabled": false,
+      "sustain_enabled": true,
+      "beat_pattern_length": 6,
+      "beat_pattern": [1, 0, 1, 0, 1, 0]
+    },
+    {
+      "name": "Staccato March",
+      "description": "March with staccato articulation and strong accents",
+      "notes": [
+        "C4:0.25:1.0:0:0.3:0.1:2",
+        "E4:0.25:0.9:0:0.2:0.1:1",
+        "G4:0.25:1.0:0:0.3:0.1:2",
+        "C5:0.25:0.8:0:0.2:0.1:0",
+        "G4:0.25:0.9:0:0.3:0.1:1",
+        "E4:0.25:1.0:0:0.2:0.1:2",
+        "C4:0.25:0.8:0:0.3:0.1:0",
+        "G3:0.5:1.0:0:0.4:0.2:2"
+      ],
+      "note_count": 8,
+      "use_advanced_notes": true,
+      "tempo": 120.0,
+      "time_signature_numerator": 4.0,
+      "time_signature_denominator": 4.0,
+      "syncopation_enabled": false,
+      "sustain_enabled": false,
+      "beat_pattern_length": 8,
+      "beat_pattern": [1, 0, 1, 0, 1, 0, 1, 0]
+    }
+  ],
+  "melody_count": 3
+}

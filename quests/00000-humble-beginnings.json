@@ -1,0 +1,12 @@
+{
+  "name": "Humble Beginnings",
+  "description": "Explore your home island and learn to move through the world.",
+  "world": "SPECIAL:USER_HOME",
+  "objectives": [
+    {
+      "type": "explore",
+      "target": "home island perimeter",
+      "count": 1
+    }
+  ]
+}

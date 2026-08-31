@@ -1,0 +1,17 @@
+{
+  "name": "Harvest Sheep Wool",
+  "description": "The note asks for wool. Kill a marked sheep near the camp and gather its fleece.",
+  "world": "SPECIAL:WILDERNESS_HOME_DROP",
+  "objectives": [
+    {
+      "type": "kill",
+      "target": "sheep",
+      "count": 1
+    },
+    {
+      "type": "harvest",
+      "target": "wool",
+      "count": 1
+    }
+  ]
+}
